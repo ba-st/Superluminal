@@ -1,0 +1,15 @@
+{
+	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "RESTClient-Model-Core",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"queryStringFields",
+		"configuration",
+		"resourceBinding"
+	],
+	"name" : "RESTClient",
+	"type" : "normal"
+}
