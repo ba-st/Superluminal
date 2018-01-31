@@ -1,0 +1,15 @@
+{
+	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "RESTSt-Model-Core",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"httpClient",
+		"url",
+		"configurationCommands"
+	],
+	"name" : "RESTClientConfiguration",
+	"type" : "normal"
+}
