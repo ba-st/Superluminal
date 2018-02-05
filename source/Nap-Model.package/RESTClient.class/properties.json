@@ -1,0 +1,15 @@
+{
+	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "Nap-Model-Core",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"queryStringFields",
+		"configuration",
+		"resourceBinding"
+	],
+	"name" : "RESTClient",
+	"type" : "normal"
+}
