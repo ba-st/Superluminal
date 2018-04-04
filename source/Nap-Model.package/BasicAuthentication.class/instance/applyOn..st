@@ -1,4 +1,4 @@
 applying
-applyOn: aHTTPClient 
-	
+applyOn: aHTTPClient
+
 	aHTTPClient username: username password: password
