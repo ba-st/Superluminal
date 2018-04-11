@@ -1,15 +1,14 @@
 {
 	"commentStamp" : "",
 	"super" : "Object",
-	"category" : "Nap-Model-Core",
+	"category" : "Nap-Model-Configuration",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"httpClient",
-		"url",
-		"configurationCommands"
+		"name",
+		"value"
 	],
-	"name" : "RESTClientConfiguration",
+	"name" : "AddFormFieldCommand",
 	"type" : "normal"
 }

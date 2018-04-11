@@ -1,4 +1,4 @@
 applying
-applyOn: aHTTPClient
+applyOn: aHttpClient
 
-	aHTTPClient username: username password: password
+	aHttpClient username: username password: password
