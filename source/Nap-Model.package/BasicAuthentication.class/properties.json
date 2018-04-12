@@ -1,6 +1,6 @@
 {
 	"commentStamp" : "",
-	"super" : "Object",
+	"super" : "NapCommand",
 	"category" : "Nap-Model-Configuration",
 	"classinstvars" : [ ],
 	"pools" : [ ],

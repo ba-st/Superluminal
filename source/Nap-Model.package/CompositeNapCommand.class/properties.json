@@ -6,8 +6,8 @@
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"type"
+		"commands"
 	],
-	"name" : "SetMIMEType",
+	"name" : "CompositeNapCommand",
 	"type" : "normal"
 }

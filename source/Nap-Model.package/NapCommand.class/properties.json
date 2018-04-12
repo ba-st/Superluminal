@@ -5,9 +5,7 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [
-		"commands"
-	],
-	"name" : "CompositeCommand",
+	"instvars" : [ ],
+	"name" : "NapCommand",
 	"type" : "normal"
 }
