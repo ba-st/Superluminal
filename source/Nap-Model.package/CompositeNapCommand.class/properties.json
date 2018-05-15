@@ -1,7 +1,7 @@
 {
 	"commentStamp" : "",
 	"super" : "NapCommand",
-	"category" : "Nap-Model-Configuration",
+	"category" : "Nap-Model-Commands",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],

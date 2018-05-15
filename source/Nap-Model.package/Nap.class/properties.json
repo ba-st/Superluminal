@@ -8,7 +8,9 @@
 	"instvars" : [
 		"queryStringFields",
 		"configuration",
-		"resourceBinding"
+		"resourceBinding",
+		"httpClient",
+		"commands"
 	],
 	"name" : "Nap",
 	"type" : "normal"

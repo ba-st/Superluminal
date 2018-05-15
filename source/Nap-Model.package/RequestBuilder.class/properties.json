@@ -1,14 +1,13 @@
 {
 	"commentStamp" : "",
-	"super" : "NapCommand",
-	"category" : "Nap-Model-Commands",
+	"super" : "Object",
+	"category" : "Nap-Model-Builders",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"name",
-		"value"
+		"commands"
 	],
-	"name" : "AddFormFieldCommand",
+	"name" : "RequestBuilder",
 	"type" : "normal"
 }

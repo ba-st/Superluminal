@@ -1,14 +1,13 @@
 {
 	"commentStamp" : "",
 	"super" : "NapCommand",
-	"category" : "Nap-Model-Commands",
+	"category" : "Nap-Model-Builders",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"name",
-		"value"
+		"entity"
 	],
-	"name" : "AddFormFieldCommand",
+	"name" : "SetBodyCommand",
 	"type" : "normal"
 }
