@@ -1,13 +1,15 @@
 {
 	"commentStamp" : "",
-	"super" : "HttpRequestCommand",
-	"category" : "Nap-Model-Commands",
+	"super" : "Object",
+	"category" : "Nap-Model-Core",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"entity"
+		"commands",
+		"url",
+		"method"
 	],
-	"name" : "SetBodyCommand",
+	"name" : "HttpRequest",
 	"type" : "normal"
 }

@@ -1,4 +1,4 @@
-arithmetic
-applyOn: aHttpClient
+applying
+applyOn: anHttpClient
 
-	aHttpClient entity: entity
+	anHttpClient entity: entity

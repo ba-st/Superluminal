@@ -1,4 +1,4 @@
-applying
+initialization
 initializeNamed: aName pairedTo: aValue
 
 	name := aName.

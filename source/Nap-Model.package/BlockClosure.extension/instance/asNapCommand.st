@@ -1,4 +1,4 @@
 *Nap-Model
 asNapCommand
 
-	^ CompositeNapCommand empty
+	^ CompositeHttpRequestCommand empty

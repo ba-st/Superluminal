@@ -1,6 +1,6 @@
 {
 	"commentStamp" : "",
-	"super" : "NapCommand",
+	"super" : "HttpRequestCommand",
 	"category" : "Nap-Model-Commands",
 	"classinstvars" : [ ],
 	"pools" : [ ],
