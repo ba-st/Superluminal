@@ -1,4 +1,0 @@
-configuring
-body
-
-	^ HttpRequestBodySupplier new 

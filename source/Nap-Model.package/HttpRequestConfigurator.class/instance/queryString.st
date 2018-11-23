@@ -1,4 +1,0 @@
-configuring
-queryString
-
-	^ HttpRequestQueryStringBuilder new

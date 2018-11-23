@@ -1,4 +1,0 @@
-configuring
-headers
-	
-	^ HttpRequestHeadersSupplier new
