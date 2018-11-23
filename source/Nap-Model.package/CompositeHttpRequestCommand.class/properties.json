@@ -6,8 +6,8 @@
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"entity"
+		"commands"
 	],
-	"name" : "SetBodyCommand",
+	"name" : "CompositeHttpRequestCommand",
 	"type" : "normal"
 }

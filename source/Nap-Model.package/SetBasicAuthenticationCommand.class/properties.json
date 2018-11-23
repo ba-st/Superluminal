@@ -6,8 +6,9 @@
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"entity"
+		"username",
+		"password"
 	],
-	"name" : "SetBodyCommand",
+	"name" : "SetBasicAuthenticationCommand",
 	"type" : "normal"
 }

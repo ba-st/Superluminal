@@ -1,4 +1,4 @@
-as yet unclassified
-initializeTo: aZnStringEntity 
+initialization
+initializeTo: anEntity 
 	
-	entity := aZnStringEntity 
+	entity := anEntity 

@@ -6,8 +6,9 @@
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"entity"
+		"name",
+		"value"
 	],
-	"name" : "SetBodyCommand",
+	"name" : "AddQueryStringFieldCommand",
 	"type" : "normal"
 }

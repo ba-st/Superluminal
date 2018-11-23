@@ -6,8 +6,8 @@
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"entity"
+		"mediaType"
 	],
-	"name" : "SetBodyCommand",
+	"name" : "SetAcceptMediaTypeCommand",
 	"type" : "normal"
 }

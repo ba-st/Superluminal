@@ -1,4 +1,4 @@
 instance creation
-to: aZnStringEntity 
+to: anEntity 
 
-	^ self new initializeTo: aZnStringEntity 
+	^ self new initializeTo: anEntity 

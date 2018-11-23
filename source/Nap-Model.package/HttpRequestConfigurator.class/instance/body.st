@@ -1,0 +1,4 @@
+configuring
+body
+
+	^ HttpRequestBodySupplier new 

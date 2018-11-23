@@ -1,4 +1,4 @@
 applying
-applyOn: aHttpClient
+applyOn: anHttpClient
 
-	aHttpClient formAt: name add: value
+	anHttpClient formAt: name add: value
