@@ -5,7 +5,7 @@ applyOn: anHttpClient
 		url: url;
 		method: method.
 
-	commands applyOn: anHttpClient.
+	commands isNil ifFalse: [ commands applyOn: anHttpClient ].
 
 	^ anHttpClient
 		execute;

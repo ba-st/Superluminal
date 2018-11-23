@@ -1,4 +1,4 @@
 building
 build
-	
-	^ CompositeHttpRequestCommand ofAll:commands
+
+	^ CompositeHttpRequestCommand ofAll: commands

@@ -3,6 +3,6 @@ asFormUrlEncoded: aMonadycBlock
 
 	| builder |
 
-	builder := FormUrlEncodedBuilder new.
+	builder := FormUrlEncodedBodyBuilder new.
 	aMonadycBlock value: builder.
 	^ builder build

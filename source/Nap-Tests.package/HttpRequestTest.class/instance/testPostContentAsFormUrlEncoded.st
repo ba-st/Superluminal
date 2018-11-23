@@ -1,16 +1,17 @@
 tests
-testContentAsFormUrlEncoded
+testPostContentAsFormUrlEncoded
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest 
+	httpRequest := HttpRequest
 		post: 'http://httpbin.org/anything' asUrl
-		configuredUsing: [:request | 
-			request body asFormUrlEncoded: [ :form | 
+		configuredUsing: [ :request | 
+			request body
+				asFormUrlEncoded: [ :form | 
 					form
 						fieldNamed: 'first_name' pairedTo: 'fran';
 						fieldNamed: 'last_name' pairedTo: 'fox' ] ].
-				
+
 	response := httpRequest applyOn: ZnClient new.
 
 	self assert: response isSuccess.

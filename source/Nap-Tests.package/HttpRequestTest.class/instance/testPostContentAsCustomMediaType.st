@@ -1,5 +1,5 @@
 tests
-testContentAsCustomMediaType
+testPostContentAsCustomMediaType
 
 	| httpRequest response |
 

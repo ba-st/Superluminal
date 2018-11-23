@@ -1,4 +1,4 @@
 configuring
 headers
 	
-	^ HttpRequestHeadersBuilder new
+	^ HttpRequestHeadersSupplier new

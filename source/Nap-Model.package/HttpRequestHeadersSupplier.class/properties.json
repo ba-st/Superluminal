@@ -5,9 +5,7 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [
-		"commands"
-	],
-	"name" : "HttpRequestBodyBuilder",
+	"instvars" : [ ],
+	"name" : "HttpRequestHeadersSupplier",
 	"type" : "normal"
 }

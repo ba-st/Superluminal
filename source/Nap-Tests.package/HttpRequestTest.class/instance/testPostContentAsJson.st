@@ -1,5 +1,5 @@
 tests
-testContentAsJson
+testPostContentAsJson
 
 	| httpRequest response |
 

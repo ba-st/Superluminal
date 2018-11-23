@@ -1,4 +1,4 @@
-as yet unclassified
+supplying
 setAcceptTo: aMediaType
 	
 	^ SetAcceptMediaTypeCommand to: aMediaType 
