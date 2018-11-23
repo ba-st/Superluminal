@@ -8,6 +8,12 @@ Class {
 }
 
 { #category : #'instance creation' }
+CompositeHttpRequestCommand class >> empty [
+	
+	^ self ofAll: #()
+]
+
+{ #category : #'instance creation' }
 CompositeHttpRequestCommand class >> ofAll: aCommandCollection [
 	
 	^ self new initializeOfAll: aCommandCollection 
