@@ -8,26 +8,32 @@ Class {
 }
 
 { #category : #configuring }
-HttpRequestBodySupplier >> asFormUrlEncoded: aMonadycBlock [
+HttpRequestBodySupplier >> contents: anEntity [
+
+	^ SetBodyCommand to: anEntity
+]
+
+{ #category : #configuring }
+HttpRequestBodySupplier >> contents: anObject encodedAs: aMediaType [
+
+	^ self contents: (ZnEntity with: anObject type: aMediaType)
+]
+
+{ #category : #configuring }
+HttpRequestBodySupplier >> formUrlEncoded: aBuildingBlock [
 
 	| builder |
 
 	builder := FormUrlEncodedBodyBuilder new.
-	aMonadycBlock value: builder.
+	aBuildingBlock value: builder.
 	^ builder build
 ]
 
 { #category : #configuring }
-HttpRequestBodySupplier >> asJson: aDictionary [
+HttpRequestBodySupplier >> json: aDictionary [
 
 	| json |
 
 	json := NeoJSONWriter toString: aDictionary.
 	^ SetBodyCommand to: (ZnStringEntity json: json)
-]
-
-{ #category : #configuring }
-HttpRequestBodySupplier >> to: aString encodedAs: aMediaType [
-	
-	^ (SetBodyCommand to: (ZnStringEntity with: aString type: aMediaType ))
 ]

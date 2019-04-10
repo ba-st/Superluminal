@@ -20,12 +20,6 @@ HttpRequestConfigurator >> headers [
 ]
 
 { #category : #configuring }
-HttpRequestConfigurator >> queryString [
-
-	^ HttpRequestQueryStringBuilder new
-]
-
-{ #category : #configuring }
 HttpRequestConfigurator >> queryString: aMonadycBlock [
 
 	| builder |
