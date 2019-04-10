@@ -1,7 +1,7 @@
 Extension { #name : #BlockClosure }
 
 { #category : #'*Nap-Model' }
-BlockClosure >> asNapCommand [
+BlockClosure >> asHttpRequestCommand [
 
 	^ CompositeHttpRequestCommand empty
 ]

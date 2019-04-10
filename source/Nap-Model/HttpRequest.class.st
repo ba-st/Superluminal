@@ -10,27 +10,27 @@ Class {
 }
 
 { #category : #'instance creation' }
-HttpRequest class >> get: aUrl [ 
+HttpRequest class >> get: aLocation [ 
 
-	^ self performing: #GET at: aUrl configuredUsing: []
+	^ self performing: #GET on: aLocation configuredUsing: []
 ]
 
 { #category : #'instance creation' }
-HttpRequest class >> get: aUrl configuredUsing: aMonadycBlock [
+HttpRequest class >> get: aLocation configuredUsing: aMonadycBlock [
 	
-	^ self performing: #GET at: aUrl configuredUsing: aMonadycBlock 
+	^ self performing: #GET on: aLocation configuredUsing: aMonadycBlock 
 ]
 
 { #category : #'instance creation' }
-HttpRequest class >> performing: anHttpMethod at: aUrl configuredUsing: aMonadycBlock [ 
+HttpRequest class >> performing: anHttpMethod on: aLocation configuredUsing: aMonadycBlock [ 
 	
-	^ self new initializePerforming: anHttpMethod at: aUrl configuredUsing: aMonadycBlock 
+	^ self new initializePerforming: anHttpMethod on: aLocation configuredUsing: aMonadycBlock 
 ]
 
 { #category : #'instance creation' }
-HttpRequest class >> post: aUrl configuredUsing: aMonadycBlock [
+HttpRequest class >> post: aLocation configuredUsing: aMonadycBlock [
 
-	 ^ self performing: #POST at: aUrl configuredUsing: aMonadycBlock
+	 ^ self performing: #POST on: aLocation configuredUsing: aMonadycBlock
 ]
 
 { #category : #applying }
@@ -48,12 +48,12 @@ HttpRequest >> applyOn: anHttpClient [
 ]
 
 { #category : #initialization }
-HttpRequest >> initializePerforming: anHttpMethod at: aUrl configuredUsing: aMonadycBlock [
+HttpRequest >> initializePerforming: anHttpMethod on: aLocation configuredUsing: aMonadycBlock [
 
 	| configurator |
 
 	method := anHttpMethod.
-	url := aUrl.
+	url := aLocation.
 
 	configurator := HttpRequestConfigurator new.
 	commands := aMonadycBlock cull: configurator

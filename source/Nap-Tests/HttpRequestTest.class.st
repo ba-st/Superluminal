@@ -7,6 +7,14 @@ Class {
 	#category : #'Nap-Tests-Core'
 }
 
+{ #category : #tests }
+HttpRequestTest >> customEntity [
+
+	^ ZnEntity
+		with: self encodedFullName
+		type: self fullNameVersion1dot0dot0MediaType
+]
+
 { #category : #accessing }
 HttpRequestTest >> encodedFullName [
 
@@ -46,7 +54,7 @@ HttpRequestTest >> testComposite [
 		withJsonFromContentsIn: response
 		do: [ :json | 
 			self
-				assert: json url equals: 'http://httpbin.org/anything?last_name=fox&first_name=fran';
+				assert: json url equals: 'https://httpbin.org/anything?last_name=fox&first_name=fran';
 				assert: json method equals: 'GET';
 				assert: json headers Accept equals: 'application/vnd.nap.full_name+json;version=1.0.0' ]
 ]
@@ -66,7 +74,7 @@ HttpRequestTest >> testGet [
 		withJsonFromContentsIn: response
 		do: [ :json | 
 			self
-				assert: json url equals: 'http://httpbin.org/anything';
+				assert: json url equals: 'https://httpbin.org/anything';
 				assert: json method equals: 'GET' ]
 ]
 
@@ -86,74 +94,19 @@ HttpRequestTest >> testGetWithEmptyConfiguration [
 		withJsonFromContentsIn: response
 		do: [ :json | 
 			self
-				assert: json url equals: 'http://httpbin.org/anything';
+				assert: json url equals: 'https://httpbin.org/anything';
 				assert: json method equals: 'GET' ]
 ]
 
 { #category : #tests }
-HttpRequestTest >> testPostContentAsCustomMediaType [
-
-	| httpRequest response |
-
-	httpRequest := HttpRequest
-		post: 'http://httpbin.org/anything'
-		configuredUsing: [ :request | 
-			request body
-				to: self encodedFullName
-				encodedAs: self fullNameVersion1dot0dot0MediaType ].
-
-	response := httpRequest applyOn: ZnClient new.
-
-	self
-		withJsonFromContentsIn: response
-		do: [ :json | 
-			self
-				assert: json url equals: 'http://httpbin.org/anything';
-				assert: json method equals: 'POST';
-				assert: json data equals: '{"last_name":"fox","first_name":"fran"}';
-				assert: (json headers at: #'Content-Type')
-					equals: 'application/vnd.nap.full_name+json;version=1.0.0' ]
-]
-
-{ #category : #tests }
-HttpRequestTest >> testPostContentAsFormUrlEncoded [
-
-	| httpRequest response |
-
-	httpRequest := HttpRequest
-		post: 'http://httpbin.org/anything' asUrl
-		configuredUsing: [ :request | 
-			request body
-				asFormUrlEncoded: [ :form | 
-					form
-						fieldNamed: 'first_name' pairedTo: 'fran';
-						fieldNamed: 'last_name' pairedTo: 'fox' ] ].
-
-	response := httpRequest applyOn: ZnClient new.
-
-	self assert: response isSuccess.
-	self
-		withJsonFromContentsIn: response
-		do: [ :json | 
-			self
-				assert: json url equals: 'http://httpbin.org/anything';
-				assert: json method equals: 'POST';
-				assert: json form asDictionary
-					equals:
-					{(#first_name -> 'fran').
-					('last_name' -> 'fox')} asDictionary;
-				assert: (json headers at: #'Content-Type') equals: 'application/x-www-form-urlencoded' ]
-]
-
-{ #category : #tests }
-HttpRequestTest >> testPostContentAsJson [
+HttpRequestTest >> testPostEncodedAsJson [
 
 	| httpRequest response |
 
 	httpRequest := HttpRequest 
 		post: 'http://httpbin.org/anything'
 		configuredUsing: [ :request | 
-			request body asJson:
+			request body json:
 					(Dictionary new
 						at: 'first_name' put: 'fran';
 						at: 'last_name' put: 'fox';
@@ -166,9 +119,88 @@ HttpRequestTest >> testPostContentAsJson [
 		withJsonFromContentsIn: response
 		do: [ :json | 
 			self
-				assert: json url equals: 'http://httpbin.org/anything';
+				assert: json url equals: 'https://httpbin.org/anything';
 				assert: json method equals: 'POST';
 				assert: json data equals: '{"last_name":"fox","first_name":"fran"}' ]
+]
+
+{ #category : #tests }
+HttpRequestTest >> testPostEncodedDataAndMediaType [
+
+	| httpRequest response |
+
+	httpRequest := HttpRequest
+		post: 'http://httpbin.org/anything'
+		configuredUsing: [ :request | 
+			request body
+				contents: self encodedFullName
+				encodedAs: self fullNameVersion1dot0dot0MediaType ].
+
+	response := httpRequest applyOn: ZnClient new.
+
+	self
+		withJsonFromContentsIn: response
+		do: [ :json | 
+			self
+				assert: json url equals: 'https://httpbin.org/anything';
+				assert: json method equals: 'POST';
+				assert: json data equals: '{"last_name":"fox","first_name":"fran"}';
+				assert: (json headers at: #'Content-Type')
+					equals: 'application/vnd.nap.full_name+json;version=1.0.0' ]
+]
+
+{ #category : #tests }
+HttpRequestTest >> testPostFormUrlEncoded [
+
+	| httpRequest response |
+
+	httpRequest := HttpRequest
+		post: 'http://httpbin.org/anything' asUrl
+		configuredUsing: [ :request | 
+			request body
+				formUrlEncoded: [ :form | 
+					form
+						fieldNamed: 'first_name' pairedTo: 'fran';
+						fieldNamed: 'last_name' pairedTo: 'fox' ] ].
+
+	response := httpRequest applyOn: ZnClient new.
+
+	self assert: response isSuccess.
+	self
+		withJsonFromContentsIn: response
+		do: [ :json | 
+			self
+				assert: json url equals: 'https://httpbin.org/anything';
+				assert: json method equals: 'POST';
+				assert: json form asDictionary
+					equals:
+					{(#first_name -> 'fran').
+					('last_name' -> 'fox')} asDictionary;
+				assert: (json headers at: #'Content-Type') equals: 'application/x-www-form-urlencoded' ]
+]
+
+{ #category : #tests }
+HttpRequestTest >> testPostUsingEntity [
+
+	| httpRequest response |
+
+	httpRequest := HttpRequest
+		post: 'http://httpbin.org/anything'
+		configuredUsing:
+			[ :request | request body contents: self customEntity ].
+
+	response := httpRequest applyOn: ZnClient new.
+
+	self
+		withJsonFromContentsIn: response
+		do: [ :json | 
+			self
+				assert: json url equals: 'https://httpbin.org/anything';
+				assert: json method equals: 'POST';
+				assert: json data
+					equals: '{"last_name":"fox","first_name":"fran"}';
+				assert: (json headers at: #'Content-Type')
+					equals: 'application/vnd.nap.full_name+json;version=1.0.0' ]
 ]
 
 { #category : #tests }
@@ -192,7 +224,7 @@ HttpRequestTest >> testQueryString [
 		withJsonFromContentsIn: response
 		do: [ :json | 
 			self
-				assert: json url equals: 'http://httpbin.org/anything?last_name=fox&first_name=fran';
+				assert: json url equals: 'https://httpbin.org/anything?last_name=fox&first_name=fran';
 				assert: json method equals: 'GET' ]
 ]
 
