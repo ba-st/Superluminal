@@ -6,7 +6,7 @@ Class {
 		'url',
 		'method'
 	],
-	#category : #'Nap-Model-Core'
+	#category : #'Superluminal-Model-Core'
 }
 
 { #category : #'instance creation' }

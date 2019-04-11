@@ -1,7 +1,7 @@
 Class {
 	#name : #SetBodyCommandTest,
 	#superclass : #TestCase,
-	#category : #'Nap-Tests-Commands'
+	#category : #'Superluminal-Tests-Commands'
 }
 
 { #category : #tests }

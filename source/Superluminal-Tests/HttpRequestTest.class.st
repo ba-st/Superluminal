@@ -4,7 +4,7 @@ A NapTest is a test class for testing the behavior of Nap
 Class {
 	#name : #HttpRequestTest,
 	#superclass : #TestCase,
-	#category : #'Nap-Tests-Core'
+	#category : #'Superluminal-Tests-Core'
 }
 
 { #category : #tests }

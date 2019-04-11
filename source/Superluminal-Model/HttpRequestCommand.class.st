@@ -1,7 +1,7 @@
 Class {
 	#name : #HttpRequestCommand,
 	#superclass : #Object,
-	#category : #'Nap-Model-Commands'
+	#category : #'Superluminal-Model-Commands'
 }
 
 { #category : #composing }

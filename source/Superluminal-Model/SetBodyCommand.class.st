@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'entity'
 	],
-	#category : #'Nap-Model-Commands'
+	#category : #'Superluminal-Model-Commands'
 }
 
 { #category : #'instance creation' }

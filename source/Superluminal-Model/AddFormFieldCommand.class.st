@@ -5,7 +5,7 @@ Class {
 		'name',
 		'value'
 	],
-	#category : #'Nap-Model-Commands'
+	#category : #'Superluminal-Model-Commands'
 }
 
 { #category : #'instance creation' }

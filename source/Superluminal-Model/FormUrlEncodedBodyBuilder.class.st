@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'commands'
 	],
-	#category : #'Nap-Model-Builders'
+	#category : #'Superluminal-Model-Builders'
 }
 
 { #category : #building }

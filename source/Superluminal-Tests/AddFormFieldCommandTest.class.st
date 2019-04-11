@@ -4,7 +4,7 @@ An AddFormFieldCommandTest is a test class for testing the behavior of AddFormFi
 Class {
 	#name : #AddFormFieldCommandTest,
 	#superclass : #TestCase,
-	#category : #'Nap-Tests-Commands'
+	#category : #'Superluminal-Tests-Commands'
 }
 
 { #category : #tests }

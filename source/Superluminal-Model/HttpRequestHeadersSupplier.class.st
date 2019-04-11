@@ -1,7 +1,7 @@
 Class {
 	#name : #HttpRequestHeadersSupplier,
 	#superclass : #Object,
-	#category : #'Nap-Model-Builders'
+	#category : #'Superluminal-Model-Builders'
 }
 
 { #category : #supplying }

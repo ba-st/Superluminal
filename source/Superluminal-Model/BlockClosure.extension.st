@@ -1,6 +1,6 @@
 Extension { #name : #BlockClosure }
 
-{ #category : #'*Nap-Model' }
+{ #category : #'*Superluminal-Model' }
 BlockClosure >> asHttpRequestCommand [
 
 	^ CompositeHttpRequestCommand empty
