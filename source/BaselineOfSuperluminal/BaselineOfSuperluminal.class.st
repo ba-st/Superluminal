@@ -29,11 +29,10 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 
 	spec
 		baseline: 'Buoy'
-		with: [ spec
-				repository: 'github://ba-st/Buoy:v5/source';
-				project: 'Buoy-Deployment'
-					copyFrom: 'Buoy'
-					with: [ spec loads: 'Deployment' ]].
+			with: [ spec repository: 'github://ba-st/Buoy:v5/source' ];
+		project: 'Buoy-Deployment'
+			copyFrom: 'Buoy'
+			with: [ spec loads: 'Deployment' ].
 
 	spec
 		baseline: 'NeoJSON'
