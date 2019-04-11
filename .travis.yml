@@ -7,13 +7,13 @@ smalltalk:
 - Pharo32-7.0
 - Pharo32-6.1
 before_deploy:
-  - cp "${SMALLTALK_CI_IMAGE}" "Superluminal.image"
-  - cp "${SMALLTALK_CI_CHANGES}" "Superluminal.changes"
-  - zip -q "${TRAVIS_BRANCH}-${TRAVIS_SMALLTALK_VERSION}.zip" "Superluminal.image" "Superluminal.changes"
+- cp "${SMALLTALK_CI_IMAGE}" "Superluminal.image"
+- cp "${SMALLTALK_CI_CHANGES}" "Superluminal.changes"
+- zip -q "${TRAVIS_BRANCH}-${TRAVIS_SMALLTALK_VERSION}.zip" "Superluminal.image" "Superluminal.changes"
 deploy:
   provider: releases
   api_key:
-    secure: XXX (Use travis setup releases to configure it)
+    secure: Zu69kJcVQiNGJFS/ZqjyftYw2cNRn+DhNe0Bg6ZahtrKmxYJfHtxgGFsPo4hLIao5zdmeRHmrchcGyHQfryM/FN9VCmOw8sPPxwPf4Q7arjFl0//I9hpYLxcUk20NVWdzlVmPbJrf/9p28VtrEsyztyaXSU0oTtuRvuvrW5Tl83lQ7Jp08hwnNwgDRuZ72j1oBb3f/VLfi/sTAsaqCFdgv7XKS/vXcOM+BK3LbtCHHp82UBS07d3YuzE5CYD0vlcvUzKF6X6vCG6dm3BOtdoTpjUronPk8sHr39xmdkwweQZGnvtf9LGm/CEofXygEe38JjdKLz16xOmtltGyY8Zqsv0RElf6/t10cJ8Jvpms44idcV9s0DhhHifJbbg7lJs5J2NcOKGMhNYffG4rbpDy0Jso/cLBqpxGNc7SGnYcmPO7AEDq9lVZXw2wHU8FwOhpuCIGIEUD8lAhWhbokO4pRoW33vQIbSh9O3+CYIaKDiiUNsTln76LWGyyHt3g3uTwpVHOmOS79/G22q8/e09ZNNd6gThpj0jH5MCVo43v6FUqKwTSWvuiFNSo9BDLiCoCNkOInHp6B0ipD4nUIYjc7p0A/fAwBpxw3eM5bLoLcK6+21KUs2UwnnbPwNpzie5NAzAm2KT5WQ8tyCDTlVyJGJxYojK4k5MiVPucrhNRRg=
   file: "${TRAVIS_BRANCH}-${TRAVIS_SMALLTALK_VERSION}.zip"
   skip_cleanup: true
   on:
