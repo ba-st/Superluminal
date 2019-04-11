@@ -21,7 +21,7 @@ BaselineOfSuperluminal >> baseline: spec [
 				group: 'Tests' with: #('Superluminal-Tests');
 				group: 'CI' with: #('Superluminal-Tests');
 				group: 'Development' with: #('Tests');
-				group: 'default' with: #('Deployment') ]
+				group: 'default' with: #('Development') ]
 ]
 
 { #category : #baselines }
@@ -33,10 +33,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 				repository: 'github://ba-st/Buoy:v5/source';
 				project: 'Buoy-Deployment'
 					copyFrom: 'Buoy'
-					with: [ spec loads: 'Deployment' ];
-				project: 'Buoy-SUnit'
-					copyFrom: 'Buoy'
-					with: [ spec loads: 'Dependent-SUnit-Extensions' ] ].
+					with: [ spec loads: 'Deployment' ]].
 
 	spec
 		baseline: 'NeoJSON'
