@@ -13,15 +13,23 @@ BaselineOfSuperluminal >> baseline: spec [
 		do: [ self setUpDependencies: spec.
 
 			spec
-				package: 'Superluminal-Model' with: [ spec requires: #('Buoy-Deployment') ];
-				package: 'Superluminal-Tests' with: [ spec requires: #('Superluminal-Model' 'NeoJSON') ].
+				package: 'Superluminal-Model'
+					with: [ spec requires: #('Buoy-Deployment') ];
+				package: 'Superluminal-Tests'
+					with: [ spec requires: #('Superluminal-Model' 'NeoJSON') ].
 
 			spec
 				group: 'Deployment' with: #('Superluminal-Model');
 				group: 'Tests' with: #('Superluminal-Tests');
 				group: 'CI' with: #('Superluminal-Tests');
 				group: 'Development' with: #('Tests');
-				group: 'default' with: #('Development') ]
+				group: 'default' with: #('Development') ].
+
+	spec
+		for: #'pharo6.x'
+		do: [ spec
+				package: 'Superluminal-Tests'
+				with: [ spec requires: #('Superluminal-Tests-Compatibility') ] ]
 ]
 
 { #category : #baselines }
