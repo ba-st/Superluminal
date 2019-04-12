@@ -16,7 +16,7 @@
 [![Build Status](https://travis-ci.com/ba-st/Superluminal.svg?branch=release-candidate)](https://travis-ci.com/ba-st/Superluminal)
 [![Coverage Status](https://coveralls.io/repos/github/ba-st/Superluminal/badge.svg?branch=release-candidate)](https://coveralls.io/github/ba-st/Superluminal?branch=release-candidate)
 
-The library allows the creation of HTTP requests decoupled of the HTTP client ([Zinc HTTP](http://zn.stfx.eu/zn/index.html) from [Pharo](http://pharo.org/) simplifying the unit testing.
+The library allows the creation of HTTP requests decoupled of the HTTP client [Zinc HTTP](http://zn.stfx.eu/zn/index.html) from [Pharo](http://pharo.org/) simplifying the unit testing.
 
 ## License
 - The code is licensed under [MIT](LICENSE).
