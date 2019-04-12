@@ -1,7 +1,7 @@
 <p align="center"><img src="assets/logos/128x128.png">
  <h1 align="center">Superluminal</h1>
   <p align="center">
-    <b>Superluminal</b> provides an easy way to create HTTP requests.
+    <b>Superluminal</b> provides human readable way to create HTTP requests.
     <br>
     <a href="docs/"><strong>Explore the docs »</strong></a>
     <br>
@@ -16,7 +16,7 @@
 [![Build Status](https://travis-ci.com/ba-st/Superluminal.svg?branch=release-candidate)](https://travis-ci.com/ba-st/Superluminal)
 [![Coverage Status](https://coveralls.io/repos/github/ba-st/Superluminal/badge.svg?branch=release-candidate)](https://coveralls.io/github/ba-st/Superluminal?branch=release-candidate)
 
-The library provides an easy way to create HTTP requests. Decoupling them from the HTTP client (for now just Zinc HTTP from Pharo) making them more testable.
+The library allows the creation of HTTP requests decoupled of the HTTP client ([Zinc HTTP](http://zn.stfx.eu/zn/index.html) from [Pharo](http://pharo.org/) simplifying the unit testing.
 
 ## License
 - The code is licensed under [MIT](LICENSE).
