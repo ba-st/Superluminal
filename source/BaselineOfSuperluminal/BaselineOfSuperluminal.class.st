@@ -28,8 +28,10 @@ BaselineOfSuperluminal >> baseline: spec [
 	spec
 		for: #'pharo6.x'
 		do: [ spec
+				package: 'Superluminal-Tests-Compatibility';
 				package: 'Superluminal-Tests'
-				with: [ spec requires: #('Superluminal-Tests-Compatibility') ] ]
+					with: [ spec
+						requires: #('Superluminal-Model' 'NeoJSON' 'Superluminal-Tests-Compatibility') ] ]
 ]
 
 { #category : #baselines }
