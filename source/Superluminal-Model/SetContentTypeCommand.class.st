@@ -10,7 +10,7 @@ Class {
 { #category : #'instance creation' }
 SetContentTypeCommand class >> to: aMediaType [
 
-	^ self new initializeTo: aMediaType asMediaType 
+	^ self new initializeTo: aMediaType asZnMimeType
 ]
 
 { #category : #applying }

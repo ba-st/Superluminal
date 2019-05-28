@@ -5,23 +5,23 @@ Class {
 }
 
 { #category : #tests }
-SetContentTypeCommandTest >> testApplyOnWithMediaType [
+SetContentTypeCommandTest >> testApplyOnUsingMimeType [
 
 	| httpClient command |
 
 	httpClient := ZnClient new.
 	( SetBodyCommand to: ( ZnStringEntity json: '[]' ) ) applyOn: httpClient.
 
-	command := SetContentTypeCommand to: 'application/vnd.mercap.objective+json'asMediaType.
+	command := SetContentTypeCommand to: 'application/vnd.mercap.objective+json' asZnMimeType.
 	command applyOn: httpClient.
 
 	self
 		assert: httpClient request contentType
-		equals: 'application/vnd.mercap.objective+json' asMediaType
+		equals: 'application/vnd.mercap.objective+json' asZnMimeType
 ]
 
 { #category : #tests }
-SetContentTypeCommandTest >> testApplyOnWithString [
+SetContentTypeCommandTest >> testApplyOnUsingString [
 
 	| httpClient command |
 
@@ -33,5 +33,5 @@ SetContentTypeCommandTest >> testApplyOnWithString [
 
 	self
 		assert: httpClient request contentType
-		equals: 'application/vnd.mercap.objective+json' asMediaType
+		equals: 'application/vnd.mercap.objective+json' asZnMimeType
 ]
