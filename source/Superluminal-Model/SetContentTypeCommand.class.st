@@ -7,13 +7,13 @@ Class {
 	#category : #'Superluminal-Model-Commands'
 }
 
-{ #category : #'Instance Creation' }
+{ #category : #'instance creation' }
 SetContentTypeCommand class >> to: aMediaType [
 
 	^ self new initializeTo: aMediaType asMediaType 
 ]
 
-{ #category : #initialization }
+{ #category : #applying }
 SetContentTypeCommand >> applyOn: anHttpClient [
 
 	anHttpClient contentType: mediaType
