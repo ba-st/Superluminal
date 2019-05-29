@@ -9,3 +9,9 @@ HttpRequestHeadersSupplier >> setAcceptTo: aMediaType [
 	
 	^ SetAcceptMediaTypeCommand to: aMediaType 
 ]
+
+{ #category : #supplying }
+HttpRequestHeadersSupplier >> setContentTypeTo: aString [
+
+	^ SetContentTypeCommand to: aString
+]
