@@ -3,5 +3,5 @@ Extension { #name : #BlockClosure }
 { #category : #'*Superluminal-Model' }
 BlockClosure >> asHttpRequestCommand [
 
-	^ CompositeHttpRequestCommand empty
+	^ (self cull: HttpRequestConfigurator new) ifNil: [ CompositeHttpRequestCommand empty ]
 ]
