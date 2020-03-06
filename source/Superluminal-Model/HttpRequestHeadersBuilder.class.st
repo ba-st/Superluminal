@@ -1,11 +1,11 @@
 Class {
-	#name : #HttpRequestHeadersSupplier,
+	#name : #HttpRequestHeadersBuilder,
 	#superclass : #Object,
 	#category : #'Superluminal-Model-Builders'
 }
 
 { #category : #supplying }
-HttpRequestHeadersSupplier >> setAcceptTo: aMediaType [
+HttpRequestHeadersBuilder >> setAcceptTo: aMediaType [
 	
 	^ SetAcceptMediaTypeCommand to: aMediaType 
 ]

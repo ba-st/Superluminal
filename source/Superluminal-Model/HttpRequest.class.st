@@ -54,6 +54,6 @@ HttpRequest >> initializePerforming: anHttpMethod on: aLocation configuredUsing:
 	method := anHttpMethod.
 	url := aLocation.
 
-	configurator := HttpRequestConfigurator new.
+	configurator := HttpRequestBuilder new.
 	commands := aMonadycBlock cull: configurator
 ]
