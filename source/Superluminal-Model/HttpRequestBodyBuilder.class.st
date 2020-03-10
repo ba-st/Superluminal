@@ -1,9 +1,6 @@
 Class {
 	#name : #HttpRequestBodyBuilder,
 	#superclass : #Object,
-	#instVars : [
-		'commands'
-	],
 	#category : #'Superluminal-Model-Builders'
 }
 
