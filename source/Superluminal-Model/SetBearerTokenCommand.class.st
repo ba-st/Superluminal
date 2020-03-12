@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'token'
 	],
-	#category : #'Superluminal-Model'
+	#category : #'Superluminal-Model-Commands'
 }
 
 { #category : #'instance creation' }
