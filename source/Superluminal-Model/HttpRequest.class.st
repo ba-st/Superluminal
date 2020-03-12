@@ -36,11 +36,10 @@ HttpRequest class >> post: aLocation configuredUsing: aMonadycBlock [
 { #category : #applying }
 HttpRequest >> applyOn: anHttpClient [
 
-	anHttpClient
-		url: url;
-		method: method.
+	anHttpClient request: ( ZnRequest method: method url: url ).
 
-	commands isNil ifFalse: [ commands applyOn: anHttpClient ].
+	commands isNil
+		ifFalse: [ commands applyOn: anHttpClient ].
 
 	^ anHttpClient
 		execute;
@@ -55,6 +54,6 @@ HttpRequest >> initializePerforming: anHttpMethod on: aLocation configuredUsing:
 	method := anHttpMethod.
 	url := aLocation.
 
-	configurator := HttpRequestConfigurator new.
+	configurator := HttpRequestBuilder new.
 	commands := aMonadycBlock cull: configurator
 ]

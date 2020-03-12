@@ -1,5 +1,5 @@
 Class {
-	#name : #HttpRequestConfigurator,
+	#name : #HttpRequestBuilder,
 	#superclass : #Object,
 	#instVars : [
 		'commands'
@@ -8,19 +8,19 @@ Class {
 }
 
 { #category : #configuring }
-HttpRequestConfigurator >> body [
+HttpRequestBuilder >> body [
 
-	^ HttpRequestBodySupplier new 
+	^ HttpRequestBodyBuilder new 
 ]
 
 { #category : #configuring }
-HttpRequestConfigurator >> headers [
+HttpRequestBuilder >> headers [
 	
-	^ HttpRequestHeadersSupplier new
+	^ HttpRequestHeadersBuilder new
 ]
 
 { #category : #configuring }
-HttpRequestConfigurator >> queryString: aMonadycBlock [
+HttpRequestBuilder >> queryString: aMonadycBlock [
 
 	| builder |
 
