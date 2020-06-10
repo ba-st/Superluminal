@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/logos/128x128.png">
+<p align="center"><img src="https://img.icons8.com/color/128/000000/shooting-stars.png">
  <h1 align="center">Superluminal</h1>
   <p align="center">
     <b>Superluminal</b> provides human readable way to create HTTP requests.
@@ -13,8 +13,11 @@
 </p>
 
 [![GitHub release](https://img.shields.io/github/release/ba-st/Superluminal.svg)](https://github.com/ba-st/Superluminal/releases/latest)
-[![Build Status](https://travis-ci.com/ba-st/Superluminal.svg?branch=release-candidate)](https://travis-ci.com/ba-st/Superluminal)
-[![Coverage Status](https://coveralls.io/repos/github/ba-st/Superluminal/badge.svg?branch=release-candidate)](https://coveralls.io/github/ba-st/Superluminal?branch=release-candidate)
+[![Build Status](https://github.com/ba-st/Superluminal/workflows/Build/badge.svg?branch=release-candidate)](https://github.com/ba-st/Superluminal/actions?query=workflow%3ABuild)
+[![Coverage Status](https://codecov.io/github/ba-st/Superluminal/coverage.svg?branch=release-candidate)](https://codecov.io/gh/ba-st/Superluminal/branch/release-candidate)
+[![Pharo 6.1](https://img.shields.io/badge/Pharo-6.1-informational)](https://pharo.org)
+[![Pharo 7.0](https://img.shields.io/badge/Pharo-7.0-informational)](https://pharo.org)
+[![Pharo 8.0](https://img.shields.io/badge/Pharo-8.0-informational)](https://pharo.org)
 
 The library allows the creation of HTTP requests decoupled from the HTTP client (for now just [Zinc HTTP](http://zn.stfx.eu/zn/index.html) from [Pharo](http://pharo.org/)) simplifying the unit testing.
 

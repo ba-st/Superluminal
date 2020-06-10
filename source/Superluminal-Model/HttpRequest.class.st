@@ -38,8 +38,7 @@ HttpRequest >> applyOn: anHttpClient [
 
 	anHttpClient request: ( ZnRequest method: method url: url ).
 
-	commands isNil
-		ifFalse: [ commands applyOn: anHttpClient ].
+	commands ifNotNil: [ commands applyOn: anHttpClient ].
 
 	^ anHttpClient
 		execute;
