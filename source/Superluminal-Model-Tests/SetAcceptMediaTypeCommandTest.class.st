@@ -4,7 +4,7 @@ A SetAcceptMediaTypeTest is a test class for testing the behavior of SetAcceptMe
 Class {
 	#name : #SetAcceptMediaTypeCommandTest,
 	#superclass : #TestCase,
-	#category : #'Superluminal-Tests-Commands'
+	#category : #'Superluminal-Model-Tests-Commands'
 }
 
 { #category : #tests }

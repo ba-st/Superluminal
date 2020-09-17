@@ -9,7 +9,9 @@ SmalltalkCISpec {
   ],
   #testing : {
     #coverage : {
-       #packages : [ 'Superluminal*' ]
+      #packages : [ 'Superluminal*' ],
+      #service: #codecov,
+      #auto_upload: false
     }
   }
 }
