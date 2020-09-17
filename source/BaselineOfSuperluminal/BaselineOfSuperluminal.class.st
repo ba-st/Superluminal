@@ -30,8 +30,9 @@ BaselineOfSuperluminal >> projectClass [
 BaselineOfSuperluminal >> setUpDependencies: spec [
 
 	spec
-		baseline: 'Buoy' with: [ spec repository: 'github://ba-st/Buoy:v6/source' ];
-		project: 'Buoy-Deployment' copyFrom: 'Buoy' with: [ spec loads: 'Deployment' ].
+		baseline: 'Hyperspace' with: [ spec repository: 'github://ba-st/Hyperspace:v2' ];
+		project: 'Hyperspace-Deployment' copyFrom: 'Hyperspace' with: [ spec loads: 'Deployment' ];
+		project: 'Hyperspace-SUnit' copyFrom: 'Hyperspace' with: [ spec loads: 'Dependent-SUnit-Extensions' ].
 
 	spec
 		baseline: 'NeoJSON' with: [ spec repository: 'github://svenvc/NeoJSON:master/repository' ];
@@ -42,10 +43,11 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 BaselineOfSuperluminal >> setUpPackages: spec [
 
 	spec
-		package: 'Superluminal-Model' with: [ spec requires: 'Buoy-Deployment' ];
+		package: 'Superluminal-Model' with: [ spec requires: 'Hyperspace-Deployment' ];
 		group: 'Deployment' with: 'Superluminal-Model'.
 
 	spec
-		package: 'Superluminal-Model-Tests' with: [ spec requires: #('Superluminal-Model' 'NeoJSON-Core') ];
+		package: 'Superluminal-Model-Tests'
+			with: [ spec requires: #('Superluminal-Model' 'Hyperspace-SUnit' 'NeoJSON-Core') ];
 		group: 'Tests' with: 'Superluminal-Model-Tests'
 ]
