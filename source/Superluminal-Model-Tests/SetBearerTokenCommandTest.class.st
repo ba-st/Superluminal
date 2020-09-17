@@ -1,7 +1,7 @@
 Class {
 	#name : #SetBearerTokenCommandTest,
 	#superclass : #TestCase,
-	#category : #'Superluminal-Tests-Commands'
+	#category : #'Superluminal-Model-Tests-Commands'
 }
 
 { #category : #tests }

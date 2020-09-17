@@ -5,13 +5,13 @@ Class {
 }
 
 { #category : #composing }
-HttpRequestCommand >> + aNapCommand [
+HttpRequestCommand >> + anHttpRequestCommand [
 
-	^ CompositeHttpRequestCommand ofAll: (Array with: self with: aNapCommand)
+	^ CompositeHttpRequestCommand ofAll: (Array with: self with: anHttpRequestCommand)
 ]
 
 { #category : #applying }
-HttpRequestCommand >> applyOn: aNap [
+HttpRequestCommand >> applyOn: httpClient [
 
 	self subclassResponsibility 
 ]

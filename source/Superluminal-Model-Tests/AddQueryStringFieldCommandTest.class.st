@@ -4,7 +4,7 @@ An AddQueryStringFieldTest is a test class for testing the behavior of AddQueryS
 Class {
 	#name : #AddQueryStringFieldCommandTest,
 	#superclass : #TestCase,
-	#category : #'Superluminal-Tests-Commands'
+	#category : #'Superluminal-Model-Tests-Commands'
 }
 
 { #category : #tests }
