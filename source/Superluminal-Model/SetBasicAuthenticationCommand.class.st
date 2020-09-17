@@ -15,9 +15,9 @@ SetBasicAuthenticationCommand class >> with: aUsername password: aPassword [
 ]
 
 { #category : #applying }
-SetBasicAuthenticationCommand >> applyOn: anHttpClient [
+SetBasicAuthenticationCommand >> applyOn: httpClient [
 
-	anHttpClient username: username password: password
+	httpClient username: username password: password
 ]
 
 { #category : #initialization }

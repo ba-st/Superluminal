@@ -19,21 +19,16 @@ CompositeHttpRequestCommand class >> ofAll: aCommandCollection [
 	^ self new initializeOfAll: aCommandCollection 
 ]
 
-{ #category : #composing }
-CompositeHttpRequestCommand >> + aCommand [
+{ #category : #applying }
+CompositeHttpRequestCommand >> applyOn: httpClient [
 
-	^ self class
-		ofAll:
-			(OrderedCollection new
-				addAll: commands;
-				add: aCommand;
-				yourself)
+	commands do: [ :command | command applyOn: httpClient ]
 ]
 
-{ #category : #applying }
-CompositeHttpRequestCommand >> applyOn: anHttpClient [
+{ #category : #private }
+CompositeHttpRequestCommand >> commands [
 
-	commands do: [ :command | command applyOn: anHttpClient ]
+	^ commands
 ]
 
 { #category : #initialization }

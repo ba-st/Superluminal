@@ -7,11 +7,17 @@ Class {
 { #category : #composing }
 HttpRequestCommand >> + anHttpRequestCommand [
 
-	^ CompositeHttpRequestCommand ofAll: (Array with: self with: anHttpRequestCommand)
+	^ CompositeHttpRequestCommand ofAll: self commands , anHttpRequestCommand commands
 ]
 
 { #category : #applying }
 HttpRequestCommand >> applyOn: httpClient [
 
 	self subclassResponsibility 
+]
+
+{ #category : #private }
+HttpRequestCommand >> commands [
+
+	 ^Array with: self 
 ]

@@ -2,57 +2,74 @@ Class {
 	#name : #HttpRequest,
 	#superclass : #Object,
 	#instVars : [
-		'commands',
 		'url',
-		'method'
+		'method',
+		'command'
 	],
 	#category : #'Superluminal-Model-Core'
 }
 
 { #category : #'instance creation' }
-HttpRequest class >> get: aLocation [ 
-
-	^ self performing: #GET on: aLocation configuredUsing: []
-]
-
-{ #category : #'instance creation' }
-HttpRequest class >> get: aLocation configuredUsing: aMonadycBlock [
+HttpRequest class >> delete: aLocation configuredUsing: aBlock [
 	
-	^ self performing: #GET on: aLocation configuredUsing: aMonadycBlock 
+	^ self performing: #DELETE on: aLocation configuredUsing: aBlock 
 ]
 
 { #category : #'instance creation' }
-HttpRequest class >> performing: anHttpMethod on: aLocation configuredUsing: aMonadycBlock [ 
+HttpRequest class >> get: aLocation [
+
+	^ self performing: #GET on: aLocation configuredUsing: [  ]
+]
+
+{ #category : #'instance creation' }
+HttpRequest class >> get: aLocation configuredUsing: aBlock [
 	
-	^ self new initializePerforming: anHttpMethod on: aLocation configuredUsing: aMonadycBlock 
+	^ self performing: #GET on: aLocation configuredUsing: aBlock 
 ]
 
 { #category : #'instance creation' }
-HttpRequest class >> post: aLocation configuredUsing: aMonadycBlock [
+HttpRequest class >> patch: aLocation configuredUsing: aBlock [
 
-	 ^ self performing: #POST on: aLocation configuredUsing: aMonadycBlock
+	 ^ self performing: #PATCH on: aLocation configuredUsing: aBlock
+]
+
+{ #category : #private }
+HttpRequest class >> performing: anHttpMethod on: aLocation configuredUsing: aBlock [ 
+	
+	^ self new initializePerforming: anHttpMethod on: aLocation asUrl configuredUsing: aBlock 
+]
+
+{ #category : #'instance creation' }
+HttpRequest class >> post: aLocation configuredUsing: aBlock [
+
+	 ^ self performing: #POST on: aLocation configuredUsing: aBlock
+]
+
+{ #category : #'instance creation' }
+HttpRequest class >> put: aLocation configuredUsing: aBlock [
+
+	 ^ self performing: #PUT on: aLocation configuredUsing: aBlock
 ]
 
 { #category : #applying }
-HttpRequest >> applyOn: anHttpClient [
+HttpRequest >> applyOn: httpClient [
 
-	anHttpClient request: ( ZnRequest method: method url: url ).
+	httpClient
+		resetRequest;
+		method: method;
+		url: url.
 
-	commands ifNotNil: [ commands applyOn: anHttpClient ].
+	command applyOn: httpClient.
 
-	^ anHttpClient
+	^ httpClient
 		execute;
 		response
 ]
 
 { #category : #initialization }
-HttpRequest >> initializePerforming: anHttpMethod on: aLocation configuredUsing: aMonadycBlock [
-
-	| configurator |
+HttpRequest >> initializePerforming: anHttpMethod on: aLocation configuredUsing: aBlock [
 
 	method := anHttpMethod.
 	url := aLocation.
-
-	configurator := HttpRequestBuilder new.
-	commands := aMonadycBlock cull: configurator
+	command := aBlock asHttpRequestCommand
 ]

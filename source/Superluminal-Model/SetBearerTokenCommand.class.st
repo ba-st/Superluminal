@@ -14,9 +14,9 @@ SetBearerTokenCommand class >> to: anOAuth2AccessToken [
 ]
 
 { #category : #applying }
-SetBearerTokenCommand >> applyOn: anHttpClient [
+SetBearerTokenCommand >> applyOn: httpClient [
 
-	anHttpClient headerAt: #Authorization put: ( #'Bearer <1p>' expandMacrosWith: token )
+	httpClient headerAt: #Authorization put: ( #'Bearer <1p>' expandMacrosWith: token )
 ]
 
 { #category : #initialization }

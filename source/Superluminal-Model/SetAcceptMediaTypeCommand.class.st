@@ -14,9 +14,9 @@ SetAcceptMediaTypeCommand class >> to: aMediaType [
 ]
 
 { #category : #applying }
-SetAcceptMediaTypeCommand >> applyOn: anHttpClient [ 
+SetAcceptMediaTypeCommand >> applyOn: httpClient [ 
 
-	anHttpClient accept: mediaType 
+	httpClient accept: mediaType 
 ]
 
 { #category : #initialization }
