@@ -67,7 +67,7 @@ HttpRequestTest >> testComposite [
 		withJsonFromContentsIn: response
 			do: [ :json | 
 			self
-				assert: json url equals: 'http://httpbin.org/anything?last_name=fox&first_name=fran';
+				assert: json url equals: self httpbinLocation , '?last_name=fox&first_name=fran';
 				assert: json method equals: 'GET';
 				assert: json headers Accept equals: 'application/vnd.nap.full_name+json;version=1.0.0'
 			]
@@ -509,7 +509,7 @@ HttpRequestTest >> testQueryString [
 		withJsonFromContentsIn: response
 			do: [ :json | 
 			self
-				assert: json url equals: 'http://httpbin.org/anything?last_name=fox&first_name=fran';
+				assert: json url equals: self httpbinLocation , '?last_name=fox&first_name=fran';
 				assert: json method equals: 'GET'
 			]
 ]
@@ -535,7 +535,7 @@ HttpRequestTest >> testRequestConfigurationIsClearedWhenReusingClient [
 		withJsonFromContentsIn: response
 			do: [ :json | 
 			self
-				assert: json url equals: 'http://httpbin.org/anything?last_name=fox';
+				assert: json url equals: self httpbinLocation , '?last_name=fox';
 				assert: json method equals: 'GET';
 				assert: ( json headers at: #'Content-Type' ) isNil;
 				assert: json data isEmpty
