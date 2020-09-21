@@ -84,7 +84,7 @@ RESTfulAPIClient >> deleteAt: aLocation accepting: aMediaType withSuccessfulResp
 				ifTrue: [ expiringCache clearResourceAt: aLocation.
 					aBlock value: ( self tryToCacheContentsOf: response basedOn: aLocation )
 					]
-				ifFalse: [ self signalCannotCompleteDeleteErrorBasedOn: response code ]
+				ifFalse: [ self signalCannotCompleteDeleteErrorBasedOn: response ]
 			]
 ]
 
@@ -166,8 +166,7 @@ RESTfulAPIClient >> initializeBuildingHttpClientWith: anHttpClientProvider [
 	httpClientPoolByAuthority := Dictionary new.
 	entityTagByLocationCache := Dictionary new.
 	lastKnownRepresentationByLocation := Dictionary new.
-	expiringCache := ExpiringCache accordingTo: [ DateAndTime now ].
-	self finalizationRegistry add: self
+	expiringCache := ExpiringCache accordingTo: [ DateAndTime now ]
 ]
 
 { #category : #'private - caching' }
@@ -192,7 +191,7 @@ RESTfulAPIClient >> patch: anEntity at: aLocation withSuccessfulResponseDo: aBlo
 				patch: aLocation
 				configuredUsing: [ :request | 
 					| command |
-					command := request body to: anEntity.
+					command := request body contents: anEntity.
 					self
 						withCachedETagAt: aLocation
 						do: [ :entityTag | command := command + ( request headers setIfMatchTo: entityTag asString ) ].
@@ -212,34 +211,42 @@ RESTfulAPIClient >> patch: anEntity at: aLocation withSuccessfulResponseDo: aBlo
 { #category : #invoking }
 RESTfulAPIClient >> post: anEntity at: aLocation withSuccessfulResponseDo: aBlock [
 
-	^self handleExceptionsDuring: [| httpRequest response |
-		httpRequest :=
-			HttpRequest post: aLocation configuredUsing: [:request | request body to: anEntity].
-		self
-			withHttpClientFor: aLocation
-			do: [:httpClient | response := httpRequest applyOn: httpClient].
-		response isCreated
-			ifTrue: [
-				expiringCache clearResourceAt: aLocation.
-				aBlock value: (self tryToCacheContentsOf: response basedOn: response location)]
-			ifFalse: [
-				(HTTPClientError code: response code) signal: (self clientErrorMessageFrom: response)]]
+	^ self
+		handleExceptionsDuring: [ | httpRequest response |
+
+			httpRequest := HttpRequest
+				post: aLocation
+				configuredUsing: [ :request | request body contents: anEntity ].
+			self
+				withHttpClientFor: aLocation
+				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
+			response isSuccess
+				ifTrue: [ 
+					expiringCache clearResourceAt: aLocation.
+					response isCreated then: [ self tryToCacheContentsOf: response basedOn: response location ].
+					aBlock value: response contents
+					]
+				ifFalse: [ ( HTTPClientError code: response code ) signal: ( self clientErrorMessageFrom: response ) ]
+			]
 ]
 
 { #category : #invoking }
 RESTfulAPIClient >> put: anEntity at: aLocation [
 
 	^ self
-		handleExceptionsDuring: [ 
-			| httpRequest response |
+		handleExceptionsDuring: [ | httpRequest response |
+
 			httpRequest := HttpRequest
 				put: aLocation
-				configuredUsing: [ :request | request body to: anEntity ].
+				configuredUsing: [ :request | request body contents: anEntity ].
 			self
 				withHttpClientFor: aLocation
 				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
-			response isNoContent
-				ifTrue: [ expiringCache clearResourceAt: aLocation ]
+			response isSuccess
+				ifTrue: [ 
+					expiringCache clearResourceAt: aLocation.
+					response
+					]
 				ifFalse: [ self signalCannotCompleteUpdateErrorBasedOn: response ]
 			]
 ]

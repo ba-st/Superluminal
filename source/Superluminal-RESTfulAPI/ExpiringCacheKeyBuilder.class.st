@@ -97,12 +97,6 @@ ExpiringCacheKeyBuilder >> queryAt: aKey put: aString [
 ]
 
 { #category : #configuring }
-ExpiringCacheKeyBuilder >> request: httpRequest [
-
-	self location: httpRequest uri
-]
-
-{ #category : #configuring }
 ExpiringCacheKeyBuilder >> resetRequest [
 
 	
@@ -112,7 +106,7 @@ ExpiringCacheKeyBuilder >> resetRequest [
 ExpiringCacheKeyBuilder >> response [
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #configuring }
 ExpiringCacheKeyBuilder >> setIfNoneMatchTo: anETag [
 
 	
