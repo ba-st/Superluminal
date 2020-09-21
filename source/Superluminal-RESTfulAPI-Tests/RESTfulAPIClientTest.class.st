@@ -10,13 +10,13 @@ Class {
 { #category : #private }
 RESTfulAPIClientTest >> httpBinAnythingLocation [
 
-	^ 'http://httpbin.org/anything' asUrl
+	^ 'http://localhost/anything' asUrl
 ]
 
 { #category : #private }
 RESTfulAPIClientTest >> httpBinCacheLocation [
 
-	^ 'http://httpbin.org/cache' asUrl
+	^ 'http://localhost/cache' asUrl
 ]
 
 { #category : #tests }

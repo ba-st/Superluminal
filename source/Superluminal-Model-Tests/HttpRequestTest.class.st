@@ -35,7 +35,7 @@ HttpRequestTest >> fullNameVersion1dot0dot0MediaType [
 { #category : #private }
 HttpRequestTest >> httpbinLocation [
 
-	^ 'http://httpbin.org/anything'
+	^ 'http://localhost/anything'
 ]
 
 { #category : #private }
