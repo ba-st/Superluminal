@@ -11,6 +11,8 @@ jobs:
     name: ${{ matrix.smalltalk }}
     steps:
       - uses: actions/checkout@v2
+      - name: Start httpbin
+        run: docker run -d -p 127.0.0.1:80:80 fortizpenaloza/httpbin
       - uses: hpi-swa/setup-smalltalkCI@v1
         with:
           smalltalk-version: ${{ matrix.smalltalk }}
