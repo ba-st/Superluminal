@@ -7,6 +7,18 @@ Class {
 	#category : #'Superluminal-RESTfulAPI-Tests'
 }
 
+{ #category : #private }
+RESTfulAPIClientTest >> httpBinAnythingLocation [
+
+	^ 'http://httpbin.org/anything' asUrl
+]
+
+{ #category : #private }
+RESTfulAPIClientTest >> httpBinCacheLocation [
+
+	^ 'http://httpbin.org/cache' asUrl
+]
+
 { #category : #tests }
 RESTfulAPIClientTest >> testDeleteAcceptingWithSuccessfulResponseDo [
 
@@ -15,17 +27,19 @@ RESTfulAPIClientTest >> testDeleteAcceptingWithSuccessfulResponseDo [
 	apiClient := RESTfulAPIClient default.
 
 	apiClient
-		deleteAt: 'http://httpbin.mercap.net/anything'
+		deleteAt: self httpBinAnythingLocation
 		accepting: 'application/json;version=1.0.0' asMediaType
-		withSuccessfulResponseDo: [:responseContents |
+		withSuccessfulResponseDo: [ :responseContents | 
 			self
 				withJsonFrom: responseContents
-				do: [:json |
+				do: [ :json | 
 					self
 						assert: json data isEmpty;
-						assert: json url equals: 'http://httpbin.mercap.net/anything';
+						assertUrl: json url equals: self httpBinAnythingLocation;
 						assert: json method equals: 'DELETE';
-						assert: (json headers at: #Accept) equals: 'application/json;version=1.0.0']]
+						assert: ( json headers at: #Accept ) equals: 'application/json;version=1.0.0'
+					]
+			]
 ]
 
 { #category : #tests }
@@ -36,17 +50,19 @@ RESTfulAPIClientTest >> testGetAcceptingWithSuccessfulResponseDo [
 	apiClient := RESTfulAPIClient default.
 
 	apiClient
-		get: 'http://httpbin.mercap.net/anything'
+		get: self httpBinAnythingLocation
 		accepting: 'application/json;version=1.0.0' asMediaType
-		withSuccessfulResponseDo: [:responseContents |
+		withSuccessfulResponseDo: [ :responseContents | 
 			self
 				withJsonFrom: responseContents
-				do: [:json |
+				do: [ :json | 
 					self
 						assert: json data isEmpty;
-						assert: json url equals: 'http://httpbin.mercap.net/anything';
+						assertUrl: json url equals: self httpBinAnythingLocation;
 						assert: json method equals: 'GET';
-						assert: (json headers at: #Accept) equals: 'application/json;version=1.0.0']]
+						assert: ( json headers at: #Accept ) equals: 'application/json;version=1.0.0'
+					]
+			]
 ]
 
 { #category : #tests }
@@ -57,21 +73,21 @@ RESTfulAPIClientTest >> testGetCached [
 	apiClient := RESTfulAPIClient default.
 
 	apiClient
-		get: 'http://httpbin.mercap.net/cache'
+		get: self httpBinCacheLocation
 		withSuccessfulResponseDo: [ :responseContents | 
 			self
 				withJsonFrom: responseContents
-				do: [ :json | self assert: json url equals: 'http://httpbin.mercap.net/cache' ]
+				do: [ :json | self assertUrl: json url equals: self httpBinCacheLocation ]
 			].
 
 	apiClient
-		get: 'http://httpbin.mercap.net/cache'
+		get: self httpBinCacheLocation
 		withSuccessfulResponseDo: [ :responseContents | 
 			self
 				withJsonFrom: responseContents
 				do: [ :json | 
 					self
-						assert: json url equals: 'http://httpbin.mercap.net/cache';
+						assertUrl: json url equals: self httpBinCacheLocation;
 						assert: ( json headers at: #Accept ) equals: '*/*'
 					]
 			]
@@ -85,7 +101,7 @@ RESTfulAPIClientTest >> testGetConfiguringRequestUsingWithSuccessfulResponseDo [
 	apiClient := RESTfulAPIClient default.
 
 	apiClient
-		get: 'http://httpbin.mercap.net/anything'
+		get: self httpBinAnythingLocation
 		configuringRequestUsing: [ :request | request queryString: [ :queryString | queryString fieldNamed: #step pairedTo: 20 ] ]
 		withSuccessfulResponseDo: [ :responseContents | 
 			self
@@ -93,7 +109,7 @@ RESTfulAPIClientTest >> testGetConfiguringRequestUsingWithSuccessfulResponseDo [
 				do: [ :json | 
 					self
 						assert: json data isEmpty;
-						assert: json url equals: 'http://httpbin.mercap.net/anything?step=20';
+						assertUrl: json url equals: ( self httpBinAnythingLocation queryAt: 'step' put: 20 );
 						assert: json method equals: 'GET';
 						assert: ( json headers at: #Accept ) equals: '*/*'
 					]
@@ -108,14 +124,14 @@ RESTfulAPIClientTest >> testGetWithSuccessfulResponseDo [
 	apiClient := RESTfulAPIClient default.
 
 	apiClient
-		get: 'http://httpbin.mercap.net/anything'
+		get: self httpBinAnythingLocation
 		withSuccessfulResponseDo: [ :responseContents | 
 			self
 				withJsonFrom: responseContents
 				do: [ :json | 
 					self
 						assert: json data isEmpty;
-						assert: json url equals: 'http://httpbin.mercap.net/anything';
+						assertUrl: json url equals: self httpBinAnythingLocation;
 						assert: json method equals: 'GET';
 						assert: ( json headers at: #Accept ) equals: '*/*'
 					]
