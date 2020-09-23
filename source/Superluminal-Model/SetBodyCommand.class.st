@@ -14,9 +14,9 @@ SetBodyCommand class >> to: anEntity [
 ]
 
 { #category : #applying }
-SetBodyCommand >> applyOn: anHttpClient [
+SetBodyCommand >> applyOn: httpClient [
 
-	anHttpClient entity: entity
+	httpClient entity: entity
 ]
 
 { #category : #initialization }

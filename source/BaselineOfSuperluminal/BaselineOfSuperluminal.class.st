@@ -36,18 +36,33 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 
 	spec
 		baseline: 'NeoJSON' with: [ spec repository: 'github://svenvc/NeoJSON:master/repository' ];
-		project: 'NeoJSON-Core' copyFrom: 'NeoJSON' with: [ spec loads: 'core' ]
+		project: 'NeoJSON-Core' copyFrom: 'NeoJSON' with: [ spec loads: 'core' ].
+		
+	spec
+		baseline: 'ObjectPool' with: [ spec repository: 'github://pharo-ide/ObjectPool:v1.0.1' ];
+		project: 'ObjectPool-Core' copyFrom: 'ObjectPool' with: [ spec loads: 'Core' ].
+	
 ]
 
 { #category : #baselines }
 BaselineOfSuperluminal >> setUpPackages: spec [
 
 	spec
-		package: 'Superluminal-Model' with: [ spec requires: 'Hyperspace-Deployment' ];
+		package: 'Superluminal-Model' with: [ spec requires: #('Hyperspace-Deployment' 'NeoJSON-Core') ];
 		group: 'Deployment' with: 'Superluminal-Model'.
 
 	spec
+		package: 'Superluminal-RESTfulAPI'
+			with: [ spec requires: #('Superluminal-Model' 'ObjectPool-Core') ];
+		group: 'Deployment' with: 'Superluminal-RESTfulAPI'.
+
+	spec
 		package: 'Superluminal-Model-Tests'
-			with: [ spec requires: #('Superluminal-Model' 'Hyperspace-SUnit' 'NeoJSON-Core') ];
-		group: 'Tests' with: 'Superluminal-Model-Tests'
+			with: [ spec requires: #('Superluminal-Model' 'Hyperspace-SUnit') ];
+		group: 'Tests' with: 'Superluminal-Model-Tests'.
+
+	spec
+		package: 'Superluminal-RESTfulAPI-Tests'
+			with: [ spec requires: #('Superluminal-RESTfulAPI' 'Hyperspace-SUnit') ];
+		group: 'Tests' with: 'Superluminal-RESTfulAPI-Tests'
 ]

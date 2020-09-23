@@ -15,9 +15,9 @@ AddQueryStringFieldCommand class >> named: aName pairedTo: aValue [
 ]
 
 { #category : #applying }
-AddQueryStringFieldCommand >> applyOn: anHttpClient [
+AddQueryStringFieldCommand >> applyOn: httpClient [
 
-	anHttpClient queryAt: name put: value
+	httpClient queryAt: name put: value
 ]
 
 { #category : #initialization }

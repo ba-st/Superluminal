@@ -16,9 +16,9 @@ AddFormFieldCommand class >> named: aName pairedTo: aValue [
 ]
 
 { #category : #applying }
-AddFormFieldCommand >> applyOn: anHttpClient [
+AddFormFieldCommand >> applyOn: httpClient [
 
-	anHttpClient formAt: name add: value
+	httpClient formAt: name add: value
 ]
 
 { #category : #initialization }
