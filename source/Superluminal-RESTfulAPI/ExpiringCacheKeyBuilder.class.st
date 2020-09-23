@@ -44,15 +44,9 @@ ExpiringCacheKeyBuilder >> build [
 ]
 
 { #category : #configuring }
-ExpiringCacheKeyBuilder >> contentType: mediaType [
-
-	parameters at: #contentType put: mediaType asString
-]
-
-{ #category : #configuring }
 ExpiringCacheKeyBuilder >> entity: entity [
 
-	parameters at: #entity put: entity asString
+	
 ]
 
 { #category : #configuring }
@@ -116,13 +110,4 @@ ExpiringCacheKeyBuilder >> setIfNoneMatchTo: anETag [
 ExpiringCacheKeyBuilder >> url: aUrl [
 
 	self location: aUrl
-]
-
-{ #category : #configuring }
-ExpiringCacheKeyBuilder >> username: username password: password [
-
-	| message |
-
-	message := '<1s>-<2s>' expandMacrosWith: username with: password.
-	parameters at: #authentication put: ( SHA1 hashMessage: message ) hex
 ]

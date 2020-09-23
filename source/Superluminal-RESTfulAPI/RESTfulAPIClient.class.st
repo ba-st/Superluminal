@@ -114,7 +114,7 @@ RESTfulAPIClient >> get: aLocation configuringRequestUsing: aRequestBuildingBloc
 
 	| key request |
 
-	request := self requestToGet: aRequestBuildingBlock configuredUsing: aLocation.
+	request := self requestToGet: aLocation configuredUsing: aRequestBuildingBlock.
 	key := ExpiringCacheKeyBuilder keyFor: request at: aLocation.
 	^ expiringCache
 		withResourceAt: key
@@ -266,7 +266,7 @@ RESTfulAPIClient >> raiseErrorBasedOn: httpResponse [
 ]
 
 { #category : #'private - inkoving' }
-RESTfulAPIClient >> requestToGet: aRequestBuildingBlock configuredUsing: aLocation [
+RESTfulAPIClient >> requestToGet: aLocation configuredUsing: aRequestBuildingBlock [
 
 	^ HttpRequest
 		get: aLocation
