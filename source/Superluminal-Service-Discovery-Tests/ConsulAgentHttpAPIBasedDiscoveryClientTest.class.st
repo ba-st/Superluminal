@@ -38,7 +38,7 @@ ConsulAgentHttpAPIBasedDiscoveryClientTest >> setUp [
 { #category : #running }
 ConsulAgentHttpAPIBasedDiscoveryClientTest >> tearDown [
 
-	consulAgent stop.
+	consulAgent ifNotNil: #stop.
 	super tearDown
 ]
 
