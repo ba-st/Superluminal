@@ -1,3 +1,6 @@
+"
+I'm a service discovery client that will always fail when looking up a service by its name.
+"
 Class {
 	#name : #NullServiceDiscoveryClient,
 	#superclass : #ServiceDiscoveryClient,
