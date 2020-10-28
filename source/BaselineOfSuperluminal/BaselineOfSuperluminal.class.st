@@ -42,6 +42,9 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		baseline: 'ObjectPool' with: [ spec repository: 'github://pharo-ide/ObjectPool:v1.0.1' ];
 		project: 'ObjectPool-Core' copyFrom: 'ObjectPool' with: [ spec loads: 'Core' ].
 	
+	spec
+		baseline: 'Teapot' with: [ spec repository: 'github://zeroflag/Teapot:v2.6.0/source' ];
+		project: 'Teapot-Deployment' copyFrom: 'Teapot' with: [ spec loads: 'Deployment' ].
 ]
 
 { #category : #baselines }
@@ -73,6 +76,6 @@ BaselineOfSuperluminal >> setUpPackages: spec [
 
 	spec
 		package: 'Superluminal-Service-Discovery-Tests'
-		with: [ spec requires: #( 'Superluminal-Service-Discovery' 'Hyperspace-SUnit' ) ];
+		with: [ spec requires: #( 'Superluminal-Service-Discovery' 'Hyperspace-SUnit' 'Teapot-Deployment') ];
 		group: 'Tests' with: 'Superluminal-Service-Discovery-Tests'
 ]
