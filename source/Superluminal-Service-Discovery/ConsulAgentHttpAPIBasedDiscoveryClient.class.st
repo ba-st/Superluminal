@@ -10,8 +10,7 @@ Class {
 	#instVars : [
 		'httpClient',
 		'agentLocation',
-		'fallbackClient',
-		'schema'
+		'fallbackClient'
 	],
 	#category : #'Superluminal-Service-Discovery'
 }
@@ -57,7 +56,10 @@ ConsulAgentHttpAPIBasedDiscoveryClient >> withLocationOfService: serviceName do:
 
 			  request := self requestToDiscover: serviceName.
 			  serviceHealthList := NeoJSONObject fromString: ( request applyOn: httpClient ) contents.
-			  self withLocationOfServiceOn: serviceHealthList do: failBlock ifUnable: foundBlock
+			  self withLocationOfServiceOn: serviceHealthList
+				  do: foundBlock
+				  ifUnable: [ 
+				  fallbackClient withLocationOfService: serviceName do: foundBlock ifUnable: failBlock ]
 			  ]
 		  configuredBy: [ :retry | 
 			  retry
@@ -67,7 +69,7 @@ ConsulAgentHttpAPIBasedDiscoveryClient >> withLocationOfService: serviceName do:
 ]
 
 { #category : #private }
-ConsulAgentHttpAPIBasedDiscoveryClient >> withLocationOfServiceOn: serviceHealthList do: failBlock ifUnable: foundBlock [
+ConsulAgentHttpAPIBasedDiscoveryClient >> withLocationOfServiceOn: serviceHealthList do: foundBlock ifUnable: failBlock [
 
 	"The API endpoint only filters the service instances failing all healthchecks, 
 	so we need to filter them here anyway"
