@@ -19,6 +19,10 @@ ConsulAgentHttpAPIBasedDiscoveryClientTest >> consulAgentLocation [
 { #category : #accessing }
 ConsulAgentHttpAPIBasedDiscoveryClientTest >> port [
 
+	| check |
+
+	check := PortAvailabilityChecker on: 9998.
+	check checkIfAvailableDo: [  ] ifNot: [ self fail ].
 	^ 9998
 ]
 
