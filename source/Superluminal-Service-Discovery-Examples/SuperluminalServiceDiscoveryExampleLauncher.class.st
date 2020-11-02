@@ -16,12 +16,6 @@ SuperluminalServiceDiscoveryExampleLauncher class >> description [
 	^ 'I''m a command line example using as dependency an echo API'
 ]
 
-{ #category : #'private - logging' }
-SuperluminalServiceDiscoveryExampleLauncher class >> dumpStackAndReport: aSignal [
-
-	
-]
-
 { #category : #'private - accessing' }
 SuperluminalServiceDiscoveryExampleLauncher class >> logPrefix [
 

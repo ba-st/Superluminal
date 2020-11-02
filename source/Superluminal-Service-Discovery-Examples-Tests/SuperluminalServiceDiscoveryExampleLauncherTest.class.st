@@ -18,10 +18,10 @@ SuperluminalServiceDiscoveryExampleLauncherTest >> testActivate [
 			launcher
 				commandLine: ( CommandLineArguments withArguments:
 							  #( '--consul-agent-location=http://consul:8500'
-							     '--message=Hello' '--retry-delay-in-ms=1' ) );
+							     '--message=Hello' '--retry-delay-in-ms=1' '--debug-mode' ) );
 				activate
 			]
-		raise: Exit
+		raise: NameLookupFailure
 ]
 
 { #category : #tests }
