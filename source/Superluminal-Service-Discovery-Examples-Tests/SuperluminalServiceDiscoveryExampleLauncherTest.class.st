@@ -25,6 +25,21 @@ SuperluminalServiceDiscoveryExampleLauncherTest >> testActivate [
 ]
 
 { #category : #tests }
+SuperluminalServiceDiscoveryExampleLauncherTest >> testArguments [
+
+	| launcher |
+
+	launcher := SuperluminalServiceDiscoveryExampleLauncher new.
+	launcher commandLine: ( CommandLineArguments withArguments:
+			  #( '--consul-agent-location=http://consul:8500' '--message=Hello' '--retry-delay-in-ms=1'
+			     '--debug-mode' ) ).
+
+	self
+		assert: launcher message equals: 'Hello';
+		assertUrl: launcher consulAgentLocation equals: 'http://consul:8500'
+]
+
+{ #category : #tests }
 SuperluminalServiceDiscoveryExampleLauncherTest >> testCommandName [
 
 	self assert: SuperluminalServiceDiscoveryExampleLauncher commandName
