@@ -41,14 +41,19 @@ SuperluminalServiceDiscoveryExampleLauncher >> basicActivate [
 					                       upTo: 3 timesEvery: ( self configuration at: 'retry-delay-in-ms' );
 					                       on: Error evaluating: [ :attemptNumber :exception | 
 						                       CurrentLogger value logAsWarning:
-								                       ( 'Attempt #<1p> failed with error: <2s>' expandMacrosWith: attemptNumber
+								                       ( 'Attempt #<1p> failed with error: <2s>' expandMacrosWith:
+										                         attemptNumber
 									                         with: exception messageText )
 						                       ]
 				                       ]
 		].
 
-	RESTfulAPIClient default get:
-		( 'http://<1p>/echo/<2s>' expandMacrosWith: echoServiceLocation with: self message )
+	RESTfulAPIClient default
+		get: ( echoServiceLocation
+				  scheme: #http;
+				  addPathSegment: 'echo';
+				  addPathSegment: self message;
+				  yourself )
 		withSuccessfulResponseDo: [ :response | 
 			response = self message asUppercase ifFalse: [ Error signal: 'Invalid response received' ] ].
 
