@@ -54,7 +54,7 @@ SuperluminalServiceDiscoveryExampleLauncher >> basicActivate [
 		].
 
 	RESTfulAPIClient default get:
-		( 'http://<1s>/echo/<2s>' expandMacrosWith: echoServiceLocation with: self message )
+		( 'http://<1p>/echo/<2s>' expandMacrosWith: echoServiceLocation with: self message )
 		withSuccessfulResponseDo: [ :response | 
 			response = self message asUppercase ifFalse: [ Error signal: 'Invalid response received' ] ].
 
