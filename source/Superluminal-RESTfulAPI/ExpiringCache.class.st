@@ -40,6 +40,12 @@ ExpiringCache >> store: anExpiringResource at: aBuiltKey [
 { #category : #accessing }
 ExpiringCache >> withResourceAt: aBuiltKey obtainedUsing: aGetBlock do: aProcessBlock [
 
+	"expiringResources
+		get: aBuiltKey
+		ifPresent: [ :resource | aProcessBlock value: resource contents ]
+		ifAbsentPut: aGetBlock"
+
+	
 	expiringResources
 		at: aBuiltKey
 		ifPresent: [ :resource | 

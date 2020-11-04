@@ -20,6 +20,30 @@ ExpiringResource >> contents [
 	^currentResource
 ]
 
+{ #category : #'as yet unclassified' }
+ExpiringResource >> expiresIn: aPointInTime [
+
+	^ response cachingDirectives
+		detect: [ :directive | directive asLowercase beginsWith: 'Max-Age' asLowercase ]
+		ifFound: [ :string | 
+			| maxAge |
+
+			maxAge := ( string copyAfter: $= ) asNumber.
+			self expiresInUsing: 'Date' after: maxAge secondsAt: aPointInTime
+			]
+		ifNone: [ self expiresInUsing: 'Expires' after: 0 secondsAt: aPointInTime ]
+]
+
+{ #category : #'as yet unclassified' }
+ExpiringResource >> expiresInUsing: aKey after: aNumber secondsAt: aPointInTime [
+
+	| date expiration |
+
+	date := ZnUtils parseHttpDate: ( response headers at: aKey ifAbsent: [ ^ self halt ] ).
+	expiration := date + aNumber seconds.
+	^ expiration - aPointInTime truncated
+]
+
 { #category : #initialization }
 ExpiringResource >> initializeFor: aResource controlledBy: aResponse [
 
