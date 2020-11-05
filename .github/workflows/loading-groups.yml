@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         smalltalk: [ Pharo64-8.0, Pharo64-7.0 ]
-        load-spec: [ .loading.core.ston .loading.api-client.ston .loading.service-discovery.ston .loading.deployment.ston ]
+        load-spec: [ .loading.core.ston, .loading.api-client.ston, .loading.service-discovery.ston, .loading.deployment.ston ]
     name: ${{ matrix.smalltalk }}
     steps:
       - uses: actions/checkout@v2
