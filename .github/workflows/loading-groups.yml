@@ -6,6 +6,7 @@ jobs:
    build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         smalltalk: [ Pharo64-8.0, Pharo64-7.0 ]
         load-spec: [ core, api-client, service-discovery, deployment ]
