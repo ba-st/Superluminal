@@ -5,7 +5,7 @@ Class {
 		'currentResource',
 		'response'
 	],
-	#category : #'Superluminal-RESTfulAPI'
+	#category : #'Superluminal-RESTfulAPI-Cache'
 }
 
 { #category : #'instance creation' }
@@ -17,7 +17,7 @@ ExpiringResource class >> for: aResource controlledBy: aResponse [
 { #category : #accessing }
 ExpiringResource >> contents [
 
-	^currentResource
+	^ currentResource
 ]
 
 { #category : #'as yet unclassified' }
@@ -72,4 +72,13 @@ ExpiringResource >> isExpiredUsing: aKey after: aNumber secondsAt: aPointInTime 
 	date := ZnUtils parseHttpDate: (response headers at: aKey ifAbsent: [^true]).
 	expiration := date + aNumber seconds.
 	^expiration < aPointInTime truncated
+]
+
+{ #category : #'as yet unclassified' }
+ExpiringResource >> store: aDistributedMemoryPolicy onDistributedMemoryAt: aBuiltKey at: aPointInTime [
+	
+	^ aDistributedMemoryPolicy
+		set: aBuiltKey
+		value: self
+		expires: (self expiresIn: aPointInTime)
 ]

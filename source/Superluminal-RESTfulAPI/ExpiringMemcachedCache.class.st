@@ -5,7 +5,7 @@ Class {
 		'timeSourceProvider',
 		'expiringResources'
 	],
-	#category : #'Superluminal-RESTfulAPI-Tests'
+	#category : #'Superluminal-RESTfulAPI-Cache'
 }
 
 { #category : #'instance creation' }
