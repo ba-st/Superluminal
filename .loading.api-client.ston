@@ -1,0 +1,13 @@
+SmalltalkCISpec {
+  #loading : [
+    SCIMetacelloLoadSpec {
+      #baseline : 'Superluminal',
+      #directory : 'source',
+      #load : [ 'API Client' ],
+      #platforms : [  #pharo ]
+    }
+  ],
+  #testing : {
+    #failOnZeroTests : false
+  }
+}
