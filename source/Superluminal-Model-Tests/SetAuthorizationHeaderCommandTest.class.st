@@ -1,16 +1,16 @@
 Class {
-	#name : #SetBearerTokenCommandTest,
+	#name : #SetAuthorizationHeaderCommandTest,
 	#superclass : #TestCase,
 	#category : #'Superluminal-Model-Tests-Commands'
 }
 
 { #category : #tests }
-SetBearerTokenCommandTest >> testApplyOn [
+SetAuthorizationHeaderCommandTest >> testApplyOn [
 
 	| httpClient command |
 
 	httpClient := ZnClient new.
-	command := SetBearerTokenCommand to: 'token'.
+	command := SetAuthorizationHeaderCommand toBearerToken:  'token'.
 	command applyOn: httpClient.
 
 	self assert: ( httpClient request headers at: #Authorization ) equals: 'Bearer ''token'''
