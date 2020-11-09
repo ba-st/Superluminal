@@ -142,6 +142,28 @@ HttpRequestTest >> testGet [
 ]
 
 { #category : #tests }
+HttpRequestTest >> testGetWithAuthorization [
+
+	| httpRequest response |
+
+	httpRequest := HttpRequest
+		get: self httpbinLocation
+		configuredUsing: [ :request | request headers setAuthorizationTo: 'Basic YWxhZGRpbjpvcGVuc2VzYW1l' ].
+
+	response := httpRequest applyOn: self newHttpClient.
+
+	self
+		assert: response isSuccess;
+		withJsonFromContentsIn: response
+			do: [ :json | 
+			self
+				assert: json url equals: self httpbinLocation;
+				assert: json method equals: 'GET';
+				assert: json headers Authorization equals: 'Basic YWxhZGRpbjpvcGVuc2VzYW1l'
+			]
+]
+
+{ #category : #tests }
 HttpRequestTest >> testGetWithEmptyConfiguration [
 
 	| httpRequest response |
