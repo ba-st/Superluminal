@@ -15,3 +15,12 @@ SetAuthorizationHeaderCommandTest >> testApplyOn [
 
 	self assert: ( httpClient request headers at: #Authorization ) equals: 'Bearer ''token'''
 ]
+
+{ #category : #tests }
+SetAuthorizationHeaderCommandTest >> testCannotUseAnEmptyValue [
+
+	self
+		should: [ SetAuthorizationHeaderCommand to: '' ]
+		raise: InstanceCreationFailed
+		withMessageText: 'An Authorization header cannot include empty directives.'
+]
