@@ -33,8 +33,8 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		baseline: 'Hyperspace' with: [ spec repository: 'github://ba-st/Hyperspace:v2' ];
 		project: 'Hyperspace-Deployment' copyFrom: 'Hyperspace' with: [ spec loads: 'Deployment' ];
 		project: 'Hyperspace-SUnit'
-		copyFrom: 'Hyperspace'
-		with: [ spec loads: 'Dependent-SUnit-Extensions' ].
+			copyFrom: 'Hyperspace'
+			with: [ spec loads: 'Dependent-SUnit-Extensions' ].
 
 	spec
 		baseline: 'Launchpad' with: [ spec repository: 'github://ba-st/Launchpad:v3' ];
@@ -50,7 +50,11 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 
 	spec
 		baseline: 'Teapot' with: [ spec repository: 'github://zeroflag/Teapot:v2.6.0/source' ];
-		project: 'Teapot-Deployment' copyFrom: 'Teapot' with: [ spec loads: 'Deployment' ]
+		project: 'Teapot-Deployment' copyFrom: 'Teapot' with: [ spec loads: 'Deployment' ].
+
+	spec
+		baseline: 'Teachable' with: [ spec repository: 'github://astares/Pharo-Teachable:master/src' ];
+		project: 'Teachable-Core' copyFrom: 'Teachable' with: [ spec loads: 'Core' ]
 ]
 
 { #category : #baselines }
@@ -80,7 +84,8 @@ BaselineOfSuperluminal >> setUpPackages: spec [
 			with: [ spec requires: #('Deployment' 'Launchpad-Deployment') ];
 		group: 'Examples' with: 'Superluminal-Service-Discovery-Examples'.
 	spec
-		package: 'Superluminal-SUnit-Model' with: [ spec requires: 'Hyperspace-SUnit' ];
+		package: 'Superluminal-SUnit-Model'
+			with: [ spec requires: #('Hyperspace-SUnit' 'Teachable-Core') ];
 		group: 'Dependent-SUnit-Extensions' with: 'Superluminal-SUnit-Model'.
 	self setUpTestPackages: spec
 ]
