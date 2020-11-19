@@ -1,0 +1,33 @@
+version: '3'
+services:
+  api:
+    image: ghcr.io/ba-st/stargate-consul-example:release-candidate
+    ports:
+      - "8080:8080"
+    environment:
+      PUBLIC_URL: http://api:8080
+      OPERATIONS_SECRET: API-tests
+      HEALTH_CHECK_TOKEN: eyJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6ImV4ZWN1dGU6aGVhbHRoLWNoZWNrIn0.FQgIMpaHZX_7yPWRNC5HAsmlYWkNYu0pdNrSil3ECRc
+      APPLICATION_CONTROL_TOKEN: eyJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6ImV4ZWN1dGU6YXBwbGljYXRpb24tY29udHJvbCJ9.CCMnq-6mlX-ZoSC2OfwdBOVn5DILmahP58hfXowjqFk
+      CONSUL_AGENT_LOCATION: http://consul-agent:8500
+    depends_on:
+      - consul-agent
+  consul-agent:
+    image: consul:1.8
+    ports:
+      - "8500:8500"
+      - "8600:8600"
+      - "8300:8300"
+    environment:
+      CONSUL_BIND_INTERFACE: eth0
+  api-client:
+    build:
+      context: ./
+      args:
+        - BRANCH_NAME
+    environment:
+      MESSAGE: 'Hello'
+      CONSUL_AGENT_LOCATION: http://consul-agent:8500
+    depends_on:
+      - consul-agent
+      - api

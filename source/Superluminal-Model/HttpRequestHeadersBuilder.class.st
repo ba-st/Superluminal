@@ -11,9 +11,15 @@ HttpRequestHeadersBuilder >> setAcceptTo: aMediaType [
 ]
 
 { #category : #configuring }
-HttpRequestHeadersBuilder >> setBearerTokenTo: anOAuth2AccessToken [
+HttpRequestHeadersBuilder >> setAuthorizationTo: anAuthorizationDirective [
 
-	^ SetBearerTokenCommand to: anOAuth2AccessToken
+	^ SetAuthorizationHeaderCommand to: anAuthorizationDirective
+]
+
+{ #category : #configuring }
+HttpRequestHeadersBuilder >> setBearerTokenTo: aBearerToken [
+
+	^ SetAuthorizationHeaderCommand toBearerToken: aBearerToken
 ]
 
 { #category : #configuring }
