@@ -20,21 +20,15 @@ ExpiringResource >> contents [
 	^ currentResource
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #expiration }
 ExpiringResource >> expiresIn: aPointInTime [
 
-	^ response cachingDirectives
-		detect: [ :directive | directive asLowercase beginsWith: 'Max-Age' asLowercase ]
-		ifFound: [ :string | 
-			| maxAge |
-
-			maxAge := ( string copyAfter: $= ) asNumber.
-			self expiresInUsing: 'Date' after: maxAge secondsAt: aPointInTime
-			]
+	^ self
+		withMaxAgeDo: [ :maxAge | self expiresInUsing: 'Date' after: maxAge secondsAt: aPointInTime ]
 		ifNone: [ self expiresInUsing: 'Expires' after: 0 secondsAt: aPointInTime ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #private }
 ExpiringResource >> expiresInUsing: aKey after: aNumber secondsAt: aPointInTime [
 
 	| date expiration |
@@ -54,31 +48,31 @@ ExpiringResource >> initializeFor: aResource controlledBy: aResponse [
 { #category : #testing }
 ExpiringResource >> isExpiredAt: aPointInTime [
 
-	^ response cachingDirectives
-		detect: [ :directive | directive asLowercase beginsWith: 'Max-Age' asLowercase ]
-		ifFound: [ :string | 
-			| maxAge |
-			maxAge := ( string copyAfter: $= ) asNumber.
-			self isExpiredUsing: 'Date' after: maxAge secondsAt: aPointInTime
-			]
+	^ self
+		withMaxAgeDo: [ :maxAge | self isExpiredUsing: 'Date' after: maxAge secondsAt: aPointInTime ]
 		ifNone: [ self isExpiredUsing: 'Expires' after: 0 secondsAt: aPointInTime ]
 ]
 
-{ #category : #'private - testing' }
+{ #category : #private }
 ExpiringResource >> isExpiredUsing: aKey after: aNumber secondsAt: aPointInTime [
 
 	| date expiration |
 
-	date := ZnUtils parseHttpDate: (response headers at: aKey ifAbsent: [^true]).
+	date := ZnUtils parseHttpDate: ( response headers at: aKey ifAbsent: [ ^ true ] ).
 	expiration := date + aNumber seconds.
-	^expiration < aPointInTime truncated
+	^ expiration < aPointInTime truncated
 ]
 
-{ #category : #'as yet unclassified' }
-ExpiringResource >> store: aDistributedMemoryPolicy onDistributedMemoryAt: aBuiltKey at: aPointInTime [
-	
-	^ aDistributedMemoryPolicy
-		set: aBuiltKey
-		value: self
-		expires: (self expiresIn: aPointInTime)
+{ #category : #private }
+ExpiringResource >> withMaxAgeDo: ifPresentBlock ifNone: ifNoneBlock [
+
+	^ response cachingDirectives
+		detect: [ :directive | directive asLowercase beginsWith: 'Max-Age' asLowercase ]
+		ifFound: [ :string | 
+			| maxAge |
+
+			maxAge := ( string copyAfter: $= ) asNumber.
+			ifPresentBlock value: maxAge
+			]
+		ifNone: ifNoneBlock
 ]

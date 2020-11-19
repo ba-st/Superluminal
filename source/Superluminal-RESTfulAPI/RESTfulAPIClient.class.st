@@ -166,13 +166,13 @@ RESTfulAPIClient >> initializeBuildingHttpClientWith: anHttpClientProvider [
 	httpClientPoolByAuthority := Dictionary new.
 	entityTagByLocationCache := Dictionary new.
 	lastKnownRepresentationByLocation := Dictionary new.
-	expiringCache := ExpiringCache accordingTo: [ DateAndTime now ]
+	expiringCache := ExpiringCache onLocalMemory
 ]
 
 { #category : #'private - caching' }
 RESTfulAPIClient >> lastKnownRepresentationOf: aLocation [
 
-	^lastKnownRepresentationByLocation at: (self normalize: aLocation)
+	^ lastKnownRepresentationByLocation at: ( self normalize: aLocation )
 ]
 
 { #category : #'private - caching' }

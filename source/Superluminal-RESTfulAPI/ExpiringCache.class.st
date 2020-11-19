@@ -2,64 +2,56 @@ Class {
 	#name : #ExpiringCache,
 	#superclass : #Object,
 	#instVars : [
-		'expiringResources',
-		'timeSourceProvider'
+		'expiringResources'
 	],
 	#category : #'Superluminal-RESTfulAPI-Cache'
 }
 
 { #category : #'instance creation' }
-ExpiringCache class >> accordingTo: aTimeSourceProvider [
+ExpiringCache class >> onDistributedMemoryAt: aLocationSet [
 
-	^self new initializeAccordingTo: aTimeSourceProvider
+	^ self
+		persistingTo:
+			( DistributedMemoryCacheRepository
+				using: [ DateAndTime now ]
+				persistingTo: ( MDCacheClient onServers: aLocationSet ) )
+]
+
+{ #category : #'instance creation' }
+ExpiringCache class >> onLocalMemory [
+
+	^ self persistingTo: ( LocalMemoryCacheRepository using: [ DateAndTime now ] )
+]
+
+{ #category : #'private - instance creation' }
+ExpiringCache class >> persistingTo: aRepository [
+
+	^ self new initializePersistingTo: aRepository
 ]
 
 { #category : #accessing }
 ExpiringCache >> clearResourceAt: aLocation [
 
-	| urlString resourceAndSubResources |
-
-	urlString := aLocation asUrl asString.
-	resourceAndSubResources := expiringResources keys select: [ :key | key beginsWith: urlString ].
-	resourceAndSubResources do: [ :key | expiringResources removeKey: key ifAbsent: [  ] ]
+	expiringResources remove: aLocation asUrl asString
 ]
 
 { #category : #initialization }
-ExpiringCache >> initializeAccordingTo: aTimeSourceProvider [
+ExpiringCache >> initializePersistingTo: aRepository [
 
-	expiringResources := Dictionary new.
-	timeSourceProvider := aTimeSourceProvider
-]
-
-{ #category : #private }
-ExpiringCache >> store: anExpiringResource at: aBuiltKey [
-
-	expiringResources at: aBuiltKey put: anExpiringResource
+	expiringResources := aRepository
 ]
 
 { #category : #accessing }
 ExpiringCache >> withResourceAt: aBuiltKey obtainedUsing: aGetBlock do: aProcessBlock [
 
-	"expiringResources
-		get: aBuiltKey
-		ifPresent: [ :resource | aProcessBlock value: resource contents ]
-		ifAbsentPut: aGetBlock"
+	| resource |
 
-	
-	expiringResources
-		at: aBuiltKey
-		ifPresent: [ :resource | 
-			( resource isExpiredAt: timeSourceProvider value )
-				ifTrue: [ 
-					| contents |
-					contents := aGetBlock value.
-					self store: contents at: aBuiltKey
-					]
-			]
-		ifAbsent: [ 
-			| contents |
-			contents := aGetBlock value.
-			self store: contents at: aBuiltKey
+	[ resource := expiringResources get: aBuiltKey ]
+		on: KeyNotFound
+		do: [ :signal | 
+			resource := aGetBlock value.
+			expiringResources store: resource at: aBuiltKey
 			].
-	^ aProcessBlock value: ( expiringResources at: aBuiltKey ) contents
+
+	^ aProcessBlock value: resource contents
 ]

@@ -7,34 +7,41 @@ Class {
 	#instVars : [
 		'dateTime',
 		'dateTimeProvider',
-		'currentDateTime'
+		'currentDateTime',
+		'cache'
 	],
 	#category : #'Superluminal-RESTfulAPI-Tests'
 }
 
-{ #category : #private }
-ExpiringCacheTest >> in: aResource obtain: answer from: cache [
+{ #category : #testing }
+ExpiringCacheTest class >> isAbstract [ 
 
-	^cache
+	^  self name = #ExpiringCacheTest
+]
+
+{ #category : #private }
+ExpiringCacheTest >> in: aResource obtain: answer cachedFor: aDuration [
+
+	^ cache
 		withResourceAt: aResource asUrl asString
-		obtainedUsing: [(self resourceFor: answer)]
-		do: [:resource | 'Obtained <1s>' expandMacrosWith: resource]
+		obtainedUsing: [ self resourceFor: answer expiringIn: aDuration ]
+		do: [ :resource | 'Obtained <1s>' expandMacrosWith: resource ]
 ]
 
 { #category : #private }
-ExpiringCacheTest >> obtain: answer from: cache [
+ExpiringCacheTest >> obtain: answer cachedFor: aDuration [
 
-	^self in: 'here' obtain: answer from: cache
+	^ self in: 'here' obtain: answer cachedFor: aDuration
 ]
 
 { #category : #private }
-ExpiringCacheTest >> resourceFor: answer [
+ExpiringCacheTest >> resourceFor: answer expiringIn: aDuration [
 
 	| headers response |
 
 	headers := Dictionary new
 		at: 'Date' put: ( ZnUtils httpDate: dateTime );
-		at: 'Cache-Control' put: #('Max-Age=60');
+		at: 'Cache-Control' put: ( Array with: ( 'Max-Age=<1p>' expandMacrosWith: aDuration asSeconds ) );
 		yourself.
 	response := ZnResponse noContent
 		headers: headers;
@@ -48,60 +55,46 @@ ExpiringCacheTest >> setUp [
 	super setUp.
 	dateTime := DateAndTime now.
 	currentDateTime := dateTime.
-	dateTimeProvider := [ currentDateTime ]
+	dateTimeProvider := [ currentDateTime ].
+	self setUpExpiringCache
+]
+
+{ #category : #initialization }
+ExpiringCacheTest >> setUpExpiringCache [
+
+	self subclassResponsibility 
 ]
 
 { #category : #tests }
 ExpiringCacheTest >> testCachedAnswerIsReturnedBeforeExpiration [
 
-	| cache answer |
+	| answer |
 
-	cache := ExpiringCache accordingTo: dateTimeProvider.
 	answer := 'the first answer'.
-	self assert: ( self obtain: answer from: cache ) equals: 'Obtained the first answer'.
+	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained the first answer'.
 	answer := 'an updated answer'.
-	self assert: ( self obtain: answer from: cache ) equals: 'Obtained the first answer'.
-	currentDateTime := dateTime + 1 minute.
-	self assert: ( self obtain: answer from: cache ) equals: 'Obtained the first answer'.
-	currentDateTime := dateTime + 2 minutes.
-	self assert: ( self obtain: answer from: cache ) equals: 'Obtained an updated answer'
+	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained the first answer'.
+	self waitFor: 1 second.
+	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained the first answer'.
+	self waitFor: 1.1 seconds.
+	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained an updated answer'	
 ]
 
 { #category : #tests }
 ExpiringCacheTest >> testClearResourceAt [
 
-	| cache answer |
+	| answer |
 
-	cache := ExpiringCache accordingTo: dateTimeProvider.
 	answer := 'the first answer'.
-	self assert: ( self obtain: answer from: cache ) equals: 'Obtained the first answer'.
+	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained the first answer'.
 	answer := 'an updated answer'.
-	self assert: ( self obtain: answer from: cache ) equals: 'Obtained the first answer'.
+	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained the first answer'.
 	cache clearResourceAt: 'here'.
-	self assert: ( self obtain: answer from: cache ) equals: 'Obtained an updated answer'
+	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained an updated answer'
 ]
 
 { #category : #tests }
-ExpiringCacheTest >> testClearSubResources [
+ExpiringCacheTest >> waitFor: aDuration [
 
-	| cache answer answerForSubresource |
-
-	cache := ExpiringCache accordingTo: dateTimeProvider.
-	answer := 'the first answer'.
-	self assert: ( self in: 'here' obtain: answer from: cache ) equals: 'Obtained the first answer'.
-	answerForSubresource := 'the first subresource answer'.
-	self
-		assert: ( self in: 'here/subresource' obtain: answerForSubresource from: cache )
-		equals: 'Obtained the first subresource answer'.
-	answer := 'an updated answer'.
-	self assert: ( self in: 'here' obtain: answer from: cache ) equals: 'Obtained the first answer'.
-	self
-		assert: ( self in: 'here/subresource' obtain: answerForSubresource from: cache )
-		equals: 'Obtained the first subresource answer'.
-	cache clearResourceAt: 'here'.
-	answerForSubresource := 'updated subresource answer'.
-	self assert: ( self in: 'here' obtain: answer from: cache ) equals: 'Obtained an updated answer'.
-	self
-		assert: ( self in: 'here/subresource' obtain: answerForSubresource from: cache )
-		equals: 'Obtained updated subresource answer'
+	self subclassResponsibility 
 ]
