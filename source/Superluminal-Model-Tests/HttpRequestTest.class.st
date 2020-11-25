@@ -170,7 +170,7 @@ HttpRequestTest >> testGetWithCustomHeader [
 
 	httpRequest := HttpRequest
 		get: self httpbinLocation
-		configuredUsing: [ :request | request headers set: #XXXX to: 'Yes' ].
+		configuredUsing: [ :request | request headers set: #Authorization to: 'Yes' ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
@@ -181,7 +181,7 @@ HttpRequestTest >> testGetWithCustomHeader [
 			self
 				assert: json url equals: self httpbinLocation;
 				assert: json method equals: 'GET';
-				assert: json headers XXXX equals: 'Yes'
+				assert: json headers Authorization equals: 'Yes'
 			]
 ]
 
