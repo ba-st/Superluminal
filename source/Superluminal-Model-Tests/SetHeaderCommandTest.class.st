@@ -1,26 +1,26 @@
 Class {
-	#name : #SetAuthorizationHeaderCommandTest,
+	#name : #SetHeaderCommandTest,
 	#superclass : #TestCase,
 	#category : #'Superluminal-Model-Tests-Commands'
 }
 
 { #category : #tests }
-SetAuthorizationHeaderCommandTest >> testApplyOn [
+SetHeaderCommandTest >> testApplyOn [
 
 	| httpClient command |
 
 	httpClient := ZnClient new.
-	command := SetAuthorizationHeaderCommand toBearerToken:  'token'.
+	command := SetHeaderCommand settingAuthorizationToBearerToken:  'token'.
 	command applyOn: httpClient.
 
 	self assert: ( httpClient request headers at: #Authorization ) equals: 'Bearer ''token'''
 ]
 
 { #category : #tests }
-SetAuthorizationHeaderCommandTest >> testCannotUseAnEmptyValue [
+SetHeaderCommandTest >> testCannotUseAnEmptyValue [
 
 	self
-		should: [ SetAuthorizationHeaderCommand to: '' ]
+		should: [ SetHeaderCommand settingAuthorizationTo: '' ]
 		raise: InstanceCreationFailed
 		withMessageText: 'An Authorization header cannot include empty directives.'
 ]
