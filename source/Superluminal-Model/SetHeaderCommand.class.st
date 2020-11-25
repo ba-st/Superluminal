@@ -35,7 +35,7 @@ SetHeaderCommand class >> settingAuthorizationTo: anAuthorizationDirective [
 		because: 'An Authorization header cannot include empty directives.'
 		raising: InstanceCreationFailed.
 
-	^ self new initializeSetting: #Authorization to: anAuthorizationDirective
+	^ self setting: #Authorization to: anAuthorizationDirective
 ]
 
 { #category : #'instance creation' }
