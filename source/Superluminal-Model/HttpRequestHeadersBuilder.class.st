@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #configuring }
+HttpRequestHeadersBuilder >> set: aHeaderName to: aHeaderValue [
+
+	^ SetHeaderCommand setting: aHeaderName to: aHeaderValue
+]
+
+{ #category : #configuring }
 HttpRequestHeadersBuilder >> setAcceptTo: aMediaType [
 	
 	^ SetAcceptMediaTypeCommand to: aMediaType 
@@ -13,13 +19,13 @@ HttpRequestHeadersBuilder >> setAcceptTo: aMediaType [
 { #category : #configuring }
 HttpRequestHeadersBuilder >> setAuthorizationTo: anAuthorizationDirective [
 
-	^ SetAuthorizationHeaderCommand to: anAuthorizationDirective
+	^ SetHeaderCommand settingAuthorizationTo: anAuthorizationDirective
 ]
 
 { #category : #configuring }
 HttpRequestHeadersBuilder >> setBearerTokenTo: aBearerToken [
 
-	^ SetAuthorizationHeaderCommand toBearerToken: aBearerToken
+	^ SetHeaderCommand settingAuthorizationToBearerToken: aBearerToken
 ]
 
 { #category : #configuring }

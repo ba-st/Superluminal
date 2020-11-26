@@ -212,17 +212,23 @@ RESTfulAPIClient >> patch: anEntity at: aLocation withSuccessfulResponseDo: aBlo
 RESTfulAPIClient >> post: anEntity at: aLocation withSuccessfulResponseDo: aBlock [
 
 	^ self
-		handleExceptionsDuring: [ | httpRequest response |
+		postAt: aLocation
+		configuredBy: [ :request | request body contents: anEntity ]
+		withSuccessfulResponseDo: aBlock
+]
 
-			httpRequest := HttpRequest
-				post: aLocation
-				configuredUsing: [ :request | request body contents: anEntity ].
+{ #category : #invoking }
+RESTfulAPIClient >> postAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aBlock [
+
+	^ self
+		handleExceptionsDuring: [ 
+			| httpRequest response |
+			httpRequest := HttpRequest post: aLocation configuredUsing: aRequestBuildingBlock.
 			self
 				withHttpClientFor: aLocation
 				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
 			response isSuccess
-				ifTrue: [ 
-					expiringCache clearResourceAt: aLocation.
+				ifTrue: [ expiringCache clearResourceAt: aLocation.
 					response isCreated then: [ self tryToCacheContentsOf: response basedOn: response location ].
 					aBlock value: response contents
 					]
