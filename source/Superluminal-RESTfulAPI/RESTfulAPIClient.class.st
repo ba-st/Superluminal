@@ -104,22 +104,9 @@ RESTfulAPIClient >> finalize [
 RESTfulAPIClient >> get: aLocation accepting: aMediaType withSuccessfulResponseDo: aBlock [
 
 	^ self
-		get: aLocation
-		configuringRequestUsing: [ :request | request headers setAcceptTo: aMediaType ]
+		getAt: aLocation
+		configuredBy: [ :request | request headers setAcceptTo: aMediaType ]
 		withSuccessfulResponseDo: aBlock
-]
-
-{ #category : #'private - inkoving' }
-RESTfulAPIClient >> get: aLocation configuringRequestUsing: aRequestBuildingBlock withSuccessfulResponseDo: aMonadicBlock [
-
-	| key request |
-
-	request := self requestToGet: aLocation configuredUsing: aRequestBuildingBlock.
-	key := ExpiringCacheKeyBuilder keyFor: request at: aLocation.
-	^ expiringCache
-		withResourceAt: key
-		obtainedUsing: [ self get: aLocation executing: request ]
-		do: aMonadicBlock
 ]
 
 { #category : #'private - inkoving' }
@@ -144,7 +131,20 @@ RESTfulAPIClient >> get: aLocation executing: httpRequest [
 { #category : #invoking }
 RESTfulAPIClient >> get: aLocation withSuccessfulResponseDo: aMonadicBlock [
 
-	^ self get: aLocation configuringRequestUsing: [  ] withSuccessfulResponseDo: aMonadicBlock
+	^ self getAt: aLocation configuredBy: [  ] withSuccessfulResponseDo: aMonadicBlock
+]
+
+{ #category : #invoking }
+RESTfulAPIClient >> getAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aMonadicBlock [
+
+	| key request |
+
+	request := self requestToGet: aLocation configuredUsing: aRequestBuildingBlock.
+	key := ExpiringCacheKeyBuilder keyFor: request at: aLocation.
+	^ expiringCache
+		withResourceAt: key
+		obtainedUsing: [ self get: aLocation executing: request ]
+		do: aMonadicBlock
 ]
 
 { #category : #'private - exception handling' }
