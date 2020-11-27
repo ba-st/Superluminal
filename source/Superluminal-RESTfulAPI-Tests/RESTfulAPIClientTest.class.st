@@ -99,6 +99,25 @@ RESTfulAPIClientTest >> testGetAcceptingWithSuccessfulResponseDo [
 ]
 
 { #category : #tests }
+RESTfulAPIClientTest >> testGetAtConfiguredByWithSuccessfulResponseDo [
+
+	apiClient
+		getAt: self httpbinAnythingLocation
+		configuredBy: [ :request | request queryString: [ :queryString | queryString fieldNamed: #step pairedTo: 20 ] ]
+		withSuccessfulResponseDo: [ :responseContents | 
+			self
+				withJsonFrom: responseContents
+				do: [ :json | 
+					self
+						assert: json data isEmpty;
+						assertUrl: json url equals: ( self httpbinAnythingLocation queryAt: 'step' put: 20 );
+						assert: json method equals: 'GET';
+						assert: ( json headers at: #Accept ) equals: '*/*'
+					]
+			]
+]
+
+{ #category : #tests }
 RESTfulAPIClientTest >> testGetCached [
 
 	apiClient
@@ -117,25 +136,6 @@ RESTfulAPIClientTest >> testGetCached [
 				do: [ :json | 
 					self
 						assertUrl: json url equals: self httpbinCacheLocation;
-						assert: ( json headers at: #Accept ) equals: '*/*'
-					]
-			]
-]
-
-{ #category : #tests }
-RESTfulAPIClientTest >> testGetConfiguringRequestUsingWithSuccessfulResponseDo [
-
-	apiClient
-		get: self httpbinAnythingLocation
-		configuringRequestUsing: [ :request | request queryString: [ :queryString | queryString fieldNamed: #step pairedTo: 20 ] ]
-		withSuccessfulResponseDo: [ :responseContents | 
-			self
-				withJsonFrom: responseContents
-				do: [ :json | 
-					self
-						assert: json data isEmpty;
-						assertUrl: json url equals: ( self httpbinAnythingLocation queryAt: 'step' put: 20 );
-						assert: json method equals: 'GET';
 						assert: ( json headers at: #Accept ) equals: '*/*'
 					]
 			]
