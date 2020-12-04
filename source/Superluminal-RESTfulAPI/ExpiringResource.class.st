@@ -43,9 +43,13 @@ ExpiringResource >> isExpiredAt: aPointInTime [
 { #category : #'private - testing' }
 ExpiringResource >> isExpiredUsing: aKey after: aNumber secondsAt: aPointInTime [
 
-	| date expiration |
+	"Any error when parsing expiredKed header should be considered as expired. See: https://tools.ietf.org/html/rfc7234#section-5.3 "
 
-	date := ZnUtils parseHttpDate: (response headers at: aKey ifAbsent: [^true]).
+	| date expiration expiredValue |
+	expiredValue := response headers at: aKey ifAbsent: [ ^ true ].
+	^ [ date := ZnUtils parseHttpDate: expiredValue.
 	expiration := date + aNumber seconds.
-	^expiration < aPointInTime truncated
+	expiration < aPointInTime truncated ]
+		on: Error
+		do: [ :ex | ex return: true ]
 ]
