@@ -43,7 +43,7 @@ ExpiringResource >> isExpiredAt: aPointInTime [
 { #category : #'private - testing' }
 ExpiringResource >> isExpiredUsing: aKey after: aNumber secondsAt: aPointInTime [
 
-	"Any error when parsing expiredKed header should be considered as expired. See: https://tools.ietf.org/html/rfc7234#section-5.3 "
+	"Any error when parsing Expires header field should be considered as expired. See: https://tools.ietf.org/html/rfc7234#section-5.3 "
 
 	| date expiration expiredValue |
 	expiredValue := response headers at: aKey ifAbsent: [ ^ true ].
