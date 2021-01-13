@@ -13,8 +13,8 @@ SetAcceptMediaTypeCommandTest >> testApplyOn [
 	| httpClient command |
 
 	httpClient := ZnClient new.
-	command := SetAcceptMediaTypeCommand to: 'application/json' asMIMEType.
+	command := SetAcceptMediaTypeCommand to: 'application/json' asMediaType.
 	command applyOn: httpClient.
 
-	self assert: (httpClient request accept) equals: 'application/json'
+	self assert: httpClient request accept equals: 'application/json'
 ]

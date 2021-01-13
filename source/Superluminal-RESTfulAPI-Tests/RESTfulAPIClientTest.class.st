@@ -248,17 +248,15 @@ RESTfulAPIClientTest >> testPutAt [
 
 	| response |
 
-	response := apiClient put: ( ZnEntity json: '["hi"]' ) at: 'http://localhost/put'.
+	response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self httpbinLocation / 'put'.
 
-	self
-		withJsonFrom: response contents
-		do: [ :json | 
-			self
-				assert: json json equals: #('hi');
-				assertUrl: json url equals: 'http://localhost/put';
-				assert: ( json headers at: #Accept ) equals: '*/*';
-				assert: ( json headers at: #'Content-Length' ) equals: '6'
-			]
+	self withJsonFrom: response contents do: [ :json | 
+		self
+			assert: json json equals: #( 'hi' );
+			assertUrl: json url equals: self httpbinLocation / 'put';
+			assert: ( json headers at: #Accept ) equals: '*/*';
+			assert: ( json headers at: #'Content-Length' ) equals: '6'
+		]
 ]
 
 { #category : #tests }

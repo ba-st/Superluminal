@@ -5,7 +5,8 @@ Class {
 	#name : #ConsulAgentHttpAPIBasedDiscoveryClientTest,
 	#superclass : #TestCase,
 	#instVars : [
-		'consulAgent'
+		'consulAgent',
+		'port'
 	],
 	#category : #'Superluminal-Service-Discovery-Tests'
 }
@@ -13,22 +14,17 @@ Class {
 { #category : #accessing }
 ConsulAgentHttpAPIBasedDiscoveryClientTest >> consulAgentLocation [ 
 
-	^ 'http://localhost' asUrl port: self port
-]
-
-{ #category : #accessing }
-ConsulAgentHttpAPIBasedDiscoveryClientTest >> port [
- 
-	^ 41663
+	^ 'http://localhost' asUrl port: port
 ]
 
 { #category : #running }
 ConsulAgentHttpAPIBasedDiscoveryClientTest >> setUp [
 
 	super setUp.
+	port := self freeListeningTCPPort.
 	consulAgent := StubbedConsulAgentHealthHttpAPI
 		               configuredBy: { 
-				               #port -> self port.
+				               #port -> port.
 				               #serverUrl -> self consulAgentLocation.
 				               #debugMode -> true }
 		               on: self.
