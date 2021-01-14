@@ -8,6 +8,12 @@ Class {
 }
 
 { #category : #private }
+HttpRequestTest >> assertJson: json at: attribute equals: anObject [
+
+	self assert: ( json at: attribute ) equals: anObject
+]
+
+{ #category : #private }
 HttpRequestTest >> customEntity [
 
 	^ ZnEntity
@@ -49,27 +55,23 @@ HttpRequestTest >> testComposite [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		get: self httpbinLocation
-		configuredUsing: [ :request | 
-			( request
-				queryString: [ :queryString | 
-					queryString
-						fieldNamed: 'first_name' pairedTo: 'fran';
-						fieldNamed: 'last_name' pairedTo: 'fox'
-					] ) + ( request headers setAcceptTo: self fullNameVersion1dot0dot0MediaType )
-			].
+	httpRequest := HttpRequest get: self httpbinLocation configuredUsing: [ :request | 
+		               ( request queryString: [ :queryString | 
+			                 queryString
+				                 fieldNamed: 'first_name' pairedTo: 'fran';
+				                 fieldNamed: 'last_name' pairedTo: 'fox'
+			                 ] ) + ( request headers setAcceptTo: self fullNameVersion1dot0dot0MediaType )
+		               ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
 	self
 		assert: response isSuccess;
-		withJsonFromContentsIn: response
-			do: [ :json | 
+		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation , '?last_name=fox&first_name=fran';
+				assertUrl: json url equals: self httpbinLocation , '?last_name=fox&first_name=fran';
 				assert: json method equals: 'GET';
-				assert: json headers Accept equals: 'application/vnd.nap.full_name+json;version=1.0.0'
+				assertJson: json headers at: #Accept equals: 'application/vnd.nap.full_name+json;version=1.0.0'
 			]
 ]
 
@@ -78,28 +80,26 @@ HttpRequestTest >> testDeleteContentAsCustomMediaType [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		delete: self httpbinLocation
-		configuredUsing:
-			[ :request | request body contents: self encodedFullName encodedAs: self fullNameVersion1dot0dot0MediaType ].
+	httpRequest := HttpRequest delete: self httpbinLocation configuredUsing: [ :request | 
+		               request body contents: self encodedFullName
+			               encodedAs: self fullNameVersion1dot0dot0MediaType ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
 	self
 		assert: response isSuccess;
-		withJsonFromContentsIn: response
-			do: [ :json | 
+		withJsonFromContentsIn: response do: [ :json | 
 			self
 				assert: json url equals: self httpbinLocation;
 				assert: json method equals: 'DELETE';
-				withJsonFrom: json data
-					do: [ :data | 
+				withJsonFrom: json data do: [ :data | 
 					self
-						assert: data first_name equals: 'fran';
-						assert: data last_name equals: 'fox'
+						assertJson: data at: #first_name equals: 'fran';
+						assertJson: data at: #last_name equals: 'fox'
 					];
-				assert: ( json headers at: #'Content-Type' )
-					equals: 'application/vnd.nap.full_name+json;version=1.0.0'
+				assertJson: json headers
+				at: #'Content-Type'
+				equals: 'application/vnd.nap.full_name+json;version=1.0.0'
 			]
 ]
 
@@ -146,20 +146,19 @@ HttpRequestTest >> testGetWithAuthorization [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		get: self httpbinLocation
-		configuredUsing: [ :request | request headers setAuthorizationTo: 'Basic YWxhZGRpbjpvcGVuc2VzYW1l' ].
+	httpRequest := HttpRequest get: self httpbinLocation
+		               configuredUsing: [ :request | 
+		               request headers setAuthorizationTo: 'Basic YWxhZGRpbjpvcGVuc2VzYW1l' ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
 	self
 		assert: response isSuccess;
-		withJsonFromContentsIn: response
-			do: [ :json | 
+		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation;
+				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'GET';
-				assert: json headers Authorization equals: 'Basic YWxhZGRpbjpvcGVuc2VzYW1l'
+				assertJson: json headers at: #Authorization equals: 'Basic YWxhZGRpbjpvcGVuc2VzYW1l'
 			]
 ]
 
@@ -168,20 +167,18 @@ HttpRequestTest >> testGetWithCustomHeader [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		get: self httpbinLocation
-		configuredUsing: [ :request | request headers set: #Authorization to: 'Yes' ].
+	httpRequest := HttpRequest get: self httpbinLocation
+		               configuredUsing: [ :request | request headers set: #Authorization to: 'Yes' ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
 	self
 		assert: response isSuccess;
-		withJsonFromContentsIn: response
-			do: [ :json | 
+		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation;
+				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'GET';
-				assert: json headers Authorization equals: 'Yes'
+				assertJson: json headers at: #Authorization equals: 'Yes'
 			]
 ]
 
@@ -199,7 +196,7 @@ HttpRequestTest >> testGetWithEmptyConfiguration [
 		withJsonFromContentsIn: response
 			do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation;
+				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'GET'
 			]
 ]
@@ -220,9 +217,9 @@ HttpRequestTest >> testGetWithToken [
 		withJsonFromContentsIn: response
 			do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation;
+				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'GET';
-				assert: json headers Authorization equals: 'Bearer ''xxx'''
+				assertJson: json headers at: #Authorization equals: 'Bearer ''xxx'''
 			]
 ]
 
@@ -231,28 +228,26 @@ HttpRequestTest >> testPatchContentAsCustomMediaType [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		patch: self httpbinLocation
-		configuredUsing:
-			[ :request | request body contents: self encodedFullName encodedAs: self fullNameVersion1dot0dot0MediaType ].
+	httpRequest := HttpRequest patch: self httpbinLocation configuredUsing: [ :request | 
+		               request body contents: self encodedFullName
+			               encodedAs: self fullNameVersion1dot0dot0MediaType ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
 	self
 		assert: response isSuccess;
-		withJsonFromContentsIn: response
-			do: [ :json | 
+		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation;
+				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'PATCH';
-				withJsonFrom: json data
-					do: [ :data | 
+				withJsonFrom: json data do: [ :data | 
 					self
-						assert: data first_name equals: 'fran';
-						assert: data last_name equals: 'fox'
+						assertJson: data at: #first_name equals: 'fran';
+						assertJson: data at: #last_name equals: 'fox'
 					];
-				assert: ( json headers at: #'Content-Type' )
-					equals: 'application/vnd.nap.full_name+json;version=1.0.0'
+				assertJson: json headers
+				at: #'Content-Type'
+				equals: 'application/vnd.nap.full_name+json;version=1.0.0'
 			]
 ]
 
@@ -261,29 +256,25 @@ HttpRequestTest >> testPatchContentAsFormUrlEncoded [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		patch: self httpbinLocation
-		configuredUsing: [ :request | 
-			request body
-				formUrlEncoded: [ :form | 
-					form
-						fieldNamed: 'first_name' pairedTo: 'fran';
-						fieldNamed: 'last_name' pairedTo: 'fox'
-					]
-			].
+	httpRequest := HttpRequest patch: self httpbinLocation configuredUsing: [ :request | 
+		               request body formUrlEncoded: [ :form | 
+			               form
+				               fieldNamed: 'first_name' pairedTo: 'fran';
+				               fieldNamed: 'last_name' pairedTo: 'fox'
+			               ]
+		               ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
 	self
 		assert: response isSuccess;
-		withJsonFromContentsIn: response
-			do: [ :json | 
+		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation;
+				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'PATCH';
-				assert: json form first_name equals: 'fran';
-				assert: json form last_name equals: 'fox';
-				assert: ( json headers at: #'Content-Type' ) equals: 'application/x-www-form-urlencoded'
+				assertJson: json form at: #first_name equals: 'fran';
+				assertJson: json form at: #last_name equals: 'fox';
+				assertJson: json headers at: #'Content-Type' equals: 'application/x-www-form-urlencoded'
 			]
 ]
 
@@ -292,31 +283,25 @@ HttpRequestTest >> testPatchContentAsJson [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		patch: self httpbinLocation
-		configuredUsing: [ :request | 
-			request body
-				json:
-					( Dictionary new
-						at: 'first_name' put: 'fran';
-						at: 'last_name' put: 'fox';
-						yourself )
-			].
+	httpRequest := HttpRequest patch: self httpbinLocation configuredUsing: [ :request | 
+		               request body json: ( Dictionary new
+				                 at: 'first_name' put: 'fran';
+				                 at: 'last_name' put: 'fox';
+				                 yourself )
+		               ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
 	self
 		assert: response isSuccess;
-		withJsonFromContentsIn: response
-			do: [ :json | 
+		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation;
+				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'PATCH';
-				withJsonFrom: json data
-					do: [ :data | 
+				withJsonFrom: json data do: [ :data | 
 					self
-						assert: data first_name equals: 'fran';
-						assert: data last_name equals: 'fox'
+						assertJson: data at: #first_name equals: 'fran';
+						assertJson: data at: #last_name equals: 'fox'
 					]
 			]
 ]
@@ -326,33 +311,27 @@ HttpRequestTest >> testPostEncodedAsJson [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		post: self httpbinLocation
-		configuredUsing: [ :request | 
-			request body
-				json:
-					( Dictionary new
-						at: 'first_name' put: 'fran';
-						at: 'last_name' put: 'fox';
-						yourself )
-			].
+	httpRequest := HttpRequest post: self httpbinLocation configuredUsing: [ :request | 
+		               request body json: ( Dictionary new
+				                 at: 'first_name' put: 'fran';
+				                 at: 'last_name' put: 'fox';
+				                 yourself )
+		               ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
 	self
 		assert: response isSuccess;
-		withJsonFromContentsIn: response
-			do: [ :json | 
+		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation;
+				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'POST';
-				withJsonFrom: json data
-					do: [ :data | 
+				withJsonFrom: json data do: [ :data | 
 					self
-						assert: data first_name equals: 'fran';
-						assert: data last_name equals: 'fox'
+						assertJson: data at: #first_name equals: 'fran';
+						assertJson: data at: #last_name equals: 'fox'
 					];
-				assert: ( json headers at: #'Content-Type' ) equals: 'application/json'
+				assertJson: json headers at: #'Content-Type' equals: 'application/json'
 			]
 ]
 
@@ -361,28 +340,26 @@ HttpRequestTest >> testPostEncodedDataAndMediaType [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		post: self httpbinLocation
-		configuredUsing:
-			[ :request | request body contents: self encodedFullName encodedAs: self fullNameVersion1dot0dot0MediaType ].
+	httpRequest := HttpRequest post: self httpbinLocation configuredUsing: [ :request | 
+		               request body contents: self encodedFullName
+			               encodedAs: self fullNameVersion1dot0dot0MediaType ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
 	self
 		assert: response isSuccess;
-		withJsonFromContentsIn: response
-			do: [ :json | 
+		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation;
+				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'POST';
-				withJsonFrom: json data
-					do: [ :data | 
+				withJsonFrom: json data do: [ :data | 
 					self
-						assert: data first_name equals: 'fran';
-						assert: data last_name equals: 'fox'
+						assertJson: data at: #first_name equals: 'fran';
+						assertJson: data at: #last_name equals: 'fox'
 					];
-				assert: ( json headers at: #'Content-Type' )
-					equals: 'application/vnd.nap.full_name+json;version=1.0.0'
+				assertJson: json headers
+				at: #'Content-Type'
+				equals: 'application/vnd.nap.full_name+json;version=1.0.0'
 			]
 ]
 
@@ -391,29 +368,25 @@ HttpRequestTest >> testPostFormUrlEncoded [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		post: self httpbinLocation
-		configuredUsing: [ :request | 
-			request body
-				formUrlEncoded: [ :form | 
-					form
-						fieldNamed: 'first_name' pairedTo: 'fran';
-						fieldNamed: 'last_name' pairedTo: 'fox'
-					]
-			].
+	httpRequest := HttpRequest post: self httpbinLocation configuredUsing: [ :request | 
+		               request body formUrlEncoded: [ :form | 
+			               form
+				               fieldNamed: 'first_name' pairedTo: 'fran';
+				               fieldNamed: 'last_name' pairedTo: 'fox'
+			               ]
+		               ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
 	self
 		assert: response isSuccess;
-		withJsonFromContentsIn: response
-			do: [ :json | 
+		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation;
+				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'POST';
-				assert: json form first_name equals: 'fran';
-				assert: json form last_name equals: 'fox';
-				assert: ( json headers at: #'Content-Type' ) equals: 'application/x-www-form-urlencoded'
+				assertJson: json form at: #first_name equals: 'fran';
+				assertJson: json form at: #last_name equals: 'fox';
+				assertJson: json headers at: #'Content-Type' equals: 'application/x-www-form-urlencoded'
 			]
 ]
 
@@ -422,27 +395,24 @@ HttpRequestTest >> testPostUsingEntity [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		post: self httpbinLocation
-		configuredUsing: [ :request | request body contents: self customEntity ].
+	httpRequest := HttpRequest post: self httpbinLocation
+		               configuredUsing: [ :request | request body contents: self customEntity ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
-	self
-		withJsonFromContentsIn: response
-		do: [ :json | 
-			self
-				assert: json url equals: self httpbinLocation;
-				assert: json method equals: 'POST';
-				withJsonFrom: json data
-					do: [ :data | 
-					self
-						assert: data first_name equals: 'fran';
-						assert: data last_name equals: 'fox'
-					];
-				assert: ( json headers at: #'Content-Type' )
-					equals: 'application/vnd.nap.full_name+json;version=1.0.0'
-			]
+	self withJsonFromContentsIn: response do: [ :json | 
+		self
+			assertUrl: json url equals: self httpbinLocation;
+			assert: json method equals: 'POST';
+			withJsonFrom: json data do: [ :data | 
+				self
+					assertJson: data at: #first_name equals: 'fran';
+					assertJson: data at: #last_name equals: 'fox'
+				];
+			assertJson: json headers
+			at: #'Content-Type'
+			equals: 'application/vnd.nap.full_name+json;version=1.0.0'
+		]
 ]
 
 { #category : #tests }
@@ -450,33 +420,27 @@ HttpRequestTest >> testPutEncodedAsJson [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		put: self httpbinLocation
-		configuredUsing: [ :request | 
-			request body
-				json:
-					( Dictionary new
-						at: 'first_name' put: 'fran';
-						at: 'last_name' put: 'fox';
-						yourself )
-			].
+	httpRequest := HttpRequest put: self httpbinLocation configuredUsing: [ :request | 
+		               request body json: ( Dictionary new
+				                 at: 'first_name' put: 'fran';
+				                 at: 'last_name' put: 'fox';
+				                 yourself )
+		               ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
 	self
 		assert: response isSuccess;
-		withJsonFromContentsIn: response
-			do: [ :json | 
+		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation;
+				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'PUT';
-				withJsonFrom: json data
-					do: [ :data | 
+				withJsonFrom: json data do: [ :data | 
 					self
-						assert: data first_name equals: 'fran';
-						assert: data last_name equals: 'fox'
+						assertJson: data at: #first_name equals: 'fran';
+						assertJson: data at: #last_name equals: 'fox'
 					];
-				assert: ( json headers at: #'Content-Type' ) equals: 'application/json'
+				assertJson: json headers at: #'Content-Type' equals: 'application/json'
 			]
 ]
 
@@ -485,23 +449,21 @@ HttpRequestTest >> testPutIfMatch [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		put: self httpbinLocation
-		configuredUsing:
-			[ :request | ( request body json: 'hello world' ) + ( request headers setIfMatchTo: '"12345"' asETag ) ].
+	httpRequest := HttpRequest put: self httpbinLocation configuredUsing: [ :request | 
+		               ( request body json: 'hello world' )
+		               + ( request headers setIfMatchTo: '"12345"' asETag ) ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
 	self
 		assert: response isSuccess;
-		withJsonFromContentsIn: response
-			do: [ :json | 
+		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation;
+				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'PUT';
 				withJsonFrom: json data do: [ :data | self assert: data equals: 'hello world' ];
-				assert: ( json headers at: #'Content-Type' ) equals: 'application/json';
-				assert: ( json headers at: #'If-Match' ) equals: '"12345"'
+				assertJson: json headers at: #'Content-Type' equals: 'application/json';
+				assertJson: json headers at: #'If-Match' equals: '"12345"'
 			]
 ]
 
@@ -510,23 +472,21 @@ HttpRequestTest >> testPutIfNoneMatch [
 
 	| httpRequest response |
 
-	httpRequest := HttpRequest
-		put: self httpbinLocation
-		configuredUsing:
-			[ :request | ( request body json: 'hello world' ) + ( request headers setIfNoneMatchTo: '"12345"' asETag ) ].
+	httpRequest := HttpRequest put: self httpbinLocation configuredUsing: [ :request | 
+		               ( request body json: 'hello world' )
+		               + ( request headers setIfNoneMatchTo: '"12345"' asETag ) ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
 	self
 		assert: response isSuccess;
-		withJsonFromContentsIn: response
-			do: [ :json | 
+		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation;
+				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'PUT';
 				withJsonFrom: json data do: [ :data | self assert: data equals: 'hello world' ];
-				assert: ( json headers at: #'Content-Type' ) equals: 'application/json';
-				assert: ( json headers at: #'If-None-Match' ) equals: '"12345"'
+				assertJson: json headers at: #'Content-Type' equals: 'application/json';
+				assertJson: json headers at: #'If-None-Match' equals: '"12345"'
 			]
 ]
 
@@ -553,7 +513,7 @@ HttpRequestTest >> testQueryString [
 		withJsonFromContentsIn: response
 			do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation , '?last_name=fox&first_name=fran';
+				assertUrl: json url equals: self httpbinLocation , '?last_name=fox&first_name=fran';
 				assert: json method equals: 'GET'
 			]
 ]
@@ -579,7 +539,7 @@ HttpRequestTest >> testRequestConfigurationIsClearedWhenReusingClient [
 		withJsonFromContentsIn: response
 			do: [ :json | 
 			self
-				assert: json url equals: self httpbinLocation , '?last_name=fox';
+				assertUrl: json url equals: self httpbinLocation , '?last_name=fox';
 				assert: json method equals: 'GET';
 				assert: ( json headers at: #'Content-Type' ) isNil;
 				assert: json data isEmpty

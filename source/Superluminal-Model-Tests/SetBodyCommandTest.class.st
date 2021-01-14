@@ -16,7 +16,7 @@ SetBodyCommandTest >> testApplyOn [
 
 	self
 		assert: httpClient request contentLength equals: json size;
-		assert: httpClient request contentType equals: 'application/json' asMIMEType;
+		assert: httpClient request contentType equals: 'application/json' asMediaType;
 		assert: httpClient request contents equals: json
 ]
 
@@ -27,11 +27,11 @@ SetBodyCommandTest >> testApplyOnUsingMimeType [
 
 	httpClient := ZnClient new.
 	json := '{"last_name":"fox","first_name":"fran"}'.
-	command := SetBodyCommand to: ( ZnEntity with: json type: 'application/vnd.mercap.objective+json' asMIMEType ).
+	command := SetBodyCommand to: ( ZnEntity with: json type: 'application/vnd.mercap.objective+json' asMediaType ).
 	command applyOn: httpClient.
 
 	self
 		assert: httpClient request contentLength equals: json size;
-		assert: httpClient request contentType equals: 'application/vnd.mercap.objective+json' asMIMEType;
+		assert: httpClient request contentType equals: 'application/vnd.mercap.objective+json' asMediaType;
 		assert: httpClient request contents equals: json
 ]

@@ -5,7 +5,6 @@ Class {
 	#name : #StubbedConsulAgentHealthHttpAPI,
 	#superclass : #Object,
 	#instVars : [
-		'registeredServices',
 		'asserter',
 		'server'
 	],
@@ -21,7 +20,7 @@ StubbedConsulAgentHealthHttpAPI class >> configuredBy: configuration on: aTestAs
 { #category : #initialization }
 StubbedConsulAgentHealthHttpAPI >> configureTeapotServerWith: configuration [
 
-	server := Teapot configure: configuration.
+	server := Teapot configure: configuration , { #defaultOutput -> #json }.
 	server GET:
 		'v1/health/service/<serviceName:IsObject>'
 		-> [ :request | self handleServiceHealthLookup: request ]
@@ -36,19 +35,17 @@ StubbedConsulAgentHealthHttpAPI >> handleServiceHealthLookup: httpRequest [
 	serviceName := httpRequest at: #serviceName.
 	json := serviceName = 'mns' then: [ self stubbedBodyResponse ] otherwise: [ '[]' ].
 	^ TeaResponse ok
-		  body: json;
-		  headerName: 'Content-Type' value: ZnMimeType applicationJson asString;
+		  body: (NeoJSONObject fromString: json);
 		  headerName: 'X-Consul-Effective-Consistency' value: 'leader';
-		  headerName: 'X-Consul-Index' value: 23;
+		  headerName: 'X-Consul-Index' value: '23';
 		  headerName: 'X-Consul-Knownleader' value: 'true';
-		  headerName: 'X-Consul-Lastcontact' value: 0;
+		  headerName: 'X-Consul-Lastcontact' value: '0';
 		  yourself
 ]
 
 { #category : #initialization }
 StubbedConsulAgentHealthHttpAPI >> initializeConfiguredBy: configuration on: aTestAsserter [
 
-	registeredServices := OrderedCollection new.
 	asserter := aTestAsserter.
 	self configureTeapotServerWith: configuration
 ]
