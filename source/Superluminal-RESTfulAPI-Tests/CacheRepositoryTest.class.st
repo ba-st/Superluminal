@@ -16,7 +16,7 @@ CacheRepositoryTest class >> isAbstract [
 	^  self name = #CacheRepositoryTest
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #private }
 CacheRepositoryTest >> resourceFor: answer expiringIn: aDuration [
 
 	| headers response |
@@ -41,7 +41,7 @@ CacheRepositoryTest >> setUp [
 	self setUpRepository
 ]
 
-{ #category : #initialization }
+{ #category : #running }
 CacheRepositoryTest >> setUpRepository [
 
 	self subclassResponsibility 

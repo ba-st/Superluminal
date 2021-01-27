@@ -4,13 +4,13 @@ Class {
 	#category : #'Superluminal-RESTfulAPI-Tests'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #running }
 LocalMemoryBasedExpiringCacheTest >> setUpExpiringCache [
 
 	cache := ExpiringCache persistingTo: ( LocalMemoryCacheRepository using: dateTimeProvider )
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #private }
 LocalMemoryBasedExpiringCacheTest >> waitFor: aDuration [ 
 	
 	currentDateTime := currentDateTime + aDuration

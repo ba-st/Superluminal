@@ -7,7 +7,7 @@ Class {
 	#category : #'Superluminal-RESTfulAPI-Tests'
 }
 
-{ #category : #initialization }
+{ #category : #running }
 DistributedMemoryCacheRepositoryTest >> setUpRepository [
 
 	repository := DistributedMemoryCacheRepository
@@ -15,7 +15,7 @@ DistributedMemoryCacheRepositoryTest >> setUpRepository [
 		persistingTo: ( MDCacheClient onServers: {'127.0.0.1:11211'} )
 ]
 
-{ #category : #tests }
+{ #category : #private }
 DistributedMemoryCacheRepositoryTest >> waitFor: aDuration [
 
 	currentDateTime := dateTime + aDuration.

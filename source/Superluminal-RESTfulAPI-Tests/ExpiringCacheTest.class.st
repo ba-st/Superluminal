@@ -5,10 +5,10 @@ Class {
 	#name : #ExpiringCacheTest,
 	#superclass : #TestCase,
 	#instVars : [
-		'dateTime',
 		'dateTimeProvider',
 		'currentDateTime',
-		'cache'
+		'cache',
+		'location'
 	],
 	#category : #'Superluminal-RESTfulAPI-Tests'
 }
@@ -31,7 +31,7 @@ ExpiringCacheTest >> in: aResource obtain: answer cachedFor: aDuration [
 { #category : #private }
 ExpiringCacheTest >> obtain: answer cachedFor: aDuration [
 
-	^ self in: 'here' obtain: answer cachedFor: aDuration
+	^ self in: location obtain: answer cachedFor: aDuration
 ]
 
 { #category : #private }
@@ -40,7 +40,7 @@ ExpiringCacheTest >> resourceFor: answer expiringIn: aDuration [
 	| headers response |
 
 	headers := Dictionary new
-		at: 'Date' put: ( ZnUtils httpDate: dateTime );
+		at: 'Date' put: ( ZnUtils httpDate: currentDateTime );
 		at: 'Cache-Control' put: ( Array with: ( 'Max-Age=<1p>' expandMacrosWith: aDuration asSeconds ) );
 		yourself.
 	response := ZnResponse noContent
@@ -53,13 +53,13 @@ ExpiringCacheTest >> resourceFor: answer expiringIn: aDuration [
 ExpiringCacheTest >> setUp [
 
 	super setUp.
-	dateTime := DateAndTime now.
-	currentDateTime := dateTime.
+	currentDateTime := DateAndTime now truncated.
 	dateTimeProvider := [ currentDateTime ].
+	location := UUID new asString.
 	self setUpExpiringCache
 ]
 
-{ #category : #initialization }
+{ #category : #running }
 ExpiringCacheTest >> setUpExpiringCache [
 
 	self subclassResponsibility 
@@ -76,7 +76,7 @@ ExpiringCacheTest >> testCachedAnswerIsReturnedBeforeExpiration [
 	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained the first answer'.
 	self waitFor: 1 second.
 	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained the first answer'.
-	self waitFor: 1.1 seconds.
+	self waitFor: 1 seconds + 1 milliSecond.
 	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained an updated answer'	
 ]
 
@@ -89,7 +89,7 @@ ExpiringCacheTest >> testClearResourceAt [
 	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained the first answer'.
 	answer := 'an updated answer'.
 	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained the first answer'.
-	cache clearResourceAt: 'here'.
+	cache clearResourceAt: location.
 	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained an updated answer'
 ]
 

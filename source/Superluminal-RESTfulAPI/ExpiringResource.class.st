@@ -20,22 +20,31 @@ ExpiringResource >> contents [
 	^ currentResource
 ]
 
-{ #category : #expiration }
-ExpiringResource >> expiresIn: aPointInTime [
+{ #category : #private }
+ExpiringResource >> date [
 
-	^ self
-		withMaxAgeDo: [ :maxAge | self expiresInUsing: 'Date' after: maxAge secondsAt: aPointInTime ]
-		ifNone: [ self expiresInUsing: 'Expires' after: 0 secondsAt: aPointInTime ]
+	^ ZnUtils parseHttpDate: ( response headers at: 'Date' )
 ]
 
 { #category : #private }
-ExpiringResource >> expiresInUsing: aKey after: aNumber secondsAt: aPointInTime [
+ExpiringResource >> expires [
 
-	| date expiration |
+	^ ZnUtils parseHttpDate: ( response headers at: 'Expires' )
+]
 
-	date := ZnUtils parseHttpDate: ( response headers at: aKey ifAbsent: [ ^ self halt ] ).
-	expiration := date + aNumber seconds.
-	^ expiration - aPointInTime truncated
+{ #category : #private }
+ExpiringResource >> ifMaxAgePresentDo: maxAgeBlock ifExpiresPresentDo: expiresBlock ifNone: noneBlock [
+
+	"Max age represents the amount of time a resource is considered fresh. Unlike Expires, this directive is relative to the time of the request.
+	
+	Expires is an absolute datetime after which the response is considered stale."
+
+	^ [ self
+		withMaxAgeDo: [ :maxAge | maxAgeBlock value: self date + maxAge ]
+		ifNone: [ expiresBlock value: self expires ]
+	]
+		on: NotFound , SubscriptOutOfBounds
+		do: [ :ex | ex return: noneBlock value ]
 ]
 
 { #category : #initialization }
@@ -48,31 +57,37 @@ ExpiringResource >> initializeFor: aResource controlledBy: aResponse [
 { #category : #testing }
 ExpiringResource >> isExpiredAt: aPointInTime [
 
+	^ self withExpirationDo: [ :expiration | expiration < aPointInTime ] ifNone: [ true ]
+]
+
+{ #category : #expiring }
+ExpiringResource >> timeToExpireAt: aPointInTime [
+
+	^ [ self
+		withExpirationDo: [ :expiration | expiration - aPointInTime ]
+		ifNone: [ ResourceHasExpired signal ]
+	] unless: ( self isExpiredAt: aPointInTime ) inWhichCase: [ ResourceHasExpired signal ]
+]
+
+{ #category : #private }
+ExpiringResource >> withExpirationDo: ifPresentBlock ifNone: noneBlock [
+
 	^ self
-		withMaxAgeDo: [ :maxAge | self isExpiredUsing: 'Date' after: maxAge secondsAt: aPointInTime ]
-		ifNone: [ self isExpiredUsing: 'Expires' after: 0 secondsAt: aPointInTime ]
+		ifMaxAgePresentDo: ifPresentBlock 
+		ifExpiresPresentDo: ifPresentBlock
+		ifNone: noneBlock
 ]
 
 { #category : #private }
-ExpiringResource >> isExpiredUsing: aKey after: aNumber secondsAt: aPointInTime [
-
-	| date expiration |
-
-	date := ZnUtils parseHttpDate: ( response headers at: aKey ifAbsent: [ ^ true ] ).
-	expiration := date + aNumber seconds.
-	^ expiration < aPointInTime truncated
-]
-
-{ #category : #private }
-ExpiringResource >> withMaxAgeDo: ifPresentBlock ifNone: ifNoneBlock [
+ExpiringResource >> withMaxAgeDo: ifPresentBlock ifNone: noneBlock [
 
 	^ response cachingDirectives
 		detect: [ :directive | directive asLowercase beginsWith: 'Max-Age' asLowercase ]
 		ifFound: [ :string | 
 			| maxAge |
 
-			maxAge := ( string copyAfter: $= ) asNumber.
+			maxAge := ( string copyAfter: $= ) asNumber seconds.
 			ifPresentBlock value: maxAge
 			]
-		ifNone: ifNoneBlock
+		ifNone: noneBlock
 ]

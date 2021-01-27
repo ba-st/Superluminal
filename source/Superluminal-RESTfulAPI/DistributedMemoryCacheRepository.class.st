@@ -43,5 +43,5 @@ DistributedMemoryCacheRepository >> store: anExpiringResource at: aKey [
 	expiringResources
 		set: aKey
 		value: anExpiringResource 
-		expires: ( anExpiringResource expiresIn: timeSource value )
+		expires: ( anExpiringResource timeToExpireAt: timeSource value )
 ]
