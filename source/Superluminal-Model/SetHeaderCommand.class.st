@@ -12,39 +12,47 @@ Directives
 
 "
 Class {
-	#name : #SetAuthorizationHeaderCommand,
+	#name : #SetHeaderCommand,
 	#superclass : #HttpRequestCommand,
 	#instVars : [
-		'authorizationDirectives'
+		'headerName',
+		'headerValue'
 	],
 	#category : #'Superluminal-Model-Commands'
 }
 
 { #category : #'instance creation' }
-SetAuthorizationHeaderCommand class >> to: anAuthorizationDirective [
+SetHeaderCommand class >> setting: aHeaderName to: aHeaderValue [
+
+	^ self new initializeSetting: aHeaderName to: aHeaderValue
+]
+
+{ #category : #'instance creation' }
+SetHeaderCommand class >> settingAuthorizationTo: anAuthorizationDirective [
 
 	AssertionChecker
 		enforce: [ anAuthorizationDirective notEmpty ]
 		because: 'An Authorization header cannot include empty directives.'
 		raising: InstanceCreationFailed.
 
-	^ self new initializeTo: anAuthorizationDirective
+	^ self setting: #Authorization to: anAuthorizationDirective asString
 ]
 
 { #category : #'instance creation' }
-SetAuthorizationHeaderCommand class >> toBearerToken: token [
+SetHeaderCommand class >> settingAuthorizationToBearerToken: token [
 
-	^ self to: ( #'Bearer <1p>' expandMacrosWith: token )
+	^ self settingAuthorizationTo: ( #'Bearer <1p>' expandMacrosWith: token )
 ]
 
 { #category : #applying }
-SetAuthorizationHeaderCommand >> applyOn: httpClient [
+SetHeaderCommand >> applyOn: httpClient [
 
-	httpClient headerAt: #Authorization put: authorizationDirectives
+	httpClient headerAt: headerName put: headerValue
 ]
 
 { #category : #initialization }
-SetAuthorizationHeaderCommand >> initializeTo: anAuthorizationDirective [
+SetHeaderCommand >> initializeSetting: aHeaderName to: aHeaderValue [
 
-	authorizationDirectives := anAuthorizationDirective
+	headerName := aHeaderName.
+	headerValue := aHeaderValue
 ]

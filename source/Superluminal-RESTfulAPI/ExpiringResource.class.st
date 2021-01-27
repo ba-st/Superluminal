@@ -90,4 +90,5 @@ ExpiringResource >> withMaxAgeDo: ifPresentBlock ifNone: noneBlock [
 			ifPresentBlock value: maxAge
 			]
 		ifNone: noneBlock
+
 ]

@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'teachableHttpClient'
 	],
-	#category : #'Superluminal-SUnit-Model-Superluminal-SUnit-Model'
+	#category : #'Superluminal-SUnit-Model'
 }
 
 { #category : #testing }

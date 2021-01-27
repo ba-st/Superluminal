@@ -22,5 +22,6 @@ HttpRequestQueryStringBuilder >> fieldNamed: aName pairedTo: aValue [
 { #category : #initialization }
 HttpRequestQueryStringBuilder >> initialize [
 
+	super initialize.
 	commands := OrderedCollection new
 ]

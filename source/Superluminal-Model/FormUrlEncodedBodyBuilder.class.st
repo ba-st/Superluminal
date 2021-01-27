@@ -22,5 +22,6 @@ FormUrlEncodedBodyBuilder >> fieldNamed: aName pairedTo: aValue [
 { #category : #initialization }
 FormUrlEncodedBodyBuilder >> initialize [
 
+	super initialize.
 	commands := OrderedCollection new
 ]
