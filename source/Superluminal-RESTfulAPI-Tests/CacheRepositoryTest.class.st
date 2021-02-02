@@ -2,12 +2,11 @@ Class {
 	#name : #CacheRepositoryTest,
 	#superclass : #TestCase,
 	#instVars : [
-		'dateTime',
 		'currentDateTime',
-		'dateTimeProvider',
-		'repository'
+		'repository',
+		'currentTimeProvider'
 	],
-	#category : #'Superluminal-RESTfulAPI-Tests'
+	#category : #'Superluminal-RESTfulAPI-Tests-Cache'
 }
 
 { #category : #testing }
@@ -22,7 +21,7 @@ CacheRepositoryTest >> resourceFor: answer expiringIn: aDuration [
 	| headers response |
 
 	headers := Dictionary new
-		at: 'Date' put: ( ZnUtils httpDate: dateTime );
+		at: 'Date' put: ( ZnUtils httpDate: currentDateTime );
 		at: 'Cache-Control' put: ( Array with: ( 'Max-Age=<1p>' expandMacrosWith: aDuration asSeconds ) );
 		yourself.
 	response := ZnResponse noContent
@@ -35,9 +34,8 @@ CacheRepositoryTest >> resourceFor: answer expiringIn: aDuration [
 CacheRepositoryTest >> setUp [
 
 	super setUp.
-	dateTime := DateAndTime now.
-	currentDateTime := dateTime.
-	dateTimeProvider := [ currentDateTime ].
+	currentDateTime := DateAndTime now truncated.
+	currentTimeProvider := [ currentDateTime ].
 	self setUpRepository
 ]
 
@@ -57,13 +55,16 @@ CacheRepositoryTest >> testExpiring [
 	repository store: resource at: 'key'.
 	self assert: ( repository get: 'key' ) contents equals: answer.
 	self waitFor: 2.1 seconds.
-	self should: [ repository get: 'key' ] raise: KeyNotFound
+	self should: [ repository get: 'key' ] raise: KeyNotFound withMessageText: '''key'' not found'
 ]
 
 { #category : #tests }
-CacheRepositoryTest >> testGetKeyIfAbsent [ 
+CacheRepositoryTest >> testGetKeyIfAbsent [
 
-	self should: [ repository get: 'absent_key' ] raise: KeyNotFound
+	self
+		should: [ repository get: 'absent_key' ]
+		raise: KeyNotFound
+		withMessageText: '''absent_key'' not found'
 ]
 
 { #category : #tests }
@@ -75,21 +76,27 @@ CacheRepositoryTest >> testRemove [
 	repository store: ( self resourceFor: answer expiringIn: 2 seconds ) at: 'key'.
 	self assert: ( repository get: 'key' ) contents equals: answer.
 	repository remove: 'key'.
-	self should: [ repository get: 'key' ] raise: KeyNotFound 
+	self should: [ repository get: 'key' ] raise: KeyNotFound withMessageText: '''key'' not found'
 ]
 
 { #category : #tests }
-CacheRepositoryTest >> testRemoveKeyIfAbsent [ 
+CacheRepositoryTest >> testRemoveAbsentKey [ 
 
-	self shouldnt: [ repository remove: 'key' ] raise: KeyNotFound
+	self shouldnt: [ repository remove: 'absent_key' ] raise: KeyNotFound
 ]
 
 { #category : #tests }
-CacheRepositoryTest >> testSet [
+CacheRepositoryTest >> testStoreAt [
 
 	| answer |
 
 	answer := 'the first answer'.
 	repository store: ( self resourceFor: answer expiringIn: 2 seconds ) at: 'key'.
 	self assert: ( repository get: 'key' ) contents equals: answer
+]
+
+{ #category : #running }
+CacheRepositoryTest >> waitFor: aDuration [
+
+	self subclassResponsibility 
 ]

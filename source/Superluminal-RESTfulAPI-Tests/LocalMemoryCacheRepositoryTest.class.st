@@ -1,17 +1,17 @@
 Class {
 	#name : #LocalMemoryCacheRepositoryTest,
 	#superclass : #CacheRepositoryTest,
-	#category : #'Superluminal-RESTfulAPI-Tests'
+	#category : #'Superluminal-RESTfulAPI-Tests-Cache'
 }
 
 { #category : #initialization }
 LocalMemoryCacheRepositoryTest >> setUpRepository [
 
-	repository := LocalMemoryCacheRepository using: dateTimeProvider
+	repository := LocalMemoryCacheRepository using: currentTimeProvider
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #private }
 LocalMemoryCacheRepositoryTest >> waitFor: aDuration [
 
-	currentDateTime := dateTime + aDuration
+	currentDateTime := currentDateTime + aDuration
 ]

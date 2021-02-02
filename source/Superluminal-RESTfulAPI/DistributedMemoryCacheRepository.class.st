@@ -2,8 +2,8 @@ Class {
 	#name : #DistributedMemoryCacheRepository,
 	#superclass : #CacheRepository,
 	#instVars : [
-		'timeSource',
-		'expiringResources'
+		'expiringResources',
+		'currentTimeProvider'
 	],
 	#category : #'Superluminal-RESTfulAPI-Cache'
 }
@@ -27,8 +27,14 @@ DistributedMemoryCacheRepository >> get: aBuiltKey [
 { #category : #initialization }
 DistributedMemoryCacheRepository >> initializeUsing: aTimeSource persistingTo: aMemcachedClient [
 
-	timeSource := aTimeSource.
+	currentTimeProvider := aTimeSource.
 	expiringResources := aMemcachedClient 
+]
+
+{ #category : #management }
+DistributedMemoryCacheRepository >> now [
+
+	^ currentTimeProvider value
 ]
 
 { #category : #management }
@@ -42,6 +48,6 @@ DistributedMemoryCacheRepository >> store: anExpiringResource at: aKey [
 
 	expiringResources
 		set: aKey
-		value: anExpiringResource 
-		expires: ( anExpiringResource timeToExpireAt: timeSource value )
+		value: anExpiringResource
+		expires: ( anExpiringResource timeToExpireAt: self now )
 ]

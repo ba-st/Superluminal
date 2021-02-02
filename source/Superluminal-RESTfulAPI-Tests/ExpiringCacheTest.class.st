@@ -5,12 +5,12 @@ Class {
 	#name : #ExpiringCacheTest,
 	#superclass : #TestCase,
 	#instVars : [
-		'dateTimeProvider',
 		'currentDateTime',
 		'cache',
-		'location'
+		'location',
+		'currentTimeProvider'
 	],
-	#category : #'Superluminal-RESTfulAPI-Tests'
+	#category : #'Superluminal-RESTfulAPI-Tests-Cache'
 }
 
 { #category : #testing }
@@ -54,7 +54,7 @@ ExpiringCacheTest >> setUp [
 
 	super setUp.
 	currentDateTime := DateAndTime now truncated.
-	dateTimeProvider := [ currentDateTime ].
+	currentTimeProvider := [ currentDateTime ].
 	location := UUID new asString.
 	self setUpExpiringCache
 ]
@@ -93,7 +93,7 @@ ExpiringCacheTest >> testClearResourceAt [
 	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained an updated answer'
 ]
 
-{ #category : #tests }
+{ #category : #private }
 ExpiringCacheTest >> waitFor: aDuration [
 
 	self subclassResponsibility 

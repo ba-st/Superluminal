@@ -3,7 +3,7 @@ Class {
 	#superclass : #CacheRepository,
 	#instVars : [
 		'expiringResources',
-		'timeSourceProvider'
+		'currentTimeProvider'
 	],
 	#category : #'Superluminal-RESTfulAPI-Cache'
 }
@@ -31,13 +31,13 @@ LocalMemoryCacheRepository >> get: aBuiltKey [
 LocalMemoryCacheRepository >> initializeUsing: aTimeSourceProvider [ 
  	
 	expiringResources := Dictionary new.
-	timeSourceProvider := aTimeSourceProvider
+	currentTimeProvider := aTimeSourceProvider
 ]
 
 { #category : #'private - accessing' }
 LocalMemoryCacheRepository >> now [
 
-	^ timeSourceProvider value
+	^ currentTimeProvider value
 ]
 
 { #category : #management }
