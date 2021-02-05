@@ -1,3 +1,8 @@
+"
+I'm a high-speed data storage layer which stores a set of resources, typically transient in nature, so that future requests for that resources are served up faster than is possible by accessing its primary storage location.
+
+I can store resources on locally by collaborating with a LocalMemoryCacheRespository or remotly using a DistribuedMemoryCacheRepository instead.
+"
 Class {
 	#name : #ExpiringCache,
 	#superclass : #Object,

@@ -15,12 +15,12 @@ DistributedMemoryCacheRepository class >> using: aTimeSource persistingTo: aMemc
 ]
 
 { #category : #querying }
-DistributedMemoryCacheRepository >> get: aBuiltKey [
+DistributedMemoryCacheRepository >> get: aKey [
 
 	| resource |
 
-	resource := expiringResources get: aBuiltKey.
-	resource isNil then: [ KeyNotFound signal: ( '<1p> not found' expandMacrosWith: aBuiltKey ) ].
+	resource := expiringResources get: aKey.
+	resource ifNil: [ KeyNotFound signal: ( '<1p> not found' expandMacrosWith: aKey ) ].
 	^ resource
 ]
 
@@ -46,8 +46,11 @@ DistributedMemoryCacheRepository >> remove: aKey [
 { #category : #management }
 DistributedMemoryCacheRepository >> store: anExpiringResource at: aKey [
 
-	expiringResources
-		set: aKey
-		value: anExpiringResource
-		expires: ( anExpiringResource timeToExpireAt: self now )
+	anExpiringResource
+		withTimeToExpireAt: self now
+		do: [ :timeToExpire | 
+			expiringResources 
+				set: aKey 
+				value: anExpiringResource 
+				expires: timeToExpire ]
 ]

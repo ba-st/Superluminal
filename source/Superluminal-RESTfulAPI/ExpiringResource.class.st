@@ -60,15 +60,6 @@ ExpiringResource >> isExpiredAt: aPointInTime [
 	^ self withExpirationDo: [ :expiration | expiration < aPointInTime ] ifNone: [ true ]
 ]
 
-{ #category : #expiring }
-ExpiringResource >> timeToExpireAt: aPointInTime [
-
-	^ [ self
-		withExpirationDo: [ :expiration | expiration - aPointInTime ]
-		ifNone: [ ResourceHasExpired signal ]
-	] unless: ( self isExpiredAt: aPointInTime ) inWhichCase: [ ResourceHasExpired signal ]
-]
-
 { #category : #private }
 ExpiringResource >> withExpirationDo: ifPresentBlock ifNone: noneBlock [
 
@@ -91,4 +82,17 @@ ExpiringResource >> withMaxAgeDo: ifPresentBlock ifNone: noneBlock [
 			]
 		ifNone: noneBlock
 
+]
+
+{ #category : #expiring }
+ExpiringResource >> withTimeToExpireAt: aPointInTime do: aBlock [
+
+	self
+		withExpirationDo: [ :expiration | 
+			| timeToExpire |
+
+			timeToExpire := expiration - aPointInTime.
+			timeToExpire > 0 seconds then: [ aBlock value: timeToExpire ]
+			]
+		ifNone: [  ]
 ]

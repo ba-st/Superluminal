@@ -15,16 +15,19 @@ LocalMemoryCacheRepository class >> using: aTimeSourceProvider [
 ]
 
 { #category : #querying }
-LocalMemoryCacheRepository >> get: aBuiltKey [
+LocalMemoryCacheRepository >> get: aKey [
 
 	^ expiringResources
-		at: aBuiltKey
+		at: aKey
 		ifPresent: [ :resource | 
 			( resource isExpiredAt: self now )
-				ifTrue: [ KeyNotFound signal: ( '<1p> not found' expandMacrosWith: aBuiltKey ) ]
+				ifTrue: [ 
+					self remove: aKey.
+					KeyNotFound signal: ( '<1p> not found' expandMacrosWith: aKey )
+					]
 				ifFalse: [ resource ]
 			]
-		ifAbsent: [ KeyNotFound signal: ( '<1p> not found' expandMacrosWith: aBuiltKey ) ]
+		ifAbsent: [ KeyNotFound signal: ( '<1p> not found' expandMacrosWith: aKey ) ]
 ]
 
 { #category : #initialization }
@@ -49,5 +52,7 @@ LocalMemoryCacheRepository >> remove: aKey [
 { #category : #management }
 LocalMemoryCacheRepository >> store: anExpiringResource at: aKey [
 
-	expiringResources at: aKey put: anExpiringResource
+	anExpiringResource
+		withTimeToExpireAt: self now
+		do: [ :timeToExpire | expiringResources at: aKey put: anExpiringResource ]
 ]

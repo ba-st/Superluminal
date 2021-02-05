@@ -11,6 +11,20 @@ Class {
 }
 
 { #category : #'tests - support' }
+ExpiringResourceTest >> assert: anExpiringResource expiresIn: aDuration at: aPointInTime [
+
+	anExpiringResource
+		withTimeToExpireAt: aPointInTime
+		do: [ :timeToExpire | self assert: timeToExpire equals: aDuration ]
+]
+
+{ #category : #'tests - support' }
+ExpiringResourceTest >> assert: anExpiringResource hasExpiredAt: aPointInTime [
+
+	anExpiringResource withTimeToExpireAt: aPointInTime do: [ :timeToExpire | self fail ]
+]
+
+{ #category : #'tests - support' }
 ExpiringResourceTest >> resourceOriginatedAt: dateTime expiresContaining: expires [
 
 	| response headers |
@@ -150,41 +164,46 @@ ExpiringResourceTest >> testIsExpiredAtWithoutCacheDirectives [
 ]
 
 { #category : #tests }
-ExpiringResourceTest >> testTimeToExpireAtUsingExpires [
+ExpiringResourceTest >> testWithTimeToExpireAtDoUsingExpires [
 
 	| resource |
 
 	resource := self resourceOriginatedAt: currentDateTime expiringAt: currentDateTime.
+
 	self
 		assert: resource contents equals: 'here';
-		assert: ( resource timeToExpireAt: currentDateTime ) equals: 0 seconds;
-		should: [ resource timeToExpireAt: currentDateTime + 1 second ] raise: ResourceHasExpired;
-		assert: ( resource timeToExpireAt: currentDateTime - 1 second ) equals: 1 second.
+		assert: resource hasExpiredAt: currentDateTime;
+		assert: resource hasExpiredAt: currentDateTime + 1 second;
+		assert: resource expiresIn: 1 second at: currentDateTime - 1 second.
 
 	resource := self resourceOriginatedAt: currentDateTime expiringAt: currentDateTime + 55 seconds.
+
 	self
-		assert: ( resource timeToExpireAt: currentDateTime ) equals: 55 seconds;
-		assert: ( resource timeToExpireAt: currentDateTime - 1 second ) equals: 56 seconds;
-		assert: ( resource timeToExpireAt: currentDateTime + 1 second ) equals: 54 seconds;
-		should: [ resource timeToExpireAt: currentDateTime + 1 minute ] raise: ResourceHasExpired
+		assert: resource contents equals: 'here';
+		assert: resource expiresIn: 55 seconds at: currentDateTime;
+		assert: resource expiresIn: 56 seconds at: currentDateTime - 1 second;
+		assert: resource expiresIn: 54 seconds at: currentDateTime + 1 second;
+		assert: resource hasExpiredAt: currentDateTime + 1 minute
 ]
 
 { #category : #tests }
-ExpiringResourceTest >> testTimeToExpireAtUsingMaxAge [
+ExpiringResourceTest >> testWithTimeToExpireAtDoUsingMaxAge [
 
 	| resource |
 
 	resource := self resourceOriginatedAt: currentDateTime expiringIn: 0 seconds.
 	self
 		assert: resource contents equals: 'here';
-		assert: ( resource timeToExpireAt: currentDateTime ) equals: 0 seconds;
-		should: [ resource timeToExpireAt: currentDateTime + 1 second ] raise: ResourceHasExpired;
-		assert: ( resource timeToExpireAt: currentDateTime - 1 second ) equals: 1 second.
+		assert: resource hasExpiredAt: currentDateTime;
+		assert: resource hasExpiredAt: currentDateTime + 1 second;
+		assert: resource expiresIn: 1 second at: currentDateTime - 1 second.
 
 	resource := self resourceOriginatedAt: currentDateTime expiringIn: 55 seconds.
+
 	self
-		assert: ( resource timeToExpireAt: currentDateTime ) equals: 55 seconds;
-		assert: ( resource timeToExpireAt: currentDateTime - 1 second ) equals: 56 seconds;
-		assert: ( resource timeToExpireAt: currentDateTime + 1 second ) equals: 54 seconds;
-		should: [ resource timeToExpireAt: currentDateTime + 1 minute ] raise: ResourceHasExpired
+		assert: resource contents equals: 'here';
+		assert: resource expiresIn: 55 seconds at: currentDateTime;
+		assert: resource expiresIn: 56 seconds at: currentDateTime - 1 second;
+		assert: resource expiresIn: 54 seconds at: currentDateTime + 1 second;
+		assert: resource hasExpiredAt: currentDateTime + 1 minute
 ]
