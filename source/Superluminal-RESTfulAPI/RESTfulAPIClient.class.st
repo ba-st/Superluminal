@@ -12,15 +12,15 @@ Class {
 }
 
 { #category : #'instance creation' }
-RESTfulAPIClient class >> buildingHttpClientWith: anHttpClientProvider [
+RESTfulAPIClient class >> buildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache [
 
-	^self new initializeBuildingHttpClientWith: anHttpClientProvider
+	^ self new initializeBuildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache
 ]
 
 { #category : #'instance creation' }
-RESTfulAPIClient class >> default [
+RESTfulAPIClient class >> cachingOnLocalMemory [
 
-	^ self buildingHttpClientWith: [ ZnClient new ]
+	^ self buildingHttpClientWith: [ ZnClient new ] cachingIn: ExpiringCache onLocalMemory
 ]
 
 { #category : #'private - caching' }
@@ -160,19 +160,19 @@ RESTfulAPIClient >> handleExceptionsDuring: anInvokingBlock [
 ]
 
 { #category : #initialization }
-RESTfulAPIClient >> initializeBuildingHttpClientWith: anHttpClientProvider [
+RESTfulAPIClient >> initializeBuildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache [
 
 	httpClientProvider := anHttpClientProvider.
 	httpClientPoolByAuthority := Dictionary new.
 	entityTagByLocationCache := Dictionary new.
 	lastKnownRepresentationByLocation := Dictionary new.
-	expiringCache := ExpiringCache accordingTo: [ DateAndTime now ]
+	expiringCache := anExpiringCache
 ]
 
 { #category : #'private - caching' }
 RESTfulAPIClient >> lastKnownRepresentationOf: aLocation [
 
-	^lastKnownRepresentationByLocation at: (self normalize: aLocation)
+	^ lastKnownRepresentationByLocation at: ( self normalize: aLocation )
 ]
 
 { #category : #'private - caching' }

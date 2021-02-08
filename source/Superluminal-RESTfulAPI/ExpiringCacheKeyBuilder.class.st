@@ -5,7 +5,7 @@ Class {
 		'location',
 		'parameters'
 	],
-	#category : #'Superluminal-RESTfulAPI'
+	#category : #'Superluminal-RESTfulAPI-Cache'
 }
 
 { #category : #accessing }

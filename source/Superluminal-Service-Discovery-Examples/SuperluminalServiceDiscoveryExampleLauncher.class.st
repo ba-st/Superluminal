@@ -48,7 +48,7 @@ SuperluminalServiceDiscoveryExampleLauncher >> basicActivate [
 				                       ]
 		].
 
-	RESTfulAPIClient default
+	RESTfulAPIClient cachingOnLocalMemory
 		get: ( echoServiceLocation
 				  scheme: #http;
 				  addPathSegment: 'echo';

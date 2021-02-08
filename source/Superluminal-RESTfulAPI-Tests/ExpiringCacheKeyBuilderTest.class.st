@@ -4,7 +4,7 @@ An ExpiringCacheKeyBuilderTest is a test class for testing the behavior of Expir
 Class {
 	#name : #ExpiringCacheKeyBuilderTest,
 	#superclass : #TestCase,
-	#category : #'Superluminal-RESTfulAPI-Tests'
+	#category : #'Superluminal-RESTfulAPI-Tests-Cache'
 }
 
 { #category : #test }

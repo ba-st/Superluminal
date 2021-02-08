@@ -1,44 +1,49 @@
-"
-A RESTfulAPIClientTest is a test class for testing the behavior of RESTfulAPIClient
-"
 Class {
 	#name : #RESTfulAPIClientTest,
-	#superclass : #TestCase,
+	#superclass : #APIClientTest,
 	#instVars : [
-		'apiClient'
+		'apiClient',
+		'resourceIdentifier'
 	],
 	#category : #'Superluminal-RESTfulAPI-Tests'
 }
 
-{ #category : #private }
-RESTfulAPIClientTest >> httpbinAnythingLocation [
+{ #category : #testing }
+RESTfulAPIClientTest class >> isAbstract [ 
 
-	^ self httpbinLocation / 'anything'
+	^  self name = #RESTfulAPIClientTest
+]
+
+{ #category : #accessing }
+RESTfulAPIClientTest >> apiClient [
+
+	^ self subclassResponsibility 
+]
+
+{ #category : #tests }
+RESTfulAPIClientTest >> jsonOkResponse [
+
+	^ self jsonOkResponseWith: #(1 2 3)
 ]
 
 { #category : #private }
-RESTfulAPIClientTest >> httpbinCacheLocation [
+RESTfulAPIClientTest >> location [
 
-	^ self httpbinLocation / 'cache'
+	^ 'http://localhost' asUrl + resourceIdentifier
 ]
 
-{ #category : #private }
-RESTfulAPIClientTest >> httpbinLocation [
+{ #category : #tests }
+RESTfulAPIClientTest >> notFoundResponse [
 
-	^ 'http://localhost' asUrl
-]
-
-{ #category : #private }
-RESTfulAPIClientTest >> httpbinStatusLocation [
-
-	^ self httpbinLocation / 'status'
+	^ ZnResponse notFound: self location
 ]
 
 { #category : #running }
 RESTfulAPIClientTest >> setUp [
 
 	super setUp.
-	apiClient := RESTfulAPIClient default
+	apiClient := self apiClient.	"( ExpiringCache onDistributedMemoryAt: {'127.0.0.1:11211'} )"
+	resourceIdentifier := UUID new asString
 ]
 
 { #category : #running }
@@ -51,28 +56,26 @@ RESTfulAPIClientTest >> tearDown [
 { #category : #tests }
 RESTfulAPIClientTest >> testDeleteAcceptingWithSuccessfulResponseDo [
 
+	| wasSuccessfull |
+
+	self configureHttpClientToRespondWith: ZnResponse noContent.
+	wasSuccessfull := false.
 	apiClient
-		deleteAt: self httpbinAnythingLocation
+		deleteAt: self location
 		accepting: 'application/json;version=1.0.0' asMediaType
-		withSuccessfulResponseDo: [ :responseContents | 
-			self
-				withJsonFrom: responseContents
-				do: [ :json | 
-					self
-						assert: json data isEmpty;
-						assertUrl: json url equals: self httpbinAnythingLocation;
-						assert: json method equals: 'DELETE';
-						assert: ( json headers at: #Accept ) equals: 'application/json;version=1.0.0'
-					]
-			]
+		withSuccessfulResponseDo: [ :responseContents | wasSuccessfull := true ].
+
+	self assert: wasSuccessfull
 ]
 
 { #category : #tests }
 RESTfulAPIClientTest >> testDeleteNotFound [
 
+	self configureHttpClientToRespondWith: self notFoundResponse.
+
 	self
 		should: [ apiClient
-				deleteAt: self httpbinStatusLocation / '404'
+				deleteAt: self location
 				accepting: 'application/json;version=1.0.0' asMediaType
 				withSuccessfulResponseDo: [ :responseContents | self fail ]
 			]
@@ -82,110 +85,76 @@ RESTfulAPIClientTest >> testDeleteNotFound [
 { #category : #tests }
 RESTfulAPIClientTest >> testGetAcceptingWithSuccessfulResponseDo [
 
+	self configureHttpClientToRespondWith: self jsonOkResponse.
+
 	apiClient
-		get: self httpbinAnythingLocation
+		get: self location
 		accepting: 'application/json;version=1.0.0' asMediaType
-		withSuccessfulResponseDo: [ :responseContents | 
-			self
-				withJsonFrom: responseContents
-				do: [ :json | 
-					self
-						assert: json data isEmpty;
-						assertUrl: json url equals: self httpbinAnythingLocation;
-						assert: json method equals: 'GET';
-						assert: ( json headers at: #Accept ) equals: 'application/json;version=1.0.0'
-					]
-			]
-]
-
-{ #category : #tests }
-RESTfulAPIClientTest >> testGetAtConfiguredByWithSuccessfulResponseDo [
-
-	apiClient
-		getAt: self httpbinAnythingLocation
-		configuredBy: [ :request | request queryString: [ :queryString | queryString fieldNamed: #step pairedTo: 20 ] ]
-		withSuccessfulResponseDo: [ :responseContents | 
-			self
-				withJsonFrom: responseContents
-				do: [ :json | 
-					self
-						assert: json data isEmpty;
-						assertUrl: json url equals: ( self httpbinAnythingLocation queryAt: 'step' put: 20 );
-						assert: json method equals: 'GET';
-						assert: ( json headers at: #Accept ) equals: '*/*'
-					]
-			]
+		withSuccessfulResponseDo:
+			[ :responseContents | self withJsonFrom: responseContents do: [ :json | self assert: json equals: #(1 2 3) ] ]
 ]
 
 { #category : #tests }
 RESTfulAPIClientTest >> testGetCached [
 
-	apiClient
-		get: self httpbinCacheLocation
-		withSuccessfulResponseDo: [ :responseContents | 
-			self
-				withJsonFrom: responseContents
-				do: [ :json | self assertUrl: json url equals: self httpbinCacheLocation ]
-			].
+	self
+		configureHttpClientToRespondWith:
+			( ( self jsonOkResponseWith: #(1 2 3) )
+				addCachingDirective: 'Max-Age=60';
+				yourself ).
 
 	apiClient
-		get: self httpbinCacheLocation
-		withSuccessfulResponseDo: [ :responseContents | 
-			self
-				withJsonFrom: responseContents
-				do: [ :json | 
-					self
-						assertUrl: json url equals: self httpbinCacheLocation;
-						assert: ( json headers at: #Accept ) equals: '*/*'
-					]
-			]
+		get: self location
+		withSuccessfulResponseDo:
+			[ :responseContents | self withJsonFrom: responseContents do: [ :json | self assert: json equals: #(1 2 3) ] ].
+
+	self configureHttpClientToRespondWith: ( ZnResponse notFound: self location ).
+
+	apiClient
+		get: self location
+		withSuccessfulResponseDo:
+			[ :responseContents | self withJsonFrom: responseContents do: [ :json | self assert: json equals: #(1 2 3) ] ]
 ]
 
 { #category : #tests }
 RESTfulAPIClientTest >> testGetNotFound [
 
+	self configureHttpClientToRespondWith: self notFoundResponse.
+
 	self
-		should: [ apiClient
-				get: self httpbinStatusLocation / '404'
-				withSuccessfulResponseDo: [ :responseContents | self fail ]
-			]
+		should: [ apiClient get: self location withSuccessfulResponseDo: [ :responseContents | self fail ] ]
 		raise: HTTPClientError notFound
 ]
 
 { #category : #tests }
 RESTfulAPIClientTest >> testGetWithSuccessfulResponseDo [
 
+	self configureHttpClientToRespondWith: self jsonOkResponse.
+
 	apiClient
-		get: self httpbinAnythingLocation
-		withSuccessfulResponseDo: [ :responseContents | 
-			self
-				withJsonFrom: responseContents
-				do: [ :json | 
-					self
-						assert: json data isEmpty;
-						assertUrl: json url equals: self httpbinAnythingLocation;
-						assert: json method equals: 'GET';
-						assert: ( json headers at: #Accept ) equals: '*/*'
-					]
-			]
+		get: self location
+		withSuccessfulResponseDo:
+			[ :responseContents | self withJsonFrom: responseContents do: [ :json | self assert: json equals: #(1 2 3) ] ]
 ]
 
 { #category : #tests }
 RESTfulAPIClientTest >> testPatchAtNoContent [
 
+	self configureHttpClientToRespondWith: ZnResponse noContent.
 	apiClient
 		patch: ( ZnEntity json: '[]' )
-		at: self httpbinStatusLocation / '204'
+		at: self location
 		withSuccessfulResponseDo: [ :responseContents | self assert: responseContents isNil ]
 ]
 
 { #category : #tests }
 RESTfulAPIClientTest >> testPatchAtNotFound [
 
+	self configureHttpClientToRespondWith: self notFoundResponse.
 	self
 		should: [ apiClient
 				patch: ( ZnEntity json: '[]' )
-				at: self httpbinStatusLocation / '404'
+				at: self location
 				withSuccessfulResponseDo: [ :response | self fail ]
 			]
 		raise: HTTPClientError notFound
@@ -195,29 +164,24 @@ RESTfulAPIClientTest >> testPatchAtNotFound [
 { #category : #tests }
 RESTfulAPIClientTest >> testPatchAtWithSuccessfulResponseDo [
 
+	self configureHttpClientToRespondWith: self jsonOkResponse.
+
 	apiClient
 		patch: ( ZnEntity json: '[]' )
-		at: self httpbinAnythingLocation
-		withSuccessfulResponseDo: [ :responseContents | 
-			self
-				withJsonFrom: responseContents
-				do: [ :json | 
-					self
-						assert: json json equals: #();
-						assertUrl: json url equals: self httpbinAnythingLocation;
-						assert: json method equals: 'PATCH';
-						assert: ( json headers at: #Accept ) equals: '*/*'
-					]
-			]
+		at: self location
+		withSuccessfulResponseDo:
+			[ :responseContents | self withJsonFrom: responseContents do: [ :json | self assert: json equals: #(1 2 3) ] ]
 ]
 
 { #category : #tests }
 RESTfulAPIClientTest >> testPostBadRequest [
 
 	self
+		configureHttpClientToRespondWith: ( ZnResponse badRequest: '' entity: ( ZnEntity text: 'COVID-19' ) ).
+	self
 		should: [ apiClient
 				post: ( ZnEntity json: '["hi"]' )
-				at: self httpbinStatusLocation / '400'
+				at: self location
 				withSuccessfulResponseDo: [ self fail ]
 			]
 		raise: HTTPClientError badRequest
@@ -227,20 +191,11 @@ RESTfulAPIClientTest >> testPostBadRequest [
 { #category : #tests }
 RESTfulAPIClientTest >> testPostWithSuccessfulResponseDo [
 
+	self configureHttpClientToRespondWith: ( ZnResponse created: self location ).
 	apiClient
 		post: ( ZnEntity json: '[]' )
-		at: self httpbinAnythingLocation
-		withSuccessfulResponseDo: [ :responseContents | 
-			self
-				withJsonFrom: responseContents
-				do: [ :json | 
-					self
-						assert: json json equals: #();
-						assertUrl: json url equals: self httpbinAnythingLocation;
-						assert: json method equals: 'POST';
-						assert: ( json headers at: #Accept ) equals: '*/*'
-					]
-			]
+		at: self location
+		withSuccessfulResponseDo: [ :responseContents | self assert: ( responseContents beginsWith: 'Created' ) ]
 ]
 
 { #category : #tests }
@@ -248,15 +203,11 @@ RESTfulAPIClientTest >> testPutAt [
 
 	| response |
 
-	response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self httpbinLocation / 'put'.
+	self configureHttpClientToRespondWith: self jsonOkResponse.
 
-	self withJsonFrom: response contents do: [ :json | 
-		self
-			assert: json json equals: #( 'hi' );
-			assertUrl: json url equals: self httpbinLocation / 'put';
-			assert: ( json headers at: #Accept ) equals: '*/*';
-			assert: ( json headers at: #'Content-Length' ) equals: '6'
-		]
+	response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self location.
+
+	self withJsonFrom: response contents do: [ :json | self assert: json equals: #(1 2 3) ]
 ]
 
 { #category : #tests }
@@ -264,7 +215,8 @@ RESTfulAPIClientTest >> testPutAtNoContent [
 
 	| response |
 
-	response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self httpbinStatusLocation / '204'.
+	self configureHttpClientToRespondWith: ZnResponse noContent.
+	response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self location.
 
 	self assert: response isNoContent
 ]
@@ -272,8 +224,9 @@ RESTfulAPIClientTest >> testPutAtNoContent [
 { #category : #tests }
 RESTfulAPIClientTest >> testPutAtNotFound [
 
+	self configureHttpClientToRespondWith: self notFoundResponse.
 	self
-		should: [ apiClient put: ( ZnEntity json: '["hi"]' ) at: self httpbinStatusLocation / '404' ]
+		should: [ apiClient put: ( ZnEntity json: '["hi"]' ) at: self location ]
 		raise: HTTPClientError notFound
 		withMessageText: 'Cannot complete update'
 ]

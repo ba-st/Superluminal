@@ -54,7 +54,11 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 
 	spec
 		baseline: 'Teachable' with: [ spec repository: 'github://astares/Pharo-Teachable:master/src' ];
-		project: 'Teachable-Core' copyFrom: 'Teachable' with: [ spec loads: 'Core' ]
+		project: 'Teachable-Core' copyFrom: 'Teachable' with: [ spec loads: 'Core' ].
+		
+	spec 
+		baseline: 'Memcached' with: [ spec repository: 'github://svenvc/memcached:master' ];
+		project: 'Memcached-Core' copyFrom: 'Memcached' with: [ spec loads: 'Memcached' ]
 ]
 
 { #category : #baselines }
@@ -66,7 +70,7 @@ BaselineOfSuperluminal >> setUpDeploymentPackages: spec [
 		group: 'Deployment' with: 'Superluminal-Model'.
 	spec
 		package: 'Superluminal-RESTfulAPI'
-			with: [ spec requires: #('Superluminal-Model' 'ObjectPool-Core') ];
+			with: [ spec requires: #('Superluminal-Model' 'ObjectPool-Core' 'Memcached-Core') ];
 		group: 'API Client' with: 'Superluminal-RESTfulAPI';
 		group: 'Deployment' with: 'Superluminal-RESTfulAPI'.
 	spec
