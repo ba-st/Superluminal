@@ -240,9 +240,21 @@ RESTfulAPIClient >> postAt: aLocation configuredBy: aRequestBuildingBlock withSu
 RESTfulAPIClient >> put: anEntity at: aLocation [
 
 	^ self
-		putAt: aLocation
-		configuredBy: [ :request | request body contents: anEntity ]
-		withSuccessfulResponseDo: [ :contents | contents ]
+		handleExceptionsDuring: [ | httpRequest response |
+
+			httpRequest := HttpRequest
+				put: aLocation
+				configuredUsing: [ :request | request body contents: anEntity ].
+			self
+				withHttpClientFor: aLocation
+				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
+			response isSuccess
+				ifTrue: [ 
+					expiringCache clearResourceAt: aLocation.
+					response
+					]
+				ifFalse: [ self signalCannotCompleteUpdateErrorBasedOn: response ]
+			]
 ]
 
 { #category : #invoking }
