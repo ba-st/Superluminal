@@ -240,18 +240,25 @@ RESTfulAPIClient >> postAt: aLocation configuredBy: aRequestBuildingBlock withSu
 RESTfulAPIClient >> put: anEntity at: aLocation [
 
 	^ self
+		putAt: aLocation
+		configuredBy: [ :request | request body contents: anEntity ]
+		withSuccessfulResponseDo: [ :contents | contents ]
+]
+
+{ #category : #invoking }
+RESTfulAPIClient >> putAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aBlock [
+
+	^ self
 		handleExceptionsDuring: [ | httpRequest response |
 
-			httpRequest := HttpRequest
-				put: aLocation
-				configuredUsing: [ :request | request body contents: anEntity ].
+			httpRequest := HttpRequest put: aLocation configuredUsing: aRequestBuildingBlock.
 			self
 				withHttpClientFor: aLocation
 				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
 			response isSuccess
 				ifTrue: [ 
 					expiringCache clearResourceAt: aLocation.
-					response
+					aBlock value: ( self tryToCacheContentsOf: response basedOn: aLocation )
 					]
 				ifFalse: [ self signalCannotCompleteUpdateErrorBasedOn: response ]
 			]
