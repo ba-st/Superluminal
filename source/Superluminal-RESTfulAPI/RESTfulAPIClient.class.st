@@ -236,25 +236,27 @@ RESTfulAPIClient >> postAt: aLocation configuredBy: aRequestBuildingBlock withSu
 			]
 ]
 
+{ #category : #'private - inkoving' }
+RESTfulAPIClient >> processPutResponse: response at: aLocation whenSuccessfulDo: aBlock [
+
+	response isSuccess
+		then: [ 
+			expiringCache clearResourceAt: aLocation.
+			^ response isNoContent
+				then: [ response ]
+				otherwise: [ aBlock value: ( self tryToCacheContentsOf: response basedOn: aLocation ) ]
+			].
+
+	^ self signalCannotCompleteUpdateErrorBasedOn: response
+]
+
 { #category : #invoking }
 RESTfulAPIClient >> put: anEntity at: aLocation [
 
 	^ self
-		handleExceptionsDuring: [ | httpRequest response |
-
-			httpRequest := HttpRequest
-				put: aLocation
-				configuredUsing: [ :request | request body contents: anEntity ].
-			self
-				withHttpClientFor: aLocation
-				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
-			response isSuccess
-				ifTrue: [ 
-					expiringCache clearResourceAt: aLocation.
-					response
-					]
-				ifFalse: [ self signalCannotCompleteUpdateErrorBasedOn: response ]
-			]
+		putAt: aLocation
+		configuredBy: [ :request | request body contents: anEntity ]
+		withSuccessfulResponseDo: [ :contents | contents ]
 ]
 
 { #category : #invoking }
@@ -267,12 +269,7 @@ RESTfulAPIClient >> putAt: aLocation configuredBy: aRequestBuildingBlock withSuc
 			self
 				withHttpClientFor: aLocation
 				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
-			response isSuccess
-				ifTrue: [ 
-					expiringCache clearResourceAt: aLocation.
-					aBlock value: ( self tryToCacheContentsOf: response basedOn: aLocation )
-					]
-				ifFalse: [ self signalCannotCompleteUpdateErrorBasedOn: response ]
+			self processPutResponse: response at: aLocation whenSuccessfulDo: aBlock
 			]
 ]
 
