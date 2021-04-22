@@ -219,7 +219,7 @@ HttpRequestTest >> testGetWithToken [
 			self
 				assertUrl: json url equals: self httpbinLocation;
 				assert: json method equals: 'GET';
-				assertJson: json headers at: #Authorization equals: 'Bearer ''xxx'''
+				assertJson: json headers at: #Authorization equals: 'Bearer xxx'
 			]
 ]
 
