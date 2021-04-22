@@ -41,7 +41,7 @@ SetHeaderCommand class >> settingAuthorizationTo: anAuthorizationDirective [
 { #category : #'instance creation' }
 SetHeaderCommand class >> settingAuthorizationToBearerToken: token [
 
-	^ self settingAuthorizationTo: ( #'Bearer <1p>' expandMacrosWith: token )
+	^ self settingAuthorizationTo: ( #'Bearer <1s>' expandMacrosWith: token asString)
 ]
 
 { #category : #applying }

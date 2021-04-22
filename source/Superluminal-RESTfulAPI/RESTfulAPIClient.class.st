@@ -229,7 +229,8 @@ RESTfulAPIClient >> postAt: aLocation configuredBy: aRequestBuildingBlock withSu
 				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
 			response isSuccess
 				ifTrue: [ expiringCache clearResourceAt: aLocation.
-					response isCreated then: [ self tryToCacheContentsOf: response basedOn: response location ].
+					( response isCreated and: [ response hasLocation ] )
+						then: [ self tryToCacheContentsOf: response basedOn: response location ].
 					aBlock value: response contents
 					]
 				ifFalse: [ ( HTTPClientError code: response code ) signal: ( self clientErrorMessageFrom: response ) ]

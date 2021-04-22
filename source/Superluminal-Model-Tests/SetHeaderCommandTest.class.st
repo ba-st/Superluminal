@@ -13,7 +13,7 @@ SetHeaderCommandTest >> testApplyOn [
 	command := SetHeaderCommand settingAuthorizationToBearerToken:  'token'.
 	command applyOn: httpClient.
 
-	self assert: ( httpClient request headers at: #Authorization ) equals: 'Bearer ''token'''
+	self assert: ( httpClient request headers at: #Authorization ) equals: 'Bearer token'
 ]
 
 { #category : #tests }
