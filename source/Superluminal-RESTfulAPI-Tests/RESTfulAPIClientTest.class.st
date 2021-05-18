@@ -42,7 +42,7 @@ RESTfulAPIClientTest >> notFoundResponse [
 RESTfulAPIClientTest >> setUp [
 
 	super setUp.
-	apiClient := self apiClient.	"( ExpiringCache onDistributedMemoryAt: {'127.0.0.1:11211'} )"
+	apiClient := self apiClient.
 	resourceIdentifier := UUID new asString
 ]
 
@@ -66,6 +66,36 @@ RESTfulAPIClientTest >> testDeleteAcceptingWithSuccessfulResponseDo [
 		withSuccessfulResponseDo: [ :responseContents | wasSuccessfull := true ].
 
 	self assert: wasSuccessfull
+]
+
+{ #category : #tests }
+RESTfulAPIClientTest >> testDeleteAtSuccess [
+
+	self configureHttpClientToRespondWith: ZnResponse noContent.
+	self shouldnt: [ apiClient deleteAt: self location ] raise: HTTPClientError
+]
+
+{ #category : #tests }
+RESTfulAPIClientTest >> testDeleteAtSuccessWhenCached [
+
+	| etagIsSet |
+
+	etagIsSet := false.
+
+	self
+		configureHttpClientToRespondWith:
+			( ( self jsonOkResponseWith: #(1 2 3) )
+				addCachingDirective: 'Max-Age=60';
+				setEntityTag: '"1"' asETag;
+				yourself ).
+
+	self httpClient whenSend: #setIfMatchTo: evaluate: [ :etag | etagIsSet := etag = '"1"' ].
+
+	apiClient get: self location withSuccessfulResponseDo: [ :contents |  ].
+
+	self configureHttpClientToRespondWith: ZnResponse noContent.
+	self shouldnt: [ apiClient deleteAt: self location ] raise: HTTPClientError.
+	self assert: etagIsSet
 ]
 
 { #category : #tests }
