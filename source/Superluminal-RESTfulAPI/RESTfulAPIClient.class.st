@@ -62,27 +62,49 @@ RESTfulAPIClient >> clientPoolFor: aLocation [
 ]
 
 { #category : #invoking }
+RESTfulAPIClient >> deleteAt: aLocation [
+
+	^ self
+		deleteAt: aLocation
+		configuredBy: [ :request | 
+			self
+				withCachedETagAt: aLocation
+				do: [ :entityTag | request headers setIfMatchTo: entityTag asString ]
+			]
+		withSuccessfulResponseDo: [  ]
+]
+
+{ #category : #invoking }
 RESTfulAPIClient >> deleteAt: aLocation accepting: aMediaType withSuccessfulResponseDo: aBlock [
+
+	^ self
+		deleteAt: aLocation
+		configuredBy: [ :request | 
+			| command |
+
+			command := request headers setAcceptTo: aMediaType.
+			self
+				withCachedETagAt: aLocation
+				do: [ :entityTag | command := command + ( request headers setIfMatchTo: entityTag asString ) ].
+			command
+			]
+		withSuccessfulResponseDo: aBlock
+]
+
+{ #category : #invoking }
+RESTfulAPIClient >> deleteAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aBlock [
 
 	^ self
 		handleExceptionsDuring: [ 
 			| httpRequest response |
-			httpRequest := HttpRequest
-				delete: aLocation
-				configuredUsing: [ :request | 
-					| command |
-					command := request headers setAcceptTo: aMediaType.
-					self
-						withCachedETagAt: aLocation
-						do: [ :entityTag | command := request headers setIfMatchTo: entityTag asString ].
-					command
-					].
+
+			httpRequest := HttpRequest delete: aLocation configuredUsing: aRequestBuildingBlock.
 			self
 				withHttpClientFor: aLocation
 				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
 			( response isSuccess or: [ response isNoContent ] )
 				ifTrue: [ expiringCache clearResourceAt: aLocation.
-					aBlock value: ( self tryToCacheContentsOf: response basedOn: aLocation )
+					aBlock cull: ( self tryToCacheContentsOf: response basedOn: aLocation )
 					]
 				ifFalse: [ self signalCannotCompleteDeleteErrorBasedOn: response ]
 			]

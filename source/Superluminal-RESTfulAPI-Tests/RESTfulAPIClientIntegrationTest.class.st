@@ -80,6 +80,14 @@ RESTfulAPIClientIntegrationTest >> testDeleteNotFound [
 ]
 
 { #category : #tests }
+RESTfulAPIClientIntegrationTest >> testDeletePreconditionFailed [
+
+	self
+		should: [ apiClient deleteAt: self httpbinStatusLocation / '412' ]
+		raise: HTTPClientError preconditionFailed
+]
+
+{ #category : #tests }
 RESTfulAPIClientIntegrationTest >> testGetAcceptingWithSuccessfulResponseDo [
 
 	apiClient
