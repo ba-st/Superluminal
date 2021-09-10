@@ -1,6 +1,6 @@
 Class {
 	#name : #AddMultiPartCommandTest,
-	#superclass : #AbstractEnvironmentTestCase,
+	#superclass : #TestCase,
 	#category : #'Superluminal-Model-Tests-Commands'
 }
 
@@ -22,20 +22,19 @@ AddMultiPartCommandTest >> testApplyOn [
 { #category : #tests }
 AddMultiPartCommandTest >> testApplyOnWhenAttachingFiles [
 
-	|  filename httpClient command |
+	self withFileNamed: 'testApplyOnWhenAttachingFiles.txt'
+		containing: '0123456789'
+		do: [ :filename | 
+			| httpClient command |
 
-	httpClient := ZnClient new.
-	ZnFileSystemUtils deleteIfExists: 'testApplyOnWhenAttachingFiles.txt'.
-	filename := ZnFileSystemUtils fullNameFor: 'testApplyOnWhenAttachingFiles.txt'.
-	ZnFileSystemUtils newFileNamed: filename do: [ :stream | stream nextPutAll: '0123456789' ].
-	command := AddMultiPartCommand named: 'file' attaching: filename  asFileReference.
-	command applyOn: httpClient.
+			httpClient := ZnClient new.
+			command := AddMultiPartCommand named: 'file' attaching: filename asFileReference.
+			command applyOn: httpClient.
 
-	self
-		assert: httpClient request contentType main equals: 'multipart';
-		assert: httpClient request contentType sub equals: 'form-data'.
-		
-	self assert: ( httpClient request entity partNamed: 'file' ) fieldValue equals: '0123456789'.
-	
-	ZnFileSystemUtils deleteIfExists: 'testApplyOnWhenAttachingFiles.txt'.
+			self
+				assert: httpClient request contentType main equals: 'multipart';
+				assert: httpClient request contentType sub equals: 'form-data'.
+
+			self assert: ( httpClient request entity partNamed: 'file' ) fieldValue equals: '0123456789'
+			]
 ]

@@ -309,34 +309,32 @@ HttpRequestTest >> testPatchContentAsJson [
 { #category : #tests }
 HttpRequestTest >> testPatchContentAsMultiPart [
 
-	| filename httpRequest response |
+	self withFileNamed: 'testApplyOnWhenAttachingFiles.txt'
+		containing: '0123456789'
+		do: [ :filename | 
+			| httpRequest response |
 
-	ZnFileSystemUtils deleteIfExists: 'testPatchContentAsMultiPart.txt'.
-	filename := ZnFileSystemUtils fullNameFor: 'testPatchContentAsMultiPart.txt'.
-	ZnFileSystemUtils newFileNamed: filename do: [ :stream | stream nextPutAll: '0123456789' ].
+			httpRequest := HttpRequest patch: self httpbinLocation configuredUsing: [ :request | 
+				               request body multiPart: [ :parts | 
+					               parts
+						               fieldNamed: 'details' pairedTo: 'fran';
+						               fieldNamed: 'file' attaching: filename asFileReference
+					               ]
+				               ].
 
-	httpRequest := HttpRequest patch: self httpbinLocation configuredUsing: [ :request | 
-		               request body multiPart: [ :parts | 
-			               parts
-				               fieldNamed: 'details' pairedTo: 'fran';
-				               fieldNamed: 'file' attaching: filename asFileReference
-			               ]
-		               ].
+			response := httpRequest applyOn: self newHttpClient.
 
-	response := httpRequest applyOn: self newHttpClient.
-
-	self
-		assert: response isSuccess;
-		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assertUrl: json url equals: self httpbinLocation;
-				assert: json method equals: 'PATCH';
-				assertJson: json form at: #details equals: 'fran';
-				assertJson: json form at: #file equals: '@testPatchContentAsMultiPart.txt';
-				assertJson: json headers at: #'Content-Type' equals: 'multipart/form-data'
-			].
-		
-	ZnFileSystemUtils deleteIfExists: 'testPatchContentAsMultiPart.txt'.
+				assert: response isSuccess;
+				withJsonFromContentsIn: response do: [ :json | 
+					self
+						assertUrl: json url equals: self httpbinLocation;
+						assert: json method equals: 'PATCH';
+						assertJson: json form at: #details equals: 'fran';
+						assertJson: json files at: #file equals: '0123456789';
+						assert: ( ( json headers at: #'Content-Type' ) beginsWith: 'multipart/form-data' )
+					]
+			]
 ]
 
 { #category : #tests }
@@ -426,34 +424,32 @@ HttpRequestTest >> testPostFormUrlEncoded [
 { #category : #tests }
 HttpRequestTest >> testPostMultiPart [
 
-	| filename httpRequest response |
+	self withFileNamed: 'testApplyOnWhenAttachingFiles.txt'
+		containing: '0123456789'
+		do: [ :filename | 
+			| httpRequest response |
 
-	ZnFileSystemUtils deleteIfExists: 'testPostMultiPart.txt'.
-	filename := ZnFileSystemUtils fullNameFor: 'testPostMultiPart.txt'.
-	ZnFileSystemUtils newFileNamed: filename do: [ :stream | stream nextPutAll: '0123456789' ].
+			httpRequest := HttpRequest post: self httpbinLocation configuredUsing: [ :request | 
+				               request body multiPart: [ :parts | 
+					               parts
+						               fieldNamed: 'details' pairedTo: 'fran';
+						               fieldNamed: 'file' attaching: filename asFileReference
+					               ]
+				               ].
 
-	httpRequest := HttpRequest post: self httpbinLocation configuredUsing: [ :request | 
-		               request body multiPart: [ :parts | 
-			               parts
-				               fieldNamed: 'details' pairedTo: 'fran';
-				               fieldNamed: 'file' attaching: filename asFileReference
-			               ]
-		               ].
+			response := httpRequest applyOn: self newHttpClient.
 
-	response := httpRequest applyOn: self newHttpClient.
-
-	self
-		assert: response isSuccess;
-		withJsonFromContentsIn: response do: [ :json | 
 			self
-				assertUrl: json url equals: self httpbinLocation;
-				assert: json method equals: 'POST';
-				assertJson: json form at: #details equals: 'fran';
-				assertJson: json form at: #file equals: '@testPatchContentAsMultiPart.txt';
-				assertJson: json headers at: #'Content-Type' equals: 'multipart/form-data'
-			].
-		
-	ZnFileSystemUtils deleteIfExists: 'testPostMultiPart.txt'.
+				assert: response isSuccess;
+				withJsonFromContentsIn: response do: [ :json | 
+					self
+						assertUrl: json url equals: self httpbinLocation;
+						assert: json method equals: 'POST';
+						assertJson: json form at: #details equals: 'fran';
+						assertJson: json files at: #file equals: '0123456789';
+						assert: ( ( json headers at: #'Content-Type' ) beginsWith: 'multipart/form-data' )
+					]
+			]
 ]
 
 { #category : #tests }
