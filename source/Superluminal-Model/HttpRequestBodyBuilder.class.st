@@ -32,5 +32,15 @@ HttpRequestBodyBuilder >> json: aDictionary [
 	| json |
 
 	json := NeoJSONWriter toString: aDictionary.
-	^ SetBodyCommand to: (ZnStringEntity json: json)
+	^ self contents: ( ZnStringEntity json: json )
+]
+
+{ #category : #configuring }
+HttpRequestBodyBuilder >> multiPart: aBuildingBlock [
+
+	| builder |
+
+	builder := MultiPartBodyBuilder new.
+	aBuildingBlock value: builder.
+	^ builder build
 ]

@@ -1,7 +1,7 @@
 "
 I'm a service discovery client using a fixed list of service locations.
 
-I'm usefull for testing purposes or when transitioning clients not using the service discovery mechanics. I can be chained with another service discovery client as a fallback when a service is not found in my list.
+I'm useful for testing purposes or when transitioning clients not using the service discovery mechanics. I can be chained with another service discovery client as a fallback when a service is not found in my list.
 "
 Class {
 	#name : #FixedServiceDiscoveryClient,

@@ -307,6 +307,37 @@ HttpRequestTest >> testPatchContentAsJson [
 ]
 
 { #category : #tests }
+HttpRequestTest >> testPatchContentAsMultiPart [
+
+	self withFileNamed: 'testApplyOnWhenAttachingFiles.txt'
+		containing: '0123456789'
+		do: [ :filename | 
+			| httpRequest response |
+
+			httpRequest := HttpRequest patch: self httpbinLocation configuredUsing: [ :request | 
+				               request body multiPart: [ :parts | 
+					               parts
+						               fieldNamed: 'details' pairedTo: 'fran';
+						               fieldNamed: 'file' attaching: filename asFileReference
+					               ]
+				               ].
+
+			response := httpRequest applyOn: self newHttpClient.
+
+			self
+				assert: response isSuccess;
+				withJsonFromContentsIn: response do: [ :json | 
+					self
+						assertUrl: json url equals: self httpbinLocation;
+						assert: json method equals: 'PATCH';
+						assertJson: json form at: #details equals: 'fran';
+						assertJson: json files at: #file equals: '0123456789';
+						assert: ( ( json headers at: #'Content-Type' ) beginsWith: 'multipart/form-data' )
+					]
+			]
+]
+
+{ #category : #tests }
 HttpRequestTest >> testPostEncodedAsJson [
 
 	| httpRequest response |
@@ -387,6 +418,37 @@ HttpRequestTest >> testPostFormUrlEncoded [
 				assertJson: json form at: #first_name equals: 'fran';
 				assertJson: json form at: #last_name equals: 'fox';
 				assertJson: json headers at: #'Content-Type' equals: 'application/x-www-form-urlencoded'
+			]
+]
+
+{ #category : #tests }
+HttpRequestTest >> testPostMultiPart [
+
+	self withFileNamed: 'testApplyOnWhenAttachingFiles.txt'
+		containing: '0123456789'
+		do: [ :filename | 
+			| httpRequest response |
+
+			httpRequest := HttpRequest post: self httpbinLocation configuredUsing: [ :request | 
+				               request body multiPart: [ :parts | 
+					               parts
+						               fieldNamed: 'details' pairedTo: 'fran';
+						               fieldNamed: 'file' attaching: filename asFileReference
+					               ]
+				               ].
+
+			response := httpRequest applyOn: self newHttpClient.
+
+			self
+				assert: response isSuccess;
+				withJsonFromContentsIn: response do: [ :json | 
+					self
+						assertUrl: json url equals: self httpbinLocation;
+						assert: json method equals: 'POST';
+						assertJson: json form at: #details equals: 'fran';
+						assertJson: json files at: #file equals: '0123456789';
+						assert: ( ( json headers at: #'Content-Type' ) beginsWith: 'multipart/form-data' )
+					]
 			]
 ]
 
