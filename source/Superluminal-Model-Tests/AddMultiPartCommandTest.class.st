@@ -22,19 +22,27 @@ AddMultiPartCommandTest >> testApplyOn [
 { #category : #tests }
 AddMultiPartCommandTest >> testApplyOnWhenAttachingFiles [
 
-	self withFileNamed: 'testApplyOnWhenAttachingFiles.txt'
-		containing: '0123456789'
+	self withFileNamed: 'testApplyOnWhenAttachingFiles-1.txt'
+		containing: '12121212'
 		do: [ :filename | 
-			| httpClient command |
+			self withFileNamed: 'testApplyOnWhenAttachingFiles-2.txt'
+				containing: '34343434'
+				do: [ :anotherFilename | 
+					| httpClient command |
 
-			httpClient := ZnClient new.
-			command := AddMultiPartCommand named: 'file' attaching: filename asFileReference.
-			command applyOn: httpClient.
+					httpClient := ZnClient new.
+					command := AddMultiPartCommand named: 'file' attaching: filename asFileReference.
+					command applyOn: httpClient.
+					command := AddMultiPartCommand named: 'anotherFile' attaching: anotherFilename asFileReference.
+					command applyOn: httpClient.
 
-			self
-				assert: httpClient request contentType main equals: 'multipart';
-				assert: httpClient request contentType sub equals: 'form-data'.
+					self
+						assert: httpClient request contentType main equals: 'multipart';
+						assert: httpClient request contentType sub equals: 'form-data'.
 
-			self assert: ( httpClient request entity partNamed: 'file' ) fieldValue equals: '0123456789'
+					self
+						assert: ( httpClient request entity partNamed: 'file' ) fieldValue equals: '12121212';
+						assert: ( httpClient request entity partNamed: 'anotherFile' ) fieldValue equals: '34343434'
+					]
 			]
 ]
