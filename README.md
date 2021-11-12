@@ -9,7 +9,6 @@ Building blocks for creating HTTP requests and API clients
 [![Baseline groups](https://github.com/ba-st/Superluminal/actions/workflows/loading-groups.yml/badge.svg)](https://github.com/ba-st/Superluminal/actions/workflows/loading-groups.yml)
 [![Markdown Lint](https://github.com/ba-st/Superluminal/actions/workflows/markdown-lint.yml/badge.svg)](https://github.com/ba-st/Superluminal/actions/workflows/markdown-lint.yml)
 
-
 [![GitHub release](https://img.shields.io/github/release/ba-st/Superluminal.svg)](https://github.com/ba-st/Superluminal/releases/latest)
 [![Pharo 8.0](https://img.shields.io/badge/Pharo-8.0-informational)](https://pharo.org)
 [![Pharo 9.0](https://img.shields.io/badge/Pharo-9.0-informational)](https://pharo.org)

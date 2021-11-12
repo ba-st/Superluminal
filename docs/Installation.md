@@ -40,10 +40,10 @@ reference the package in your product baseline:
 setUpDependencies: spec
 
   spec
-    baseline: 'Superluminal' 
+    baseline: 'Superluminal'
       with: [ spec repository: 'github://ba-st/Superluminal:v{XX}' ];
     project: 'Superluminal-Deployment' copyFrom: 'Superluminal'
-      with: [ spec loads: 'Deployment' ];  
+      with: [ spec loads: 'Deployment' ];
 ```
 
 > Replace `{XX}` with the version you want to depend on
@@ -55,6 +55,6 @@ baseline: spec
   spec
     for: #common
     do: [ self setUpDependencies: spec.
-      spec package: 'My-Package' 
+      spec package: 'My-Package'
         with: [ spec requires: #('Superluminal-Deployment') ] ]
 ```
