@@ -2,15 +2,12 @@ SmalltalkCISpec {
   #loading : [
     SCIMetacelloLoadSpec {
       #baseline : 'Superluminal',
-      #directory : 'source',
-      #load : [ 'CI' ],
+      #directory : '../source',
+      #load : [ 'Deployment' ],
       #platforms : [  #pharo ]
     }
   ],
   #testing : {
-    #coverage : {
-      #packages : [ 'Superluminal*' ],
-      #format: #lcov
-    }
+    #failOnZeroTests : false
   }
 }
