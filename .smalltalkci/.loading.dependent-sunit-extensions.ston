@@ -2,8 +2,8 @@ SmalltalkCISpec {
   #loading : [
     SCIMetacelloLoadSpec {
       #baseline : 'Superluminal',
-      #directory : 'source',
-      #load : [ 'API Client' ],
+      #directory : '../source',
+      #load : [ 'Dependent-SUnit-Extensions' ],
       #platforms : [  #pharo ]
     }
   ],

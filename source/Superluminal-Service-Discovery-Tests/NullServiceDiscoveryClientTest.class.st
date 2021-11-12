@@ -10,13 +10,13 @@ Class {
 { #category : #test }
 NullServiceDiscoveryClientTest >> testWithLocationOfServiceDoIfUnable [
 
-	| serviceLookupWasUnsuccessfull |
-	serviceLookupWasUnsuccessfull := false.
+	| serviceLookupWasUnsuccessful |
+	serviceLookupWasUnsuccessful := false.
 
 	NullServiceDiscoveryClient new
 		withLocationOfService: #google
 		do: [ :location | self fail ]
-		ifUnable: [ serviceLookupWasUnsuccessfull := true ].
+		ifUnable: [ serviceLookupWasUnsuccessful := true ].
 
-	self assert: serviceLookupWasUnsuccessfull
+	self assert: serviceLookupWasUnsuccessful
 ]
