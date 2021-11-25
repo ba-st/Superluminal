@@ -10,52 +10,67 @@ Class {
 { #category : #tests }
 SuperluminalServiceDiscoveryExampleLauncherTest >> testActivate [
 
-	self
-		should: [ 
-			| launcher |
+	| commandLine |
 
-			launcher := SuperluminalServiceDiscoveryExampleLauncher new.
-			launcher
-				commandLine: ( CommandLineArguments withArguments:
-							  #( '--consul-agent-location=http://consul:8500'
-							     '--message=Hello' '--retry-delay-in-ms=1' '--debug-mode' ) );
-				activate
-			]
-		raise: NameLookupFailure
+	commandLine := CommandLineArguments withArguments:
+		               #( 'launchpad' 'start' '--debug-mode' 'superluminal-service-discovery'
+		                  '--consul-agent-location=http://consul:8500'
+		                  '--message=Hello' '--retry-delay-in-ms=1' ).
+
+	self should: [ LaunchpadCommandLineHandler activateWith: commandLine ] raise: NameLookupFailure
 ]
 
 { #category : #tests }
-SuperluminalServiceDiscoveryExampleLauncherTest >> testArguments [
+SuperluminalServiceDiscoveryExampleLauncherTest >> testActivateInReleaseMode [
 
-	| launcher |
+	| commandLine |
 
-	launcher := SuperluminalServiceDiscoveryExampleLauncher new.
-	launcher commandLine: ( CommandLineArguments withArguments:
-			  #( '--consul-agent-location=http://consul:8500' '--message=Hello' '--retry-delay-in-ms=1'
-			     '--debug-mode' ) ).
+	commandLine := CommandLineArguments withArguments:
+		               #( 'launchpad' 'start' 'superluminal-service-discovery'
+		                  '--consul-agent-location=http://consul:8500'
+		                  '--message=Hello' '--retry-delay-in-ms=1' ).
 
-	self
-		assert: launcher message equals: 'Hello';
-		assertUrl: launcher consulAgentLocation equals: 'http://consul:8500'
+	self should: [ LaunchpadCommandLineHandler activateWith: commandLine ]
+		raise: Exit
+		withExceptionDo: [ :exit | self deny: exit isSuccess ]
 ]
 
 { #category : #tests }
 SuperluminalServiceDiscoveryExampleLauncherTest >> testCommandName [
 
-	self assert: SuperluminalServiceDiscoveryExampleLauncher commandName
-		equals: 'super-luminal-service-discovery'
+	self assert: SuperluminalServiceDiscoveryExample commandName
+		equals: 'superluminal-service-discovery'
 ]
 
 { #category : #tests }
 SuperluminalServiceDiscoveryExampleLauncherTest >> testDescription [
 
-	self assert: SuperluminalServiceDiscoveryExampleLauncher description
+	self assert: SuperluminalServiceDiscoveryExample description
 		equals: 'I''m a command line example using as dependency an echo API'
 ]
 
 { #category : #tests }
-SuperluminalServiceDiscoveryExampleLauncherTest >> testLogPrefix [
+SuperluminalServiceDiscoveryExampleLauncherTest >> testHelp [
 
-	self assert: SuperluminalServiceDiscoveryExampleLauncher logPrefix
-		equals: 'Superluminal-Service-Discovery'
+	self assert:
+		( String streamContents: [ :stream | SuperluminalServiceDiscoveryExample printHelpOn: stream ] )
+		equals: 'NAME
+		superluminal-service-discovery [3.0.0] - I''m a command line example using as dependency an echo API
+SYNOPSYS
+		superluminal-service-discovery --message=<message> --consul-agent-location=<consulAgentLocation> [--retry-delay-in-ms=<retryDelayInMs>]
+PARAMETERS
+		--message=<message>
+			Message to echo.
+		--consul-agent-location=<consulAgentLocation>
+			Location of the Consul agent.
+		--retry-delay-in-ms=<retryDelayInMs>
+			Milliseconds to wait between retries. Defaults to 0:00:00:00.2.
+ENVIRONMENT
+		MESSAGE
+			Message to echo.
+		CONSUL_AGENT_LOCATION
+			Location of the Consul agent.
+		RETRY_DELAY_IN_MS
+			Milliseconds to wait between retries. Defaults to 0:00:00:00.2.
+'
 ]

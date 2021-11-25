@@ -37,7 +37,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 			with: [ spec loads: 'Dependent-SUnit-Extensions' ].
 
 	spec
-		baseline: 'Launchpad' with: [ spec repository: 'github://ba-st/Launchpad:v3' ];
+		baseline: 'Launchpad' with: [ spec repository: 'github://ba-st/Launchpad:v4' ];
 		project: 'Launchpad-Deployment' copyFrom: 'Launchpad' with: [ spec loads: 'Deployment' ].
 
 	spec
