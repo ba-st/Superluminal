@@ -17,7 +17,7 @@ SuperluminalServiceDiscoveryExampleLauncherTest >> testActivate [
 		                  '--consul-agent-location=http://consul:8500'
 		                  '--message=Hello' '--retry-delay-in-ms=1' ).
 
-	self should: [ LaunchpadCommandLineHandler activateWith: commandLine ] raise: NameLookupFailure
+	self should: [ LaunchpadCommandLineHandler activateWith: commandLine ] raise: HTTPError
 ]
 
 { #category : #tests }

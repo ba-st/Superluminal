@@ -8,9 +8,9 @@ Class {
 	#name : #ConsulAgentHttpAPIBasedDiscoveryClient,
 	#superclass : #ServiceDiscoveryClient,
 	#instVars : [
-		'httpClient',
 		'agentLocation',
-		'fallbackClient'
+		'fallbackClient',
+		'apiClient'
 	],
 	#category : #'Superluminal-Service-Discovery'
 }
@@ -27,44 +27,44 @@ ConsulAgentHttpAPIBasedDiscoveryClient class >> queryingAgentOn: aConsulAgentLoc
 	^ self new initializeQueryingAgentOn: aConsulAgentLocation chainedWith: aServiceDiscoveryClient
 ]
 
-{ #category : #initialization }
-ConsulAgentHttpAPIBasedDiscoveryClient >> initializeQueryingAgentOn: aConsulAgentLocation chainedWith: aServiceDiscoveryClient [
-
-	agentLocation := aConsulAgentLocation.
-	fallbackClient := aServiceDiscoveryClient.
-	httpClient := ZnClient new.
-	httpClient enforceHttpSuccess: true
-]
-
 { #category : #private }
-ConsulAgentHttpAPIBasedDiscoveryClient >> requestToDiscover: serviceName [
+ConsulAgentHttpAPIBasedDiscoveryClient >> discoverLocationOf: serviceName ifFound: foundBlock otherwise: failBlock [
 
-	^ HttpRequest get: agentLocation / 'v1' / 'health' / 'service' / serviceName
-		  configuredUsing: [ :request | 
+	| serviceHealthList |
+
+	^ apiClient
+		  getAt: agentLocation / 'v1' / 'health' / 'service' / serviceName
+		  configuredBy: [ :request | 
 			  ( request queryString: [ :queryString | 
 				    queryString fieldNamed: 'filter' pairedTo: 'Checks.Status == passing' ] )
 			  + ( request headers setAcceptTo: ZnMimeType applicationJson )
 			  ]
-]
+		  withSuccessfulResponseDo: [ :responseContents | 
+			  serviceHealthList := NeoJSONObject fromString: responseContents.
 
-{ #category : #accessing }
-ConsulAgentHttpAPIBasedDiscoveryClient >> withLocationOfService: serviceName do: foundBlock ifUnable: failBlock [
-
-	^ Retry
-		  value: [ 
-			  | request serviceHealthList |
-
-			  request := self requestToDiscover: serviceName.
-			  serviceHealthList := NeoJSONObject fromString: ( request applyOn: httpClient ) contents.
 			  self withLocationOfServiceOn: serviceHealthList
 				  do: foundBlock
 				  ifUnable: [ 
 				  fallbackClient withLocationOfService: serviceName do: foundBlock ifUnable: failBlock ]
 			  ]
+]
+
+{ #category : #initialization }
+ConsulAgentHttpAPIBasedDiscoveryClient >> initializeQueryingAgentOn: aConsulAgentLocation chainedWith: aServiceDiscoveryClient [
+
+	agentLocation := aConsulAgentLocation.
+	fallbackClient := aServiceDiscoveryClient.
+	apiClient := RESTfulAPIClient cachingOnLocalMemory
+]
+
+{ #category : #accessing }
+ConsulAgentHttpAPIBasedDiscoveryClient >> withLocationOfService: serviceName do: foundBlock ifUnable: failBlock [
+
+	^ Retry value: [ self discoverLocationOf: serviceName ifFound: foundBlock otherwise: failBlock ]
 		  configuredBy: [ :retry | 
 			  retry
 				  upTo: 2;
-				  on: NetworkError , ZnHttpUnsuccessful
+				  on: NetworkError , HTTPError
 			  ]
 ]
 
