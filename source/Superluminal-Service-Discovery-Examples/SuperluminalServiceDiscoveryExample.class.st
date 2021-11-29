@@ -39,28 +39,10 @@ SuperluminalServiceDiscoveryExample class >> version [
 { #category : #'private - activation' }
 SuperluminalServiceDiscoveryExample >> basicStartWithin: context [
 
-	| consulAgentLocation echoServiceLocation |
+	| echoServiceLocation |
 
-	consulAgentLocation := self configuration consulAgentLocation.
-	LaunchpadLogRecord emitInfo: 'Discovering dependencies' during: [ 
-		echoServiceLocation := Retry
-			                       value: [ 
-				                       ( ConsulAgentHttpAPIBasedDiscoveryClient queryingAgentOn:
-					                         consulAgentLocation ) withLocationOfService: #echo
-					                       do: [ :location | location ]
-					                       ifUnable: [ Error signal: 'Cannot discover #echo service' ]
-				                       ]
-			                       configuredBy: [ :retry | 
-				                       retry
-					                       upTo: 3 timesEvery: self configuration retryDelayInMs;
-					                       on: Error evaluating: [ :attemptNumber :exception | 
-						                       LaunchpadLogRecord emitWarning:
-								                       ( 'Attempt #<1p> failed with error: <2s>' expandMacrosWith:
-										                         attemptNumber
-									                         with: exception messageText )
-						                       ]
-				                       ]
-		].
+	LaunchpadLogRecord emitInfo: 'Discovering dependencies'
+		during: [ echoServiceLocation := self discoverEchoServiceQueryingConsulAgent ].
 
 	RESTfulAPIClient cachingOnLocalMemory
 		get: ( echoServiceLocation
@@ -69,9 +51,34 @@ SuperluminalServiceDiscoveryExample >> basicStartWithin: context [
 				  addPathSegment: self configuration message;
 				  yourself )
 		withSuccessfulResponseDo: [ :response | 
-			response = self configuration message asUppercase ifFalse: [ Error signal: 'Invalid response received' ] ].
-
+			response = self configuration message asUppercase ifFalse: [ 
+				Error signal: 'Invalid response received' ]
+			].
 	self exitSuccess
+]
+
+{ #category : #'private - activation' }
+SuperluminalServiceDiscoveryExample >> discoverEchoServiceQueryingConsulAgent [
+
+	^ ( ConsulAgentHttpAPIBasedDiscoveryClient queryingAgentOn: self configuration consulAgentLocation
+		    configuredBy: [ :options | options at: #retry put: self retryOptions ] ) 
+		  withLocationOfService: #echo
+		  do: [ :location | location ]
+		  ifUnable: [ Error signal: 'Cannot discover #echo service' ]
+]
+
+{ #category : #'private - activation' }
+SuperluminalServiceDiscoveryExample >> retryOptions [
+
+	^ [ :retry | 
+	  retry
+		  upTo: 3 timesEvery: self configuration retryDelayInMs;
+		  on: Error evaluating: [ :attemptNumber :exception | 
+			  LaunchpadLogRecord emitWarning:
+					  ( 'Attempt #<1p> failed with error: <2s>' expandMacrosWith: attemptNumber
+						    with: exception messageText )
+			  ]
+	  ]
 ]
 
 { #category : #'error handling' }

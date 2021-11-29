@@ -8,14 +8,24 @@ Class {
 	#name : #ConsulAgentHttpAPIBasedDiscoveryClient,
 	#superclass : #ServiceDiscoveryClient,
 	#instVars : [
-		'agentLocation',
 		'fallbackClient',
-		'apiClient'
+		'apiClient',
+		'options'
 	],
 	#category : #'Superluminal-Service-Discovery'
 }
 
-{ #category : #'Instance creation' }
+{ #category : #'private - instance creation' }
+ConsulAgentHttpAPIBasedDiscoveryClient class >> configuredBy: aBlock chainedWith: aServiceDiscoveryClient [
+
+	| options |
+
+	options := Dictionary new.
+	aBlock cull: options.
+	^ self new initializeConfiguredBy: options chainedWith: aServiceDiscoveryClient
+]
+
+{ #category : #'instance creation' }
 ConsulAgentHttpAPIBasedDiscoveryClient class >> queryingAgentOn: aConsulAgentLocation [
 
 	^ self queryingAgentOn: aConsulAgentLocation chainedWith: NullServiceDiscoveryClient new
@@ -24,7 +34,33 @@ ConsulAgentHttpAPIBasedDiscoveryClient class >> queryingAgentOn: aConsulAgentLoc
 { #category : #'instance creation' }
 ConsulAgentHttpAPIBasedDiscoveryClient class >> queryingAgentOn: aConsulAgentLocation chainedWith: aServiceDiscoveryClient [
 
-	^ self new initializeQueryingAgentOn: aConsulAgentLocation chainedWith: aServiceDiscoveryClient
+	^ self configuredBy: [ :options | options at: #agentLocation put: aConsulAgentLocation ]
+		  chainedWith: aServiceDiscoveryClient
+]
+
+{ #category : #'instance creation' }
+ConsulAgentHttpAPIBasedDiscoveryClient class >> queryingAgentOn: aConsulAgentLocation configuredBy: aBlock [
+
+	^ self queryingAgentOn: aConsulAgentLocation
+		  configuredBy: aBlock
+		  chainedWith: NullServiceDiscoveryClient new
+]
+
+{ #category : #'instance creation' }
+ConsulAgentHttpAPIBasedDiscoveryClient class >> queryingAgentOn: aConsulAgentLocation configuredBy: aBlock chainedWith: aServiceDiscoveryClient [
+
+	^ self
+		  configuredBy: [ :options | 
+			  options at: #agentLocation put: aConsulAgentLocation.
+			  aBlock cull: options
+			  ]
+		  chainedWith: aServiceDiscoveryClient
+]
+
+{ #category : #private }
+ConsulAgentHttpAPIBasedDiscoveryClient >> agentLocation [
+
+	^ options at: #agentLocation
 ]
 
 { #category : #private }
@@ -33,7 +69,7 @@ ConsulAgentHttpAPIBasedDiscoveryClient >> discoverLocationOf: serviceName ifFoun
 	| serviceHealthList |
 
 	^ apiClient
-		  getAt: agentLocation / 'v1' / 'health' / 'service' / serviceName
+		  getAt: self agentLocation / 'v1' / 'health' / 'service' / serviceName
 		  configuredBy: [ :request | 
 			  ( request queryString: [ :queryString | 
 				    queryString fieldNamed: 'filter' pairedTo: 'Checks.Status == passing' ] )
@@ -50,9 +86,9 @@ ConsulAgentHttpAPIBasedDiscoveryClient >> discoverLocationOf: serviceName ifFoun
 ]
 
 { #category : #initialization }
-ConsulAgentHttpAPIBasedDiscoveryClient >> initializeQueryingAgentOn: aConsulAgentLocation chainedWith: aServiceDiscoveryClient [
+ConsulAgentHttpAPIBasedDiscoveryClient >> initializeConfiguredBy: anOptionsDictionary chainedWith: aServiceDiscoveryClient [
 
-	agentLocation := aConsulAgentLocation.
+	options := anOptionsDictionary.
 	fallbackClient := aServiceDiscoveryClient.
 	apiClient := RESTfulAPIClient cachingOnLocalMemory
 ]
@@ -64,7 +100,8 @@ ConsulAgentHttpAPIBasedDiscoveryClient >> withLocationOfService: serviceName do:
 		  configuredBy: [ :retry | 
 			  retry
 				  upTo: 2;
-				  on: NetworkError , HTTPError
+				  on: NetworkError , HTTPError.
+			  options at: #retry ifPresent: [ :action | action value: retry ]
 			  ]
 ]
 
