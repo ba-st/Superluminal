@@ -61,7 +61,7 @@ RESTfulAPIClient >> clientPoolFor: aLocation [
 			]
 ]
 
-{ #category : #invoking }
+{ #category : #'invoking - covenience' }
 RESTfulAPIClient >> deleteAt: aLocation [
 
 	^ self
@@ -74,7 +74,7 @@ RESTfulAPIClient >> deleteAt: aLocation [
 		withSuccessfulResponseDo: [  ]
 ]
 
-{ #category : #invoking }
+{ #category : #'invoking - covenience' }
 RESTfulAPIClient >> deleteAt: aLocation accepting: aMediaType withSuccessfulResponseDo: aBlock [
 
 	^ self
@@ -122,7 +122,7 @@ RESTfulAPIClient >> finalize [
 	^ super finalize
 ]
 
-{ #category : #invoking }
+{ #category : #'invoking - covenience' }
 RESTfulAPIClient >> get: aLocation accepting: aMediaType withSuccessfulResponseDo: aBlock [
 
 	^ self
@@ -150,7 +150,7 @@ RESTfulAPIClient >> get: aLocation executing: httpRequest [
 			]
 ]
 
-{ #category : #invoking }
+{ #category : #'invoking - covenience' }
 RESTfulAPIClient >> get: aLocation withSuccessfulResponseDo: aMonadicBlock [
 
 	^ self getAt: aLocation configuredBy: [  ] withSuccessfulResponseDo: aMonadicBlock
@@ -203,34 +203,41 @@ RESTfulAPIClient >> normalize: aLocation [
 	^aLocation asString
 ]
 
-{ #category : #invoking }
+{ #category : #'invoking - covenience' }
 RESTfulAPIClient >> patch: anEntity at: aLocation withSuccessfulResponseDo: aBlock [
 
 	^ self
-		handleExceptionsDuring: [ 
-			| httpRequest response |
-			httpRequest := HttpRequest
-				patch: aLocation
-				configuredUsing: [ :request | 
-					| command |
-					command := request body contents: anEntity.
-					self
-						withCachedETagAt: aLocation
-						do: [ :entityTag | command := command + ( request headers setIfMatchTo: entityTag asString ) ].
-					command
-					].
-			self
-				withHttpClientFor: aLocation
-				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
-			response isSuccess
-				ifTrue: [ expiringCache clearResourceAt: aLocation.
-					aBlock value: ( self tryToCacheContentsOf: response basedOn: aLocation )
-					]
-				ifFalse: [ self signalCannotCompleteUpdateErrorBasedOn: response ]
-			]
+		  patchAt: aLocation
+		  configuredBy: [ :request | 
+			  | command |
+
+			  command := request body contents: anEntity.
+			  self withCachedETagAt: aLocation
+				  do: [ :entityTag | command := command + ( request headers setIfMatchTo: entityTag asString ) ].
+			  command
+			  ]
+		  withSuccessfulResponseDo: aBlock
 ]
 
 { #category : #invoking }
+RESTfulAPIClient >> patchAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aSuccessBlock [
+
+	^ self handleExceptionsDuring: [ 
+		  | httpRequest response |
+
+		  httpRequest := HttpRequest patch: aLocation configuredUsing: aRequestBuildingBlock.
+		  self withHttpClientFor: aLocation
+			  do: [ :httpClient | response := httpRequest applyOn: httpClient ].
+		  response isSuccess
+			  ifTrue: [ 
+				  expiringCache clearResourceAt: aLocation.
+				  aSuccessBlock value: ( self tryToCacheContentsOf: response basedOn: aLocation )
+				  ]
+			  ifFalse: [ self signalCannotCompleteUpdateErrorBasedOn: response ]
+		  ]
+]
+
+{ #category : #'invoking - covenience' }
 RESTfulAPIClient >> post: anEntity at: aLocation withSuccessfulResponseDo: aBlock [
 
 	^ self
@@ -273,7 +280,7 @@ RESTfulAPIClient >> processPutResponse: response at: aLocation whenSuccessfulDo:
 	^ self signalCannotCompleteUpdateErrorBasedOn: response
 ]
 
-{ #category : #invoking }
+{ #category : #'invoking - covenience' }
 RESTfulAPIClient >> put: anEntity at: aLocation [
 
 	^ self
