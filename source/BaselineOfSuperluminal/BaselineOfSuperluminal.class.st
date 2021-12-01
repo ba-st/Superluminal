@@ -74,7 +74,7 @@ BaselineOfSuperluminal >> setUpDeploymentPackages: spec [
 		group: 'API Client' with: 'Superluminal-RESTfulAPI';
 		group: 'Deployment' with: 'Superluminal-RESTfulAPI'.
 	spec
-		package: 'Superluminal-Service-Discovery' with: [ spec requires: 'Superluminal-Model' ];
+		package: 'Superluminal-Service-Discovery' with: [ spec requires: 'Superluminal-RESTfulAPI' ];
 		group: 'Service Discovery' with: 'Superluminal-Service-Discovery';
 		group: 'Deployment' with: 'Superluminal-Service-Discovery'
 ]
