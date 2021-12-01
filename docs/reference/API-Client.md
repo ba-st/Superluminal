@@ -5,7 +5,7 @@ abstractions to ease this kind of interaction.
 
 `RESTfulAPIClient` is the key abstraction for these features. Some of its
 functionality is more useful when dealing with a RESTful API but is usable for
-non-RESTful APIs also.
+non-RESTful APIs as well.
 
 `RESTfulAPIClient` provides pooling of the underlying HTTP client, handling of
 entity tags, and caching support.
@@ -94,7 +94,7 @@ purposes by some servers. A comparison of them allows us to quickly determine
 whether two representations of a resource are the same, but they might also be
 set to persist indefinitely by a tracking server.
 
-`RESTfulAPIClient` take advantage of entity tags, when present, in the following
+`RESTfulAPIClient` takes advantage of entity tags, when present, in the following
 scenarios:
 
 - When receiving a successful response including the `ETag` header, both the
@@ -129,9 +129,9 @@ where `serverList` is something like `{'127.0.0.1:11211'}`
 
 Both kinds of caches take into account the `Cache-Control` headers received in
 the responses. When the API client receives any of the `GET`-related messages it
-lookups in the cache if there's a non-expired resource cached for this location.
+looks up in the cache if there's a non-expired resource cached for this location.
 If it is, it will reuse that. In case there's no cached resource or the cached one
-is expired it will proceed to execute the `GET`.
+has expired it will proceed to execute the `GET`.
 
 Resources are cached when a successful `GET` response is received; and cleared when
 any `POST`, `PUT`, `PATCH`, or `DELETE` method is executed against this location,

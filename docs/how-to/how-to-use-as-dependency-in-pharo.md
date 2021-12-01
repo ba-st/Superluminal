@@ -4,9 +4,9 @@ In order to include **Superluminal** as part of your project, you should referen
 the package in your product baseline:
 
 1. Define the Superluminal repository and version to be used, and the [baseline groups](../reference/Baseline-groups.md)
-    you want to depend on (usually it will be `Deployment`).
+    you want to depend on (usually `Deployment`).
 
-    If you're unsure on what to depend use the *Dependency Analyzer*
+    If you're unsure about what to depend on use the *Dependency Analyzer*
     tool to choose an appropriate group including the packages you need.
 
 2. Create a method like this one in the baseline class of your product:

@@ -13,8 +13,8 @@ loading targets:
     memcached
 - `Service Discovery` will load the packages needed to support service discovery
   against a Consul agent
-- `Deployment` will load all the packages needed in a deployed application, in this
-  particular case it is `Core` + `API Client` + `Service Discovery`
+- `Deployment` will load all the packages needed in a deployed application, which in this
+  case correspond to `Core` + `API Client` + `Service Discovery`
 - `Examples` will load a service discovery-enabled application
 - `Tests` will load the test cases
 - `Dependent-SUnit-Extensions` will load extensions to SUnit for testing API clients
