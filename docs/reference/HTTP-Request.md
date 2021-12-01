@@ -21,7 +21,7 @@ For example:
 ```smalltalk
 HttpRequest
     get: 'https://api.example.com'
-    configuredUsing: [ :request | 
+    configuredUsing: [ :request |
       request headers setBearerTokenTo: 'eJwdjdmOqlgARd' ].
 ```
 
@@ -90,7 +90,7 @@ For example:
 request :=
   HttpRequest
     get: 'https://api.example.com'
-    configuredUsing: [ :request | 
+    configuredUsing: [ :request |
       request headers setBearerTokenTo: 'eJwdjdmOqlgARd' ].
 request applyOn: ZnClient new
 ```
