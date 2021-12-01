@@ -74,8 +74,10 @@ It also supports some convenience methods built on the previous ones:
 
 ## Pooling
 
-By default, an API client will lazily create a pool for each authority and port
-used in an invocation. Currently, each pool has at least a connection alive with
+Every time an API call is made, if a new authority and port is used
+for the invocation the API client will create a connection pool.
+
+Currently, each pool created has at least one connection alive with
 a maximum of 5 connections.
 
 On API client disposition all the connections in the pool are closed.
