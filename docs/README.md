@@ -10,7 +10,7 @@ clients, including:
 To learn about the project, [install it](how-to/how-to-load-in-pharo.md) and
 lookup for details in the reference docs:
 
-- [HTTP Requests](reference/HTTP-Requests.md)
+- [HTTP Requests](reference/HTTP-Request.md)
 - [API Clients](reference/API-Client.md)
 - [Service Discovery](reference/Service-Discovery.md)
 
