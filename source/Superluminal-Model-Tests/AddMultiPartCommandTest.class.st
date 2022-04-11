@@ -22,10 +22,12 @@ AddMultiPartCommandTest >> testApplyOn [
 { #category : #tests }
 AddMultiPartCommandTest >> testApplyOnWhenAttachingFiles [
 
-	self withFileNamed: 'testApplyOnWhenAttachingFiles-1.txt'
+	self
+		withFileNamed: 'testApplyOnWhenAttachingFiles-1.txt'
 		containing: '12121212'
 		do: [ :filename | 
-			self withFileNamed: 'testApplyOnWhenAttachingFiles-2.txt'
+			self
+				withFileNamed: 'testApplyOnWhenAttachingFiles-2.txt'
 				containing: '34343434'
 				do: [ :anotherFilename | 
 					| httpClient command |
@@ -41,8 +43,10 @@ AddMultiPartCommandTest >> testApplyOnWhenAttachingFiles [
 						assert: httpClient request contentType sub equals: 'form-data'.
 
 					self
-						assert: ( httpClient request entity partNamed: 'file' ) fieldValue equals: '12121212';
-						assert: ( httpClient request entity partNamed: 'anotherFile' ) fieldValue equals: '34343434'
+						assert: ( httpClient request entity partNamed: 'file' ) fieldValue utf8Decoded
+						equals: '12121212';
+						assert: ( httpClient request entity partNamed: 'anotherFile' ) fieldValue utf8Decoded
+						equals: '34343434'
 					]
 			]
 ]

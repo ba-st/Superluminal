@@ -525,7 +525,7 @@ HttpRequestTest >> testPutIfMatch [
 
 	httpRequest := HttpRequest put: self httpbinLocation configuredUsing: [ :request | 
 		               ( request body json: 'hello world' )
-		               + ( request headers setIfMatchTo: '"12345"' asETag ) ].
+		               + ( request headers setIfMatchTo: '"12345"' asEntityTag ) ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
@@ -548,7 +548,7 @@ HttpRequestTest >> testPutIfNoneMatch [
 
 	httpRequest := HttpRequest put: self httpbinLocation configuredUsing: [ :request | 
 		               ( request body json: 'hello world' )
-		               + ( request headers setIfNoneMatchTo: '"12345"' asETag ) ].
+		               + ( request headers setIfNoneMatchTo: '"12345"' asEntityTag ) ].
 
 	response := httpRequest applyOn: self newHttpClient.
 
