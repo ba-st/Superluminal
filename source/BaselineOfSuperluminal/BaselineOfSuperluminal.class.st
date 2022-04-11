@@ -61,7 +61,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		project: 'Teachable-Core' copyFrom: 'Teachable' with: [ spec loads: 'Core' ].
 		
 	spec 
-		baseline: 'Memcached' with: [ spec repository: 'github://svenvc/memcached:v1.0.0' ];
+		baseline: 'Memcached' with: [ spec repository: 'github://svenvc/memcached:v1' ];
 		project: 'Memcached-Core' copyFrom: 'Memcached' with: [ spec loads: 'Deployment' ]
 ]
 
