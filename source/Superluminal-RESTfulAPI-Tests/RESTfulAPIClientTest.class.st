@@ -82,12 +82,10 @@ RESTfulAPIClientTest >> testDeleteAtSuccessWhenCached [
 
 	etagIsSet := false.
 
-	self
-		configureHttpClientToRespondWith:
-			( ( self jsonOkResponseWith: #(1 2 3) )
-				addCachingDirective: 'Max-Age=60';
-				setEntityTag: '"1"' asETag;
-				yourself ).
+	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+			  addCachingDirective: 'Max-Age=60';
+			  setEntityTag: '"1"' asEntityTag;
+			  yourself ).
 
 	self httpClient whenSend: #setIfMatchTo: evaluate: [ :etag | etagIsSet := etag = '"1"' ].
 

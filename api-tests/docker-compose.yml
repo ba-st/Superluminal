@@ -5,11 +5,12 @@ services:
     ports:
       - "8080:8080"
     environment:
-      PUBLIC_URL: http://api:8080
-      OPERATIONS_SECRET: API-tests
+      STARGATE__PUBLIC_URL: http://api:8080
+      STARGATE__PORT: 8080
+      STARGATE__OPERATIONS_SECRET: API-tests
       HEALTH_CHECK_TOKEN: eyJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6ImV4ZWN1dGU6aGVhbHRoLWNoZWNrIn0.FQgIMpaHZX_7yPWRNC5HAsmlYWkNYu0pdNrSil3ECRc
       APPLICATION_CONTROL_TOKEN: eyJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6ImV4ZWN1dGU6YXBwbGljYXRpb24tY29udHJvbCJ9.CCMnq-6mlX-ZoSC2OfwdBOVn5DILmahP58hfXowjqFk
-      CONSUL_AGENT_LOCATION: http://consul-agent:8500
+      STARGATE__CONSUL_AGENT_LOCATION: http://consul-agent:8500
     depends_on:
       - consul-agent
   consul-agent:

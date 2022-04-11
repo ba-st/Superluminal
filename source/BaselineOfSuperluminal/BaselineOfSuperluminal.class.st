@@ -16,7 +16,8 @@ BaselineOfSuperluminal >> baseline: spec [
 				setUpPackages: spec.
 			spec
 				group: 'CI' with: 'Tests';
-				group: 'Development' with: 'Tests'
+				group: 'Tools' with: 'Hyperspace-Tools';
+				group: 'Development' with: #('Tests' 'Tools')
 			]
 ]
 
@@ -30,11 +31,14 @@ BaselineOfSuperluminal >> projectClass [
 BaselineOfSuperluminal >> setUpDependencies: spec [
 
 	spec
-		baseline: 'Hyperspace' with: [ spec repository: 'github://ba-st/Hyperspace:v2' ];
+		baseline: 'Hyperspace' with: [ spec repository: 'github://ba-st/Hyperspace:v4' ];
 		project: 'Hyperspace-Deployment' copyFrom: 'Hyperspace' with: [ spec loads: 'Deployment' ];
 		project: 'Hyperspace-SUnit'
 			copyFrom: 'Hyperspace'
-			with: [ spec loads: 'Dependent-SUnit-Extensions' ].
+			with: [ spec loads: 'Dependent-SUnit-Extensions' ];
+		project: 'Hyperspace-Tools'
+			copyFrom: 'Hyperspace'
+			with: [ spec loads: 'Tools' ].
 
 	spec
 		baseline: 'Launchpad' with: [ spec repository: 'github://ba-st/Launchpad:v4' ];
@@ -45,7 +49,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		project: 'NeoJSON-Core' copyFrom: 'NeoJSON' with: [ spec loads: 'core' ].
 
 	spec
-		baseline: 'ObjectPool' with: [ spec repository: 'github://pharo-ide/ObjectPool:v1.0.1' ];
+		baseline: 'ObjectPool' with: [ spec repository: 'github://pharo-ide/ObjectPool:v1.0.2' ];
 		project: 'ObjectPool-Core' copyFrom: 'ObjectPool' with: [ spec loads: 'Core' ].
 
 	spec
@@ -57,7 +61,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		project: 'Teachable-Core' copyFrom: 'Teachable' with: [ spec loads: 'Core' ].
 		
 	spec 
-		baseline: 'Memcached' with: [ spec repository: 'github://svenvc/memcached:v1.0.0' ];
+		baseline: 'Memcached' with: [ spec repository: 'github://svenvc/memcached:v1' ];
 		project: 'Memcached-Core' copyFrom: 'Memcached' with: [ spec loads: 'Deployment' ]
 ]
 
