@@ -29,7 +29,7 @@ RESTfulAPIClientTest >> jsonOkResponse [
 { #category : #private }
 RESTfulAPIClientTest >> location [
 
-	^ 'http://localhost' asUrl + resourceIdentifier
+	^ 'http://localhost' asAbsoluteUrl + resourceIdentifier
 ]
 
 { #category : #tests }

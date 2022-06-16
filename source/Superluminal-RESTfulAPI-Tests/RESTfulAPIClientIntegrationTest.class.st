@@ -25,7 +25,7 @@ RESTfulAPIClientIntegrationTest >> httpbinCacheLocation [
 { #category : #private }
 RESTfulAPIClientIntegrationTest >> httpbinLocation [
 
-	^ 'http://localhost' asUrl
+	^ 'http://localhost' asAbsoluteUrl
 ]
 
 { #category : #private }
