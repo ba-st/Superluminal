@@ -50,7 +50,7 @@ RESTfulAPIClient >> clientErrorMessageFrom: response [
 RESTfulAPIClient >> clientPoolFor: aLocation [
 
 	^ httpClientPoolByAuthority
-		at: aLocation asUrl authorityWithPort
+		at: aLocation asAbsoluteUrl authorityWithPort
 		ifAbsentPut: [ OPBasicPool new
 				creator: httpClientProvider;
 				destroyer: #close;

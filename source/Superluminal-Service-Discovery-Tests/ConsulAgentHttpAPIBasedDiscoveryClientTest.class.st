@@ -12,9 +12,9 @@ Class {
 }
 
 { #category : #accessing }
-ConsulAgentHttpAPIBasedDiscoveryClientTest >> consulAgentLocation [ 
+ConsulAgentHttpAPIBasedDiscoveryClientTest >> consulAgentLocation [
 
-	^ 'http://localhost' asUrl port: port
+	^ 'http://localhost' asAbsoluteUrl port: port
 ]
 
 { #category : #running }
