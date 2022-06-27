@@ -18,7 +18,7 @@ HttpRequest class >> delete: aLocation configuredUsing: aBlock [
 { #category : #'instance creation' }
 HttpRequest class >> get: aLocation [
 
-	^ self performing: #GET on: aLocation configuredUsing: [  ]
+	^ self get: aLocation configuredUsing: [  ]
 ]
 
 { #category : #'instance creation' }
