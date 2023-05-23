@@ -1,0 +1,12 @@
+name: Integration Tests
+
+on: [push,pull_request,workflow_dispatch]
+
+jobs:
+   integration-tests:
+    runs-on: ubuntu-latest
+    name: Integration Tests
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run tests using Docker
+        run: ./compose-test.sh
