@@ -23,9 +23,8 @@ services:
       CONSUL_BIND_INTERFACE: eth0
   api-client:
     build:
-      context: ./
-      args:
-        - BRANCH_NAME
+      context: ../
+      dockerfile: api-tests/Dockerfile
     environment:
       MESSAGE: 'Hello'
       CONSUL_AGENT_LOCATION: http://consul-agent:8500

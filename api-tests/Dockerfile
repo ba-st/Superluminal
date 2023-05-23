@@ -1,26 +1,22 @@
 # Stage 1: Load the project
-FROM basmalltalk/pharo:8.0-image AS loader
-ARG BRANCH_NAME=release-candidate
-ENV BRANCH_NAME=$BRANCH_NAME
-COPY load-project.st ./
-RUN pharo Pharo.image load-project.st --save --quit
+FROM ghcr.io/ba-st/pharo-loader:v11.0.0 AS loader
+
+COPY --chown=pharo:users ./source ./source
+COPY --chown=pharo:users ./.git ./.git
+RUN pharo metacello install gitlocal://./source BaselineOfSuperluminal --groups=Examples
 
 # Stage 2: Copy the resulting Pharo.image with our project loaded
 # into a new docker image with just the vm
-FROM basmalltalk/pharo:8.0
+FROM ghcr.io/ba-st/launchpad:v4
 
 USER root
 
-WORKDIR /opt/app
-COPY start.sh ./
 COPY --from=loader /opt/pharo/Pharo.image ./
-COPY --from=loader /opt/pharo/Pharo.changes ./
 COPY --from=loader /opt/pharo/Pharo*.sources ./
 
 RUN mkdir logs \
-  && chmod a+x start.sh \
-  && chown --recursive pharo:users /opt/app
+  && chown --recursive pharo:users /opt/pharo
 
 USER pharo
 
-CMD ["./start.sh"]
+CMD ["launchpad-start", "superluminal-service-discovery", "--retry-delay-in-ms=10000"]
