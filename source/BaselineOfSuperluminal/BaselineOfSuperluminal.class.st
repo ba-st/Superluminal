@@ -45,23 +45,23 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		project: 'Launchpad-Deployment' copyFrom: 'Launchpad' with: [ spec loads: 'Deployment' ].
 
 	spec
-		baseline: 'NeoJSON' with: [ spec repository: 'github://svenvc/NeoJSON:master/repository' ];
+		baseline: 'NeoJSON' with: [ spec repository: 'github://svenvc/NeoJSON:master' ];
 		project: 'NeoJSON-Core' copyFrom: 'NeoJSON' with: [ spec loads: 'core' ].
 
 	spec
-		baseline: 'ObjectPool' with: [ spec repository: 'github://pharo-ide/ObjectPool:v1.0.2' ];
+		baseline: 'ObjectPool' with: [ spec repository: 'github://pharo-ide/ObjectPool:v1.0.3' ];
 		project: 'ObjectPool-Core' copyFrom: 'ObjectPool' with: [ spec loads: 'Core' ].
 
 	spec
-		baseline: 'Teapot' with: [ spec repository: 'github://zeroflag/Teapot:v2.6.0/source' ];
+		baseline: 'Teapot' with: [ spec repository: 'github://zeroflag/Teapot:v2.7.0/source' ];
 		project: 'Teapot-Deployment' copyFrom: 'Teapot' with: [ spec loads: 'Deployment' ].
 
 	spec
-		baseline: 'Teachable' with: [ spec repository: 'github://astares/Pharo-Teachable:master/src' ];
+		baseline: 'Teachable' with: [ spec repository: 'github://astares/Pharo-Teachable:master' ];
 		project: 'Teachable-Core' copyFrom: 'Teachable' with: [ spec loads: 'Core' ].
 		
 	spec 
-		baseline: 'Memcached' with: [ spec repository: 'github://svenvc/memcached:v1' ];
+		baseline: 'Memcached' with: [ spec repository: 'github://svenvc/memcached:master' ];
 		project: 'Memcached-Core' copyFrom: 'Memcached' with: [ spec loads: 'Deployment' ]
 ]
 
