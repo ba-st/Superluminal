@@ -27,24 +27,54 @@ ExpiringResource >> date [
 ]
 
 { #category : #private }
+ExpiringResource >> expirationDateApplyingCacheControlDirectivesIfNone: noneBlock [
+
+	| expirationDates |
+
+	expirationDates := OrderedCollection new.
+
+	response cachingDirectives do: [ :directive |
+		| lowercasedDirective |
+
+		lowercasedDirective := directive asLowercase.
+		self if: lowercasedDirective isMaxAgeDirectiveApplyTo: expirationDates.
+		self if: lowercasedDirective isNoCacheDirectiveApplyTo: expirationDates
+		].
+
+	^ expirationDates ifEmpty: [ noneBlock value ] ifNotEmpty: [ :dates | dates min ]
+]
+
+{ #category : #private }
 ExpiringResource >> expires [
 
 	^ ZnUtils parseHttpDate: ( response headers at: 'Expires' )
 ]
 
 { #category : #private }
-ExpiringResource >> ifMaxAgePresentDo: maxAgeBlock ifExpiresPresentDo: expiresBlock ifNone: noneBlock [
+ExpiringResource >> if: directive isMaxAgeDirectiveApplyTo: expirationDates [
 
-	"Max age represents the amount of time a resource is considered fresh. Unlike Expires, this directive is relative to the time of the request.
-	
-	Expires is an absolute datetime after which the response is considered stale."
+	( directive beginsWith: 'max-age' ) then: [
+		| maxAge |
 
-	^ [ self
-		withMaxAgeDo: [ :maxAge | maxAgeBlock value: self date + maxAge ]
-		ifNone: [ expiresBlock value: self expires ]
-	]
-		on: NotFound , SubscriptOutOfBounds
-		do: [ :ex | ex return: noneBlock value ]
+		maxAge := ( directive copyAfter: $= ) asNumber seconds.
+		expirationDates add: self date + maxAge
+		]
+]
+
+{ #category : #private }
+ExpiringResource >> if: directive isNoCacheDirectiveApplyTo: expirationDates [
+	"The `no-cache` response directive indicates that the response can be stored in caches,
+	but the response must be validated with the origin server before each reuse, even when
+	the cache is disconnected from the origin server.
+
+	If you want caches to always check for content updates while reusing stored content, `no-cache`
+	is the directive to use. It does this by requiring caches to revalidate each request with the origin server.
+
+	Note that `no-cache` does not mean `don't cache`. `no-cache` allows caches to store a response but requires them
+	to revalidate it before reuse. If the sense of `don't cache` that you want is actually `don't store`, then
+	`no-store` is the directive to use."
+
+	directive = 'no-cache' then: [ expirationDates add: self date ]
 ]
 
 { #category : #initialization }
@@ -57,31 +87,17 @@ ExpiringResource >> initializeFor: aResource controlledBy: aResponse [
 { #category : #testing }
 ExpiringResource >> isExpiredAt: aPointInTime [
 
-	^ self withExpirationDo: [ :expiration | expiration < aPointInTime ] ifNone: [ true ]
+	^ self withExpirationDo: [ :expiration | expiration <= aPointInTime ] ifNone: [ true ]
 ]
 
 { #category : #private }
 ExpiringResource >> withExpirationDo: ifPresentBlock ifNone: noneBlock [
 
-	^ self
-		ifMaxAgePresentDo: ifPresentBlock 
-		ifExpiresPresentDo: ifPresentBlock
-		ifNone: noneBlock
-]
-
-{ #category : #private }
-ExpiringResource >> withMaxAgeDo: ifPresentBlock ifNone: noneBlock [
-
-	^ response cachingDirectives
-		detect: [ :directive | directive asLowercase beginsWith: 'Max-Age' asLowercase ]
-		ifFound: [ :string | 
-			| maxAge |
-
-			maxAge := ( string copyAfter: $= ) asNumber seconds.
-			ifPresentBlock value: maxAge
-			]
-		ifNone: noneBlock
-
+	^ [
+	  ifPresentBlock value:
+		  ( self expirationDateApplyingCacheControlDirectivesIfNone: [ self expires ] ) ]
+		  on: NotFound , SubscriptOutOfBounds
+		  do: [ :ex | ex return: noneBlock value ]
 ]
 
 { #category : #expiring }

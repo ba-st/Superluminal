@@ -25,18 +25,25 @@ ExpiringResourceTest >> assert: anExpiringResource hasExpiredAt: aPointInTime [
 ]
 
 { #category : #'tests - support' }
+ExpiringResourceTest >> assertHasTheExpectedContents: resource [
+
+	self assert: resource contents equals: 'here'
+]
+
+{ #category : #'tests - support' }
+ExpiringResourceTest >> expiringResourceControlledBy: response [
+
+	^ ExpiringResource for: 'here' controlledBy: response
+]
+
+{ #category : #'tests - support' }
 ExpiringResourceTest >> resourceOriginatedAt: dateTime expiresContaining: expires [
 
-	| response headers |
+	| response |
 
-	headers := Dictionary new
-		at: 'Date' put: ( ZnUtils httpDate: dateTime );
-		at: 'Expires' put: expires;
-		yourself.
-	response := ZnResponse noContent
-		headers: headers;
-		yourself.
-	^ ExpiringResource for: 'here' controlledBy: response
+	response := self responseWithDateHeader: dateTime.
+	response headers at: 'Expires' put: expires.
+	^ self expiringResourceControlledBy: response
 ]
 
 { #category : #'tests - support' }
@@ -51,17 +58,43 @@ ExpiringResourceTest >> resourceOriginatedAt: dateTime expiringAt: expiringDateT
 { #category : #'tests - support' }
 ExpiringResourceTest >> resourceOriginatedAt: dateTime expiringIn: aDuration [
 
-	| response headers maxAge |
+	| response |
 
-	maxAge := 'Max-Age=<1p>' expandMacrosWith: aDuration totalSeconds.
-	headers := Dictionary new
-		at: 'Date' put: ( ZnUtils httpDate: dateTime );
-		at: 'Cache-Control' put: {maxAge};
-		yourself.
-	response := ZnResponse noContent
-		headers: headers;
-		yourself.
-	^ ExpiringResource for: 'here' controlledBy: response
+	response := self responseWithDateHeader: dateTime.
+	response addCachingDirective: ( 'Max-Age=<1p>' expandMacrosWith: aDuration totalSeconds ).
+	^ self expiringResourceControlledBy: response
+]
+
+{ #category : #'tests - support' }
+ExpiringResourceTest >> resourceWithNoCacheDirectiveOriginatedAt: dateTime [
+
+	| response |
+
+	response := self responseWithDateHeader: dateTime.
+	response addCachingDirective: 'no-cache'.
+	^ self expiringResourceControlledBy: response
+]
+
+{ #category : #'tests - support' }
+ExpiringResourceTest >> resourceWithNoCacheDirectiveOriginatedAt: dateTime expiringIn: aDuration [
+
+	| response |
+
+	response := self responseWithDateHeader: dateTime.
+	response
+		addCachingDirective: ( 'Max-Age=<1p>' expandMacrosWith: aDuration totalSeconds );
+		addCachingDirective: 'no-cache'.
+	^ self expiringResourceControlledBy: response
+]
+
+{ #category : #'tests - support' }
+ExpiringResourceTest >> responseWithDateHeader: dateTime [
+
+	| response |
+
+	response := ZnResponse noContent.
+	response headers at: 'Date' put: ( ZnUtils httpDate: dateTime ).
+	^ response
 ]
 
 { #category : #running }
@@ -72,7 +105,6 @@ ExpiringResourceTest >> setUp [
 
 { #category : #tests }
 ExpiringResourceTest >> testExpiredWhenExpiresSetToInvalidDate [
-
 	"A cache recipient MUST interpret invalid date formats, especially the
    value 0, as representing a time in the past (i.e., 'already
    expired').
@@ -83,13 +115,14 @@ ExpiringResourceTest >> testExpiredWhenExpiresSetToInvalidDate [
 
 	resource := self resourceOriginatedAt: currentDateTime expiresContaining: 'not-a-date'.
 	self
-		assert: resource contents equals: 'here';
+		assertHasTheExpectedContents: resource;
 		assert: ( resource isExpiredAt: currentDateTime );
 		assert: ( resource isExpiredAt: currentDateTime + 1 second );
 		assert: ( resource isExpiredAt: currentDateTime - 1 second ).
+
 	resource := self resourceOriginatedAt: currentDateTime expiresContaining: '0'.
 	self
-		assert: resource contents equals: 'here';
+		assertHasTheExpectedContents: resource;
 		assert: ( resource isExpiredAt: currentDateTime );
 		assert: ( resource isExpiredAt: currentDateTime + 1 second );
 		assert: ( resource isExpiredAt: currentDateTime - 1 second )
@@ -100,24 +133,20 @@ ExpiringResourceTest >> testIsExpiredAtUsingExpires [
 
 	| resource |
 
-	resource := self
-		resourceOriginatedAt: currentDateTime
-		expiringAt: currentDateTime.
+	resource := self resourceOriginatedAt: currentDateTime expiringAt: currentDateTime.
 	self
-		assert: resource contents equals: 'here';
-		deny: ( resource isExpiredAt: currentDateTime );
+		assertHasTheExpectedContents: resource;
+		assert: ( resource isExpiredAt: currentDateTime );
 		deny: ( resource isExpiredAt: currentDateTime - 1 second );
 		assert: ( resource isExpiredAt: currentDateTime + 1 second ).
 
-	resource := self
-		resourceOriginatedAt: currentDateTime
-		expiringAt: currentDateTime + 55 seconds.
+	resource := self resourceOriginatedAt: currentDateTime expiringAt: currentDateTime + 55 seconds.
 	self
-		assert: resource contents equals: 'here';
+		assertHasTheExpectedContents: resource;
 		deny: ( resource isExpiredAt: currentDateTime );
 		deny: ( resource isExpiredAt: currentDateTime - 1 second );
 		deny: ( resource isExpiredAt: currentDateTime + 1 second );
-		deny: ( resource isExpiredAt: currentDateTime + 55 seconds );
+		assert: ( resource isExpiredAt: currentDateTime + 55 seconds );
 		assert: ( resource isExpiredAt: currentDateTime + 56 seconds )
 ]
 
@@ -128,35 +157,60 @@ ExpiringResourceTest >> testIsExpiredAtUsingMaxAge [
 
 	resource := self resourceOriginatedAt: currentDateTime expiringIn: 0 seconds.
 	self
-		assert: resource contents equals: 'here';
-		deny: ( resource isExpiredAt: currentDateTime );
+		assertHasTheExpectedContents: resource;
+		assert: ( resource isExpiredAt: currentDateTime );
 		deny: ( resource isExpiredAt: currentDateTime - 1 second );
 		assert: ( resource isExpiredAt: currentDateTime + 1 second ).
 
 	resource := self resourceOriginatedAt: currentDateTime expiringIn: 55 seconds.
 	self
-		assert: resource contents equals: 'here';
+		assertHasTheExpectedContents: resource;
 		deny: ( resource isExpiredAt: currentDateTime );
 		deny: ( resource isExpiredAt: currentDateTime - 1 second );
 		deny: ( resource isExpiredAt: currentDateTime + 1 second );
-		deny: ( resource isExpiredAt: currentDateTime + 55 seconds );
+		assert: ( resource isExpiredAt: currentDateTime + 55 seconds );
+		assert: ( resource isExpiredAt: currentDateTime + 56 seconds )
+]
+
+{ #category : #tests }
+ExpiringResourceTest >> testIsExpiredAtUsingNoCache [
+
+	| resource |
+
+	resource := self resourceWithNoCacheDirectiveOriginatedAt: currentDateTime.
+	self
+		assertHasTheExpectedContents: resource;
+		assert: ( resource isExpiredAt: currentDateTime );
+		deny: ( resource isExpiredAt: currentDateTime - 1 second );
+		assert: ( resource isExpiredAt: currentDateTime + 1 second );
+		assert: ( resource isExpiredAt: currentDateTime + 55 seconds );
+		assert: ( resource isExpiredAt: currentDateTime + 56 seconds )
+]
+
+{ #category : #tests }
+ExpiringResourceTest >> testIsExpiredAtUsingNoCacheAndMaxAge [
+
+	| resource |
+
+	resource := self resourceWithNoCacheDirectiveOriginatedAt: currentDateTime expiringIn: 55 seconds.
+	self
+		assertHasTheExpectedContents: resource;
+		assert: ( resource isExpiredAt: currentDateTime );
+		deny: ( resource isExpiredAt: currentDateTime - 1 second );
+		assert: ( resource isExpiredAt: currentDateTime + 1 second );
+		assert: ( resource isExpiredAt: currentDateTime + 55 seconds );
 		assert: ( resource isExpiredAt: currentDateTime + 56 seconds )
 ]
 
 { #category : #tests }
 ExpiringResourceTest >> testIsExpiredAtWithoutCacheDirectives [
 
-	| headers resource response |
+	| resource response |
 
-	headers := Dictionary new
-		at: 'Date' put: ( ZnUtils httpDate: currentDateTime );
-		yourself.
-	response := ZnResponse noContent
-		headers: headers;
-		yourself.
-	resource := ExpiringResource for: 'here' controlledBy: response.
+	response := self responseWithDateHeader: currentDateTime.
+	resource := self expiringResourceControlledBy: response.
 	self
-		assert: resource contents equals: 'here';
+		assertHasTheExpectedContents: resource;
 		assert: ( resource isExpiredAt: currentDateTime );
 		assert: ( resource isExpiredAt: currentDateTime + 1 second );
 		assert: ( resource isExpiredAt: currentDateTime + 1 minute );
@@ -171,7 +225,7 @@ ExpiringResourceTest >> testWithTimeToExpireAtDoUsingExpires [
 	resource := self resourceOriginatedAt: currentDateTime expiringAt: currentDateTime.
 
 	self
-		assert: resource contents equals: 'here';
+		assertHasTheExpectedContents: resource;
 		assert: resource hasExpiredAt: currentDateTime;
 		assert: resource hasExpiredAt: currentDateTime + 1 second;
 		assert: resource expiresIn: 1 second at: currentDateTime - 1 second.
@@ -179,7 +233,7 @@ ExpiringResourceTest >> testWithTimeToExpireAtDoUsingExpires [
 	resource := self resourceOriginatedAt: currentDateTime expiringAt: currentDateTime + 55 seconds.
 
 	self
-		assert: resource contents equals: 'here';
+		assertHasTheExpectedContents: resource;
 		assert: resource expiresIn: 55 seconds at: currentDateTime;
 		assert: resource expiresIn: 56 seconds at: currentDateTime - 1 second;
 		assert: resource expiresIn: 54 seconds at: currentDateTime + 1 second;
@@ -193,7 +247,7 @@ ExpiringResourceTest >> testWithTimeToExpireAtDoUsingMaxAge [
 
 	resource := self resourceOriginatedAt: currentDateTime expiringIn: 0 seconds.
 	self
-		assert: resource contents equals: 'here';
+		assertHasTheExpectedContents: resource;
 		assert: resource hasExpiredAt: currentDateTime;
 		assert: resource hasExpiredAt: currentDateTime + 1 second;
 		assert: resource expiresIn: 1 second at: currentDateTime - 1 second.
@@ -201,7 +255,7 @@ ExpiringResourceTest >> testWithTimeToExpireAtDoUsingMaxAge [
 	resource := self resourceOriginatedAt: currentDateTime expiringIn: 55 seconds.
 
 	self
-		assert: resource contents equals: 'here';
+		assertHasTheExpectedContents: resource;
 		assert: resource expiresIn: 55 seconds at: currentDateTime;
 		assert: resource expiresIn: 56 seconds at: currentDateTime - 1 second;
 		assert: resource expiresIn: 54 seconds at: currentDateTime + 1 second;
