@@ -21,7 +21,7 @@ RESTfulAPIClient
   cachingIn: ExpiringCache onLocalMemory
 ```
 
-will instantiate a client pooling ZnClient instances and using an in-memory cache.
+will instantiate a client pooling `ZnClient` instances and using an in-memory cache.
 
 API clients support the following methods:
 
@@ -50,27 +50,27 @@ the corresponding response code.
 
 It also supports some convenience methods built on the previous ones:
 
-- `get:accepting:withSuccessfulResponseDo:` will execute a GET against the
+- `get:accepting:withSuccessfulResponseDo:` will execute a `GET` against the
   location in the first argument, setting the `Accept` header according to the
   second argument. If the response is successful the last argument is evaluated
   with the response's body.
-- `get:withSuccessfulResponseDo:` will execute a GET against the location in the
+- `get:withSuccessfulResponseDo:` will execute a `GET` against the location in the
   first argument without further configuration. If the response is successful
   the last argument is evaluated with the response's body.
-- `post:at:withSuccessfulResponseDo:` will execute a POST, whose body and
+- `post:at:withSuccessfulResponseDo:` will execute a `POST`, whose body and
   `Content-Type` is defined by the entity in the first argument, against the
   second argument. If the response is successful the last argument is evaluated
   with the response's body.
-- `patch:at:withSuccessfulResponseDo:` will execute a PATCH, whose body and
+- `patch:at:withSuccessfulResponseDo:` will execute a `PATCH`, whose body and
   `Content-Type` is defined by the entity in the first argument, against the
   second argument. If the response is successful the last argument is evaluated
   with the response's body.
-- `put:at:` will execute a PUT, whose body and `Content-Type` is defined by the
+- `put:at:` will execute a `PUT`, whose body and `Content-Type` is defined by the
   entity in the first argument, against the second argument. If the response is
   successful the last argument is evaluated with the response's body.
-- `deleteAt:` will execute a DELETE against the location in the first argument.
+- `deleteAt:` will execute a `DELETE` against the location in the first argument.
   If there's an entity tag associated with this location it will set the
-  `If-Match` header making the delete conditional.
+  `If-Match` header making the `DELETE` conditional.
 
 ## Pooling
 
@@ -138,3 +138,10 @@ has expired it will proceed to execute the `GET`.
 Resources are cached when a successful `GET` response is received; and cleared when
 any `POST`, `PUT`, `PATCH`, or `DELETE` method is executed against this location,
 or when a cached resource is expired.
+
+The following caching headers are supported:
+
+- `Expires`
+- `Cache-Control`
+  - `Max-Age`
+  - `no-cache`
