@@ -68,7 +68,7 @@ RESTfulAPIClient >> deleteAt: aLocation [
 		deleteAt: aLocation
 		configuredBy: [ :request | 
 			self
-				withCachedETagAt: aLocation
+				withETagAt: aLocation
 				do: [ :entityTag | request headers setIfMatchTo: entityTag asString ]
 			]
 		withSuccessfulResponseDo: [  ]
@@ -84,7 +84,7 @@ RESTfulAPIClient >> deleteAt: aLocation accepting: aMediaType withSuccessfulResp
 
 			command := request headers setAcceptTo: aMediaType.
 			self
-				withCachedETagAt: aLocation
+				withETagAt: aLocation
 				do: [ :entityTag | command := command + ( request headers setIfMatchTo: entityTag asString ) ].
 			command
 			]
@@ -212,7 +212,7 @@ RESTfulAPIClient >> patch: anEntity at: aLocation withSuccessfulResponseDo: aBlo
 			  | command |
 
 			  command := request body contents: anEntity.
-			  self withCachedETagAt: aLocation
+			  self withETagAt: aLocation
 				  do: [ :entityTag | command := command + ( request headers setIfMatchTo: entityTag asString ) ].
 			  command
 			  ]
@@ -345,21 +345,37 @@ RESTfulAPIClient >> signalCannotCompleteUpdateErrorBasedOn: response [
 { #category : #'private - caching' }
 RESTfulAPIClient >> tryToCacheContentsOf: anHttpResponse basedOn: aLocation [
 
-	| contents |
+	| contents normalizedLocation |
 
 	contents := anHttpResponse contents.
+	normalizedLocation := self normalize: aLocation.
+
 	anHttpResponse
-		withEntityTagDo: [:entityTag |
-			entityTagByLocationCache at: (self normalize: aLocation) put: entityTag.
-			lastKnownRepresentationByLocation at: (self normalize: aLocation) put: contents]
+		withEntityTagDo: [ :entityTag |
+			entityTagByLocationCache at: normalizedLocation put: entityTag.
+			anHttpResponse canBeStoredInCache then: [
+				lastKnownRepresentationByLocation at: normalizedLocation put: contents ]
+			]
 		ifAbsent: [
-			entityTagByLocationCache removeKey: (self normalize: aLocation) ifAbsent: [].
-			lastKnownRepresentationByLocation removeKey: (self normalize: aLocation) ifAbsent: []].
-	^contents
+			entityTagByLocationCache removeKey: normalizedLocation ifAbsent: [  ].
+			lastKnownRepresentationByLocation removeKey: normalizedLocation ifAbsent: [  ]
+			].
+	^ contents
 ]
 
 { #category : #'private - caching' }
 RESTfulAPIClient >> withCachedETagAt: aLocation do: aBlock [
+	"For using the ETag in the `If-None-Match` headers of a GET, we need to have available the last
+	representation, just in case the following requests respond with `Not Modified`.
+	
+	Given than now there's support for `no-store` caching directives, this is not allways the case."
+
+	( lastKnownRepresentationByLocation includesKey: ( self normalize: aLocation ) ) then: [
+		self withETagAt: aLocation do: aBlock ]
+]
+
+{ #category : #'private - caching' }
+RESTfulAPIClient >> withETagAt: aLocation do: aBlock [
 
 	^entityTagByLocationCache at: (self normalize: aLocation) ifPresent: aBlock
 ]

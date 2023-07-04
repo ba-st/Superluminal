@@ -37,15 +37,11 @@ ExpiringCacheTest >> obtain: answer cachedFor: aDuration [
 { #category : #private }
 ExpiringCacheTest >> resourceFor: answer expiringIn: aDuration [
 
-	| headers response |
+	| response |
 
-	headers := Dictionary new
-		at: 'Date' put: ( ZnUtils httpDate: currentDateTime );
-		at: 'Cache-Control' put: ( Array with: ( 'Max-Age=<1p>' expandMacrosWith: aDuration asSeconds ) );
-		yourself.
-	response := ZnResponse noContent
-		headers: headers;
-		yourself.
+	response := ZnResponse noContent.
+	response headers at: 'Date' put: ( ZnUtils httpDate: currentDateTime ).
+	response addCachingDirective: ( 'Max-Age=<1p>' expandMacrosWith: aDuration asSeconds ).
 	^ ExpiringResource for: answer controlledBy: response
 ]
 
@@ -55,7 +51,7 @@ ExpiringCacheTest >> setUp [
 	super setUp.
 	currentDateTime := DateAndTime now truncated.
 	currentTimeProvider := [ currentDateTime ].
-	location := UUID new asString.
+	location := 'answers' asUrl / UUID new asString.
 	self setUpExpiringCache
 ]
 
