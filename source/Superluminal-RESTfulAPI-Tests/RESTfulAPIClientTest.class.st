@@ -191,8 +191,9 @@ RESTfulAPIClientTest >> testGetUsingETagInASecondInvocation [
 
 	| ifNoneMatchHeaderWasSet |
 
-	self configureHttpClientToRespondWith:
-		( ( self jsonOkResponseWith: #( 1 2 3 ) ) setEntityTag: '"123"' yourself ).
+	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+			  setEntityTag: '"123"';
+			  yourself ).
 
 	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
 		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ].
