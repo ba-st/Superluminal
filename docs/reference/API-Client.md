@@ -108,7 +108,8 @@ scenarios:
 - When using any of the `GET`-related methods, if an entity tag was previously
   saved its value is used in an `If-None-Match` header. Giving the server the
   chance to respond with `204/Not modified` and in that case, the previously
-  saved body is used as the response body.
+  saved body is used as the response body; unless a `no-store` caching directive
+  is in place.
 
 ## Caching
 
@@ -145,3 +146,4 @@ The following caching headers are supported:
 - `Cache-Control`
   - `Max-Age`
   - `no-cache`
+  - `no-store`
