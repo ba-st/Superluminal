@@ -104,6 +104,34 @@ ExpiringResourceTest >> setUp [
 ]
 
 { #category : #tests }
+ExpiringResourceTest >> testCanBeStored [
+
+	| resource |
+
+	self
+		assert: ( self resourceOriginatedAt: currentDateTime expiresContaining: 'not-a-date' ) canBeStored;
+		assert: ( self resourceOriginatedAt: currentDateTime expiringIn: 0 seconds ) canBeStored;
+		assert: ( self resourceWithNoCacheDirectiveOriginatedAt: currentDateTime ) canBeStored;
+		assert:
+			( self resourceWithNoCacheDirectiveOriginatedAt: currentDateTime expiringIn: 1 second )
+				canBeStored.
+
+
+	resource := self expiringResourceControlledBy: ( ( self responseWithDateHeader: currentDateTime )
+			              addCachingDirective: 'no-store';
+			              yourself ).
+
+	self deny: resource canBeStored.
+
+	resource := self expiringResourceControlledBy: ( ( self responseWithDateHeader: currentDateTime )
+			              addCachingDirective: 'no-cache';
+			              addCachingDirective: 'no-store';
+			              yourself ).
+
+	self deny: resource canBeStored
+]
+
+{ #category : #tests }
 ExpiringResourceTest >> testExpiredWhenExpiresSetToInvalidDate [
 	"A cache recipient MUST interpret invalid date formats, especially the
    value 0, as representing a time in the past (i.e., 'already

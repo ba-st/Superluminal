@@ -20,7 +20,7 @@ RESTfulAPIClientTest >> apiClient [
 	^ self subclassResponsibility 
 ]
 
-{ #category : #tests }
+{ #category : #private }
 RESTfulAPIClientTest >> jsonOkResponse [
 
 	^ self jsonOkResponseWith: #(1 2 3)
@@ -32,7 +32,7 @@ RESTfulAPIClientTest >> location [
 	^ 'http://localhost' asAbsoluteUrl + resourceIdentifier
 ]
 
-{ #category : #tests }
+{ #category : #private }
 RESTfulAPIClientTest >> notFoundResponse [
 
 	^ ZnResponse notFound: self location
@@ -53,7 +53,7 @@ RESTfulAPIClientTest >> tearDown [
 	super tearDown
 ]
 
-{ #category : #tests }
+{ #category : #'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteAcceptingWithSuccessfulResponseDo [
 
 	| wasSuccessfull |
@@ -68,14 +68,14 @@ RESTfulAPIClientTest >> testDeleteAcceptingWithSuccessfulResponseDo [
 	self assert: wasSuccessfull
 ]
 
-{ #category : #tests }
+{ #category : #'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteAtSuccess [
 
 	self configureHttpClientToRespondWith: ZnResponse noContent.
 	self shouldnt: [ apiClient deleteAt: self location ] raise: HTTPClientError
 ]
 
-{ #category : #tests }
+{ #category : #'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteAtSuccessWhenCached [
 
 	| etagIsSet |
@@ -96,7 +96,7 @@ RESTfulAPIClientTest >> testDeleteAtSuccessWhenCached [
 	self assert: etagIsSet
 ]
 
-{ #category : #tests }
+{ #category : #'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteNotFound [
 
 	self configureHttpClientToRespondWith: self notFoundResponse.
@@ -110,7 +110,7 @@ RESTfulAPIClientTest >> testDeleteNotFound [
 		raise: HTTPClientError notFound
 ]
 
-{ #category : #tests }
+{ #category : #'tests - GET' }
 RESTfulAPIClientTest >> testGetAcceptingWithSuccessfulResponseDo [
 
 	self configureHttpClientToRespondWith: self jsonOkResponse.
@@ -122,29 +122,61 @@ RESTfulAPIClientTest >> testGetAcceptingWithSuccessfulResponseDo [
 			[ :responseContents | self withJsonFrom: responseContents do: [ :json | self assert: json equals: #(1 2 3) ] ]
 ]
 
-{ #category : #tests }
+{ #category : #'tests - GET' }
 RESTfulAPIClientTest >> testGetCached [
 
-	self
-		configureHttpClientToRespondWith:
-			( ( self jsonOkResponseWith: #(1 2 3) )
-				addCachingDirective: 'Max-Age=60';
-				yourself ).
+	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+			  addCachingDirective: 'Max-Age=60';
+			  yourself ).
 
-	apiClient
-		get: self location
-		withSuccessfulResponseDo:
-			[ :responseContents | self withJsonFrom: responseContents do: [ :json | self assert: json equals: #(1 2 3) ] ].
+	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ].
 
-	self configureHttpClientToRespondWith: ( ZnResponse notFound: self location ).
+	self configureHttpClientToRespondWith: self notFoundResponse.
 
-	apiClient
-		get: self location
-		withSuccessfulResponseDo:
-			[ :responseContents | self withJsonFrom: responseContents do: [ :json | self assert: json equals: #(1 2 3) ] ]
+	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ]
 ]
 
-{ #category : #tests }
+{ #category : #'tests - GET' }
+RESTfulAPIClientTest >> testGetDoNotStoreResponseInCache [
+
+	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+			  addCachingDirective: 'no-store';
+			  yourself ).
+
+	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ].
+
+	self configureHttpClientToRespondWith: self notFoundResponse.
+
+	self
+		should: [
+		apiClient get: self location withSuccessfulResponseDo: [ :responseContents | self fail ] ]
+		raise: HTTPClientError notFound
+]
+
+{ #category : #'tests - GET' }
+RESTfulAPIClientTest >> testGetIgnoreETagsWhenDoNotStoreCachingPolicyIsInPlace [
+
+	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+			  setEntityTag: '"123"';
+			  addCachingDirective: 'no-store';
+			  yourself ).
+
+	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ].
+
+	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+			  setEntityTag: '"123"';
+			  addCachingDirective: 'no-store';
+			  yourself ).
+
+	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ]
+]
+
+{ #category : #'tests - GET' }
 RESTfulAPIClientTest >> testGetNotFound [
 
 	self configureHttpClientToRespondWith: self notFoundResponse.
@@ -154,7 +186,33 @@ RESTfulAPIClientTest >> testGetNotFound [
 		raise: HTTPClientError notFound
 ]
 
-{ #category : #tests }
+{ #category : #'tests - GET' }
+RESTfulAPIClientTest >> testGetUsingETagInASecondInvocation [
+
+	| ifNoneMatchHeaderWasSet |
+
+	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+			  setEntityTag: '"123"';
+			  yourself ).
+
+	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ].
+
+	self configureHttpClientToRespondWith: ZnResponse notModified.
+
+	ifNoneMatchHeaderWasSet := false.
+	self httpClient whenSend: #setIfNoneMatchTo: evaluate: [ :etag |
+		self assert: etag equals: '"123"' asEntityTag.
+		ifNoneMatchHeaderWasSet := true
+		].
+
+	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ].
+
+	self assert: ifNoneMatchHeaderWasSet
+]
+
+{ #category : #'tests - GET' }
 RESTfulAPIClientTest >> testGetWithSuccessfulResponseDo [
 
 	self configureHttpClientToRespondWith: self jsonOkResponse.
@@ -165,7 +223,7 @@ RESTfulAPIClientTest >> testGetWithSuccessfulResponseDo [
 			[ :responseContents | self withJsonFrom: responseContents do: [ :json | self assert: json equals: #(1 2 3) ] ]
 ]
 
-{ #category : #tests }
+{ #category : #'tests - PATCH' }
 RESTfulAPIClientTest >> testPatchAtNoContent [
 
 	self configureHttpClientToRespondWith: ZnResponse noContent.
@@ -175,7 +233,7 @@ RESTfulAPIClientTest >> testPatchAtNoContent [
 		withSuccessfulResponseDo: [ :responseContents | self assert: responseContents isNil ]
 ]
 
-{ #category : #tests }
+{ #category : #'tests - PATCH' }
 RESTfulAPIClientTest >> testPatchAtNotFound [
 
 	self configureHttpClientToRespondWith: self notFoundResponse.
@@ -189,7 +247,7 @@ RESTfulAPIClientTest >> testPatchAtNotFound [
 		withMessageText: 'Cannot complete update'
 ]
 
-{ #category : #tests }
+{ #category : #'tests - PATCH' }
 RESTfulAPIClientTest >> testPatchAtWithSuccessfulResponseDo [
 
 	self configureHttpClientToRespondWith: self jsonOkResponse.
@@ -201,7 +259,7 @@ RESTfulAPIClientTest >> testPatchAtWithSuccessfulResponseDo [
 			[ :responseContents | self withJsonFrom: responseContents do: [ :json | self assert: json equals: #(1 2 3) ] ]
 ]
 
-{ #category : #tests }
+{ #category : #'tests - POST' }
 RESTfulAPIClientTest >> testPostBadRequest [
 
 	self
@@ -216,7 +274,7 @@ RESTfulAPIClientTest >> testPostBadRequest [
 		withMessageText: 'Cannot complete the request'
 ]
 
-{ #category : #tests }
+{ #category : #'tests - POST' }
 RESTfulAPIClientTest >> testPostWithSuccessfulResponseDo [
 
 	self configureHttpClientToRespondWith: ( ZnResponse created: self location ).
@@ -226,7 +284,7 @@ RESTfulAPIClientTest >> testPostWithSuccessfulResponseDo [
 		withSuccessfulResponseDo: [ :responseContents | self assert: ( responseContents beginsWith: 'Created' ) ]
 ]
 
-{ #category : #tests }
+{ #category : #'tests - PUT' }
 RESTfulAPIClientTest >> testPutAt [
 
 	| response |
@@ -238,7 +296,7 @@ RESTfulAPIClientTest >> testPutAt [
 	self withJsonFrom: response contents do: [ :json | self assert: json equals: #(1 2 3) ]
 ]
 
-{ #category : #tests }
+{ #category : #'tests - PUT' }
 RESTfulAPIClientTest >> testPutAtNoContent [
 
 	| response |
@@ -249,7 +307,7 @@ RESTfulAPIClientTest >> testPutAtNoContent [
 	self assert: response isNoContent
 ]
 
-{ #category : #tests }
+{ #category : #'tests - PUT' }
 RESTfulAPIClientTest >> testPutAtNotFound [
 
 	self configureHttpClientToRespondWith: self notFoundResponse.

@@ -14,6 +14,12 @@ ExpiringResource class >> for: aResource controlledBy: aResponse [
 	^ self new initializeFor: aResource controlledBy: aResponse
 ]
 
+{ #category : #testing }
+ExpiringResource >> canBeStored [
+
+	^ response canBeStoredInCache
+]
+
 { #category : #accessing }
 ExpiringResource >> contents [
 

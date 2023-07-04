@@ -51,12 +51,16 @@ ExpiringCache >> withResourceAt: aBuiltKey obtainedUsing: aGetBlock do: aProcess
 
 	| resource |
 
-	[ resource := expiringResources get: aBuiltKey ]
-		on: KeyNotFound
-		do: [ :signal | 
-			resource := aGetBlock value.
-			expiringResources store: resource at: aBuiltKey
-			].
+	resource := [ expiringResources get: aBuiltKey ]
+		            on: KeyNotFound
+		            do: [ :notFound |
+			            | obtainedResource |
+
+			            obtainedResource := aGetBlock value.
+			            obtainedResource canBeStored then: [
+				            expiringResources store: obtainedResource at: aBuiltKey ].
+			            notFound return: obtainedResource
+			            ].
 
 	^ aProcessBlock value: resource contents
 ]
