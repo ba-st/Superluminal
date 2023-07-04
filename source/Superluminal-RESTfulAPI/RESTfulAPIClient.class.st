@@ -368,7 +368,7 @@ RESTfulAPIClient >> withCachedETagAt: aLocation do: aBlock [
 	"For using the ETag in the `If-None-Match` headers of a GET, we need to have available the last
 	representation, just in case the following requests respond with `Not Modified`.
 	
-	Given than now there's support for `no-store` caching directives, this is not allways the case."
+	Given than now there's support for `no-store` caching directives, this is not always the case."
 
 	( lastKnownRepresentationByLocation includesKey: ( self normalize: aLocation ) ) then: [
 		self withETagAt: aLocation do: aBlock ]
