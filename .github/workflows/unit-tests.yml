@@ -1,20 +1,28 @@
 name: Unit Tests
-
-on: [push,pull_request,workflow_dispatch]
-
+on:
+  - push
+  - pull_request
+  - workflow_dispatch
 jobs:
    unit-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        smalltalk: [ Pharo64-11, Pharo64-10, Pharo64-8.0, Pharo64-9.0 ]
+        smalltalk:
+          - Pharo64-11
+          - Pharo64-10
     name: ${{ matrix.smalltalk }}
+    services:
+      httpbin:
+        image: fortizpenaloza/httpbin
+        ports:
+          - 127.0.0.1:80:80
+      memcached:
+        image: memcached:1.6.7-alpine
+        ports:
+          - 127.0.0.1:11211:11211
     steps:
-      - uses: actions/checkout@v3
-      - name: Start httpbin
-        run: docker run -d -p 127.0.0.1:80:80 fortizpenaloza/httpbin
-      - name: Start memcached
-        run: docker run -d -p 127.0.0.1:11211:11211 memcached:1.6.7-alpine
+      - uses: actions/checkout@v4
       - uses: hpi-swa/setup-smalltalkCI@v1
         with:
           smalltalk-image: ${{ matrix.smalltalk }}

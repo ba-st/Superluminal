@@ -58,7 +58,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		project: 'Teapot-Deployment' copyFrom: 'Teapot' with: [ spec loads: 'Deployment' ].
 
 	spec
-		baseline: 'Teachable' with: [ spec repository: 'github://astares/Pharo-Teachable:master' ];
+		baseline: 'Teachable' with: [ spec repository: 'github://ba-st-dependencies/Teachable:v3' ];
 		project: 'Teachable-Core' copyFrom: 'Teachable' with: [ spec loads: 'Core' ].
 		
 	spec 
