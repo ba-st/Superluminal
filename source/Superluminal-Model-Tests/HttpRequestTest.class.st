@@ -43,7 +43,14 @@ HttpRequestTest >> fullNameVersion1dot0dot0MediaType [
 { #category : 'private' }
 HttpRequestTest >> httpbinLocation [
 
-	^ 'http://localhost/anything'
+	| hostname |
+
+	hostname := LanguagePlatform current os
+		            environmentAt: 'CI_HTTPBIN_HOSTNAME'
+		            ifPresent: [ :hostnameInVariable | hostnameInVariable ]
+		            ifAbsent: [ 'localhost' ].
+
+	^ 'http://<1s>/anything' expandMacrosWith: hostname
 ]
 
 { #category : 'private' }
