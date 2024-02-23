@@ -1,10 +1,11 @@
 Class {
-	#name : #BaselineOfSuperluminal,
-	#superclass : #BaselineOf,
-	#category : #BaselineOfSuperluminal
+	#name : 'BaselineOfSuperluminal',
+	#superclass : 'BaselineOf',
+	#category : 'BaselineOfSuperluminal',
+	#package : 'BaselineOfSuperluminal'
 }
 
-{ #category : #baselines }
+{ #category : 'baselines' }
 BaselineOfSuperluminal >> baseline: spec [
 
 	<baseline>
@@ -21,17 +22,17 @@ BaselineOfSuperluminal >> baseline: spec [
 			]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BaselineOfSuperluminal >> projectClass [
 
 	^ MetacelloCypressBaselineProject
 ]
 
-{ #category : #baselines }
+{ #category : 'baselines' }
 BaselineOfSuperluminal >> setUpDependencies: spec [
 
 	spec
-		baseline: 'Hyperspace' with: [ spec repository: 'github://ba-st/Hyperspace:v4' ];
+		baseline: 'Hyperspace' with: [ spec repository: 'github://ba-st/Hyperspace:v5' ];
 		project: 'Hyperspace-Deployment' copyFrom: 'Hyperspace' with: [ spec loads: 'Deployment' ];
 		project: 'Hyperspace-SUnit'
 			copyFrom: 'Hyperspace'
@@ -41,7 +42,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 			with: [ spec loads: 'Tools' ].
 
 	spec
-		baseline: 'Launchpad' with: [ spec repository: 'github://ba-st/Launchpad:v4' ];
+		baseline: 'Launchpad' with: [ spec repository: 'github://ba-st/Launchpad:v5' ];
 		project: 'Launchpad-Deployment' copyFrom: 'Launchpad' with: [ spec loads: 'Deployment' ].
 
 	spec
@@ -49,11 +50,11 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		project: 'NeoJSON-Core' copyFrom: 'NeoJSON' with: [ spec loads: 'core' ].
 
 	spec
-		baseline: 'ObjectPool' with: [ spec repository: 'github://pharo-ide/ObjectPool:v1.0.3' ];
+		baseline: 'ObjectPool' with: [ spec repository: 'github://ba-st-dependencies/ObjectPool:v2' ];
 		project: 'ObjectPool-Core' copyFrom: 'ObjectPool' with: [ spec loads: 'Core' ].
 
 	spec
-		baseline: 'Teapot' with: [ spec repository: 'github://zeroflag/Teapot:v2.7.0/source' ];
+		baseline: 'Teapot' with: [ spec repository: 'github://ba-st-dependencies/Teapot:v2' ];
 		project: 'Teapot-Deployment' copyFrom: 'Teapot' with: [ spec loads: 'Deployment' ].
 
 	spec
@@ -61,11 +62,11 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		project: 'Teachable-Core' copyFrom: 'Teachable' with: [ spec loads: 'Core' ].
 		
 	spec 
-		baseline: 'Memcached' with: [ spec repository: 'github://svenvc/memcached:master' ];
+		baseline: 'Memcached' with: [ spec repository: 'github://ba-st-dependencies/Memcached:v1' ];
 		project: 'Memcached-Core' copyFrom: 'Memcached' with: [ spec loads: 'Deployment' ]
 ]
 
-{ #category : #baselines }
+{ #category : 'baselines' }
 BaselineOfSuperluminal >> setUpDeploymentPackages: spec [
 
 	spec
@@ -83,7 +84,7 @@ BaselineOfSuperluminal >> setUpDeploymentPackages: spec [
 		group: 'Deployment' with: 'Superluminal-Service-Discovery'
 ]
 
-{ #category : #baselines }
+{ #category : 'baselines' }
 BaselineOfSuperluminal >> setUpPackages: spec [
 
 	self setUpDeploymentPackages: spec.
@@ -98,7 +99,7 @@ BaselineOfSuperluminal >> setUpPackages: spec [
 	self setUpTestPackages: spec
 ]
 
-{ #category : #baselines }
+{ #category : 'baselines' }
 BaselineOfSuperluminal >> setUpTestPackages: spec [
 
 	spec
