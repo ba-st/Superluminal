@@ -14,7 +14,7 @@ RwSimpleProjectLoadComponentV2 {
       'allusers' : {
         #packageNameToPlatformPropertiesMap : {
           'Superluminal-Model-Tests' : { 'symbolDictName' : 'Superluminal' },
-          'Superluminal-Model-Tests-Extensions' : { 'symbolDictName' : 'Globals' },
+          'Superluminal-Model-Tests-Extensions' : { 'symbolDictName' : 'Globals' }
         }
       }
     }
