@@ -1,10 +1,12 @@
 Class {
-	#name : #SetBodyCommandTest,
-	#superclass : #TestCase,
-	#category : #'Superluminal-Model-Tests-Commands'
+	#name : 'SetBodyCommandTest',
+	#superclass : 'TestCase',
+	#category : 'Superluminal-Model-Tests-Commands',
+	#package : 'Superluminal-Model-Tests',
+	#tag : 'Commands'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 SetBodyCommandTest >> testApplyOn [
 
 	| httpClient command json |
@@ -20,7 +22,7 @@ SetBodyCommandTest >> testApplyOn [
 		assert: httpClient request contents equals: json
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 SetBodyCommandTest >> testApplyOnUsingMimeType [
 
 	| httpClient command json |

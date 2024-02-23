@@ -1,6 +1,6 @@
-Extension { #name : #TestAsserter }
+Extension { #name : 'TestAsserter' }
 
-{ #category : #'*Superluminal-Model-Tests' }
+{ #category : '*Superluminal-Model-Tests-Extensions' }
 TestAsserter >> withFileNamed: aFileName containing: aContents do: aBlock [
 
 	| filename |

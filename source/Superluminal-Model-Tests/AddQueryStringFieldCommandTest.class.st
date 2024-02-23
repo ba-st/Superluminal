@@ -2,12 +2,14 @@
 An AddQueryStringFieldTest is a test class for testing the behavior of AddQueryStringField
 "
 Class {
-	#name : #AddQueryStringFieldCommandTest,
-	#superclass : #TestCase,
-	#category : #'Superluminal-Model-Tests-Commands'
+	#name : 'AddQueryStringFieldCommandTest',
+	#superclass : 'TestCase',
+	#category : 'Superluminal-Model-Tests-Commands',
+	#package : 'Superluminal-Model-Tests',
+	#tag : 'Commands'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 AddQueryStringFieldCommandTest >> testApplyOn [
 
 	| httpClient command |

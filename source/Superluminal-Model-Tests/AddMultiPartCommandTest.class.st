@@ -1,10 +1,12 @@
 Class {
-	#name : #AddMultiPartCommandTest,
-	#superclass : #TestCase,
-	#category : #'Superluminal-Model-Tests-Commands'
+	#name : 'AddMultiPartCommandTest',
+	#superclass : 'TestCase',
+	#category : 'Superluminal-Model-Tests-Commands',
+	#package : 'Superluminal-Model-Tests',
+	#tag : 'Commands'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 AddMultiPartCommandTest >> testApplyOn [
 
 	| httpClient command |
@@ -19,7 +21,7 @@ AddMultiPartCommandTest >> testApplyOn [
 	self assert: ( httpClient request entity partNamed: 'name' ) fieldValue equals: 'fran'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 AddMultiPartCommandTest >> testApplyOnWhenAttachingFiles [
 
 	self

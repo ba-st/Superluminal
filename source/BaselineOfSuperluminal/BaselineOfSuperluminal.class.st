@@ -112,6 +112,9 @@ BaselineOfSuperluminal >> setUpPackages: spec [
 BaselineOfSuperluminal >> setUpTestPackages: spec [
 
 	spec
+		package: 'Superluminal-Model-Tests-Extensions';
+		group: 'Tests' with: 'Superluminal-Model-Tests-Extensions'.
+	spec
 		package: 'Superluminal-Model-Tests'
 			with: [ spec requires: #('Superluminal-Model-Extensions' 'Hyperspace-SUnit') ];
 		group: 'Tests' with: 'Superluminal-Model-Tests'.

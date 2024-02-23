@@ -1,10 +1,12 @@
 Class {
-	#name : #CompositeHttpRequestCommandTest,
-	#superclass : #TestCase,
-	#category : #'Superluminal-Model-Tests-Commands'
+	#name : 'CompositeHttpRequestCommandTest',
+	#superclass : 'TestCase',
+	#category : 'Superluminal-Model-Tests-Commands',
+	#package : 'Superluminal-Model-Tests',
+	#tag : 'Commands'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 CompositeHttpRequestCommandTest >> testApplyOn [
 
 	| httpClient command |
@@ -19,7 +21,7 @@ CompositeHttpRequestCommandTest >> testApplyOn [
 	self assertUrl: httpClient request uri equals: '/?last_name=fox&first_name=fran'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 CompositeHttpRequestCommandTest >> testShortcutCreation [
 
 	| httpClient command |
