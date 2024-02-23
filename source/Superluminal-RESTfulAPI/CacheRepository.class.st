@@ -1,22 +1,24 @@
 Class {
-	#name : #CacheRepository,
-	#superclass : #Object,
-	#category : #'Superluminal-RESTfulAPI-Cache'
+	#name : 'CacheRepository',
+	#superclass : 'Object',
+	#category : 'Superluminal-RESTfulAPI-Cache',
+	#package : 'Superluminal-RESTfulAPI',
+	#tag : 'Cache'
 }
 
-{ #category : #protocol }
+{ #category : 'protocol' }
 CacheRepository >> get: aKey [
 
 	^ self subclassResponsibility 
 ]
 
-{ #category : #removing }
+{ #category : 'removing' }
 CacheRepository >> remove: aKey [
 	
 	self subclassResponsibility 
 ]
 
-{ #category : #management }
+{ #category : 'management' }
 CacheRepository >> store: anExpiringResource at: aKey [
 
 	self subclassResponsibility 

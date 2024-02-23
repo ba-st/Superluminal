@@ -1,22 +1,24 @@
 Class {
-	#name : #HttpRequestBodyBuilder,
-	#superclass : #Object,
-	#category : #'Superluminal-Model-Builders'
+	#name : 'HttpRequestBodyBuilder',
+	#superclass : 'Object',
+	#category : 'Superluminal-Model-Builders',
+	#package : 'Superluminal-Model',
+	#tag : 'Builders'
 }
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 HttpRequestBodyBuilder >> contents: anEntity [
 
 	^ SetBodyCommand to: anEntity
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 HttpRequestBodyBuilder >> contents: anObject encodedAs: aMediaType [
 
 	^ self contents: (ZnEntity with: anObject type: aMediaType)
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 HttpRequestBodyBuilder >> formUrlEncoded: aBuildingBlock [
 
 	| builder |
@@ -26,7 +28,7 @@ HttpRequestBodyBuilder >> formUrlEncoded: aBuildingBlock [
 	^ builder build
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 HttpRequestBodyBuilder >> json: aDictionary [
 
 	| json |
@@ -35,7 +37,7 @@ HttpRequestBodyBuilder >> json: aDictionary [
 	^ self contents: ( ZnStringEntity json: json )
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 HttpRequestBodyBuilder >> multiPart: aBuildingBlock [
 
 	| builder |

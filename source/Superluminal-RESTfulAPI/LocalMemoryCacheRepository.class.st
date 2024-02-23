@@ -1,20 +1,22 @@
 Class {
-	#name : #LocalMemoryCacheRepository,
-	#superclass : #CacheRepository,
+	#name : 'LocalMemoryCacheRepository',
+	#superclass : 'CacheRepository',
 	#instVars : [
 		'expiringResources',
 		'currentTimeProvider'
 	],
-	#category : #'Superluminal-RESTfulAPI-Cache'
+	#category : 'Superluminal-RESTfulAPI-Cache',
+	#package : 'Superluminal-RESTfulAPI',
+	#tag : 'Cache'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LocalMemoryCacheRepository class >> using: aTimeSourceProvider [
 	
 	^ self new initializeUsing: aTimeSourceProvider
 ]
 
-{ #category : #querying }
+{ #category : 'querying' }
 LocalMemoryCacheRepository >> get: aKey [
 
 	^ expiringResources
@@ -30,26 +32,26 @@ LocalMemoryCacheRepository >> get: aKey [
 		ifAbsent: [ KeyNotFound signal: ( '<1p> not found' expandMacrosWith: aKey ) ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LocalMemoryCacheRepository >> initializeUsing: aTimeSourceProvider [ 
  	
 	expiringResources := Dictionary new.
 	currentTimeProvider := aTimeSourceProvider
 ]
 
-{ #category : #'private - accessing' }
+{ #category : 'private - accessing' }
 LocalMemoryCacheRepository >> now [
 
 	^ currentTimeProvider value
 ]
 
-{ #category : #management }
+{ #category : 'management' }
 LocalMemoryCacheRepository >> remove: aKey [
 	
 	expiringResources removeKey: aKey ifAbsent: [ ]
 ]
 
-{ #category : #management }
+{ #category : 'management' }
 LocalMemoryCacheRepository >> store: anExpiringResource at: aKey [
 
 	anExpiringResource

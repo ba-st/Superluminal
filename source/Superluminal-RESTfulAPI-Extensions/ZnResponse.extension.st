@@ -1,6 +1,6 @@
-Extension { #name : #ZnResponse }
+Extension { #name : 'ZnResponse' }
 
-{ #category : #'*Superluminal-RESTfulAPI' }
+{ #category : '*Superluminal-RESTfulAPI-Extensions' }
 ZnResponse >> canBeStoredInCache [
 
 	^ self cachingDirectives noneSatisfy: [ :directive | directive asLowercase = 'no-store' ]

@@ -1,38 +1,40 @@
 Class {
-	#name : #ExpiringResource,
-	#superclass : #Object,
+	#name : 'ExpiringResource',
+	#superclass : 'Object',
 	#instVars : [
 		'currentResource',
 		'response'
 	],
-	#category : #'Superluminal-RESTfulAPI-Cache'
+	#category : 'Superluminal-RESTfulAPI-Cache',
+	#package : 'Superluminal-RESTfulAPI',
+	#tag : 'Cache'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 ExpiringResource class >> for: aResource controlledBy: aResponse [
 
 	^ self new initializeFor: aResource controlledBy: aResponse
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 ExpiringResource >> canBeStored [
 
 	^ response canBeStoredInCache
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 ExpiringResource >> contents [
 
 	^ currentResource
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 ExpiringResource >> date [
 
 	^ ZnUtils parseHttpDate: ( response headers at: 'Date' )
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 ExpiringResource >> expirationDateApplyingCacheControlDirectivesIfNone: noneBlock [
 
 	| expirationDates |
@@ -50,13 +52,13 @@ ExpiringResource >> expirationDateApplyingCacheControlDirectivesIfNone: noneBloc
 	^ expirationDates ifEmpty: [ noneBlock value ] ifNotEmpty: [ :dates | dates min ]
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 ExpiringResource >> expires [
 
 	^ ZnUtils parseHttpDate: ( response headers at: 'Expires' )
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 ExpiringResource >> if: directive isMaxAgeDirectiveApplyTo: expirationDates [
 
 	( directive beginsWith: 'max-age' ) then: [
@@ -67,7 +69,7 @@ ExpiringResource >> if: directive isMaxAgeDirectiveApplyTo: expirationDates [
 		]
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 ExpiringResource >> if: directive isNoCacheDirectiveApplyTo: expirationDates [
 	"The `no-cache` response directive indicates that the response can be stored in caches,
 	but the response must be validated with the origin server before each reuse, even when
@@ -83,20 +85,20 @@ ExpiringResource >> if: directive isNoCacheDirectiveApplyTo: expirationDates [
 	directive = 'no-cache' then: [ expirationDates add: self date ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 ExpiringResource >> initializeFor: aResource controlledBy: aResponse [
 
 	currentResource := aResource.
 	response := aResponse
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 ExpiringResource >> isExpiredAt: aPointInTime [
 
 	^ self withExpirationDo: [ :expiration | expiration <= aPointInTime ] ifNone: [ true ]
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 ExpiringResource >> withExpirationDo: ifPresentBlock ifNone: noneBlock [
 
 	^ [
@@ -106,7 +108,7 @@ ExpiringResource >> withExpirationDo: ifPresentBlock ifNone: noneBlock [
 		  do: [ :ex | ex return: noneBlock value ]
 ]
 
-{ #category : #expiring }
+{ #category : 'expiring' }
 ExpiringResource >> withTimeToExpireAt: aPointInTime do: aBlock [
 
 	self

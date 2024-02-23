@@ -1,26 +1,28 @@
 Class {
-	#name : #AddQueryStringFieldCommand,
-	#superclass : #HttpRequestCommand,
+	#name : 'AddQueryStringFieldCommand',
+	#superclass : 'HttpRequestCommand',
 	#instVars : [
 		'name',
 		'value'
 	],
-	#category : #'Superluminal-Model-Commands'
+	#category : 'Superluminal-Model-Commands',
+	#package : 'Superluminal-Model',
+	#tag : 'Commands'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 AddQueryStringFieldCommand class >> named: aName pairedTo: aValue [
 
 	^ self new initializeNamed: aName pairedTo: aValue
 ]
 
-{ #category : #applying }
+{ #category : 'applying' }
 AddQueryStringFieldCommand >> applyOn: httpClient [
 
 	httpClient queryAt: name put: value
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 AddQueryStringFieldCommand >> initializeNamed: aName pairedTo: aValue [
 
 	name := aName.

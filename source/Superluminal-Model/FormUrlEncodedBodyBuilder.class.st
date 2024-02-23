@@ -1,25 +1,27 @@
 Class {
-	#name : #FormUrlEncodedBodyBuilder,
-	#superclass : #Object,
+	#name : 'FormUrlEncodedBodyBuilder',
+	#superclass : 'Object',
 	#instVars : [
 		'commands'
 	],
-	#category : #'Superluminal-Model-Builders'
+	#category : 'Superluminal-Model-Builders',
+	#package : 'Superluminal-Model',
+	#tag : 'Builders'
 }
 
-{ #category : #building }
+{ #category : 'building' }
 FormUrlEncodedBodyBuilder >> build [
 
 	^ CompositeHttpRequestCommand ofAll: commands
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 FormUrlEncodedBodyBuilder >> fieldNamed: aName pairedTo: aValue [
 
 	commands add: (AddFormFieldCommand named: aName pairedTo: aValue)
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 FormUrlEncodedBodyBuilder >> initialize [
 
 	super initialize.

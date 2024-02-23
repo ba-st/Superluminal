@@ -1,25 +1,27 @@
 Class {
-	#name : #HttpRequestBuilder,
-	#superclass : #Object,
+	#name : 'HttpRequestBuilder',
+	#superclass : 'Object',
 	#instVars : [
 		'commands'
 	],
-	#category : #'Superluminal-Model-Builders'
+	#category : 'Superluminal-Model-Builders',
+	#package : 'Superluminal-Model',
+	#tag : 'Builders'
 }
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 HttpRequestBuilder >> body [
 
 	^ HttpRequestBodyBuilder new 
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 HttpRequestBuilder >> headers [
 	
 	^ HttpRequestHeadersBuilder new
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 HttpRequestBuilder >> queryString: aMonadycBlock [
 
 	| builder |

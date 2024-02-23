@@ -1,37 +1,39 @@
 Class {
-	#name : #CompositeHttpRequestCommand,
-	#superclass : #HttpRequestCommand,
+	#name : 'CompositeHttpRequestCommand',
+	#superclass : 'HttpRequestCommand',
 	#instVars : [
 		'commands'
 	],
-	#category : #'Superluminal-Model-Commands'
+	#category : 'Superluminal-Model-Commands',
+	#package : 'Superluminal-Model',
+	#tag : 'Commands'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 CompositeHttpRequestCommand class >> empty [
 	
 	^ self ofAll: #()
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 CompositeHttpRequestCommand class >> ofAll: aCommandCollection [
 	
 	^ self new initializeOfAll: aCommandCollection 
 ]
 
-{ #category : #applying }
+{ #category : 'applying' }
 CompositeHttpRequestCommand >> applyOn: httpClient [
 
 	commands do: [ :command | command applyOn: httpClient ]
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 CompositeHttpRequestCommand >> commands [
 
 	^ commands
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 CompositeHttpRequestCommand >> initializeOfAll: aCommandCollection [ 
 	
 	commands := aCommandCollection 

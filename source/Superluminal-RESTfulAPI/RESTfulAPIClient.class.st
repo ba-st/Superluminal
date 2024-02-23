@@ -1,6 +1,6 @@
 Class {
-	#name : #RESTfulAPIClient,
-	#superclass : #Object,
+	#name : 'RESTfulAPIClient',
+	#superclass : 'Object',
 	#instVars : [
 		'httpClientProvider',
 		'httpClientPoolByAuthority',
@@ -8,22 +8,23 @@ Class {
 		'lastKnownRepresentationByLocation',
 		'expiringCache'
 	],
-	#category : #'Superluminal-RESTfulAPI'
+	#category : 'Superluminal-RESTfulAPI',
+	#package : 'Superluminal-RESTfulAPI'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 RESTfulAPIClient class >> buildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache [
 
 	^ self new initializeBuildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 RESTfulAPIClient class >> cachingOnLocalMemory [
 
 	^ self buildingHttpClientWith: [ ZnClient new ] cachingIn: ExpiringCache onLocalMemory
 ]
 
-{ #category : #'private - caching' }
+{ #category : 'private - caching' }
 RESTfulAPIClient >> addSetIfNoneMatchHeaderTo: command configuredUsing: request ifCached: aLocation [
 
 	self
@@ -32,7 +33,7 @@ RESTfulAPIClient >> addSetIfNoneMatchHeaderTo: command configuredUsing: request 
 	^command
 ]
 
-{ #category : #'private - exception handling' }
+{ #category : 'private - exception handling' }
 RESTfulAPIClient >> clientErrorMessageFrom: response [
 
 	response contentType
@@ -46,7 +47,7 @@ RESTfulAPIClient >> clientErrorMessageFrom: response [
 	^ 'Cannot complete the request'
 ]
 
-{ #category : #'private - inkoving' }
+{ #category : 'private - inkoving' }
 RESTfulAPIClient >> clientPoolFor: aLocation [
 
 	^ httpClientPoolByAuthority
@@ -61,7 +62,7 @@ RESTfulAPIClient >> clientPoolFor: aLocation [
 			]
 ]
 
-{ #category : #'invoking - covenience' }
+{ #category : 'invoking - covenience' }
 RESTfulAPIClient >> deleteAt: aLocation [
 
 	^ self
@@ -74,7 +75,7 @@ RESTfulAPIClient >> deleteAt: aLocation [
 		withSuccessfulResponseDo: [  ]
 ]
 
-{ #category : #'invoking - covenience' }
+{ #category : 'invoking - covenience' }
 RESTfulAPIClient >> deleteAt: aLocation accepting: aMediaType withSuccessfulResponseDo: aBlock [
 
 	^ self
@@ -91,7 +92,7 @@ RESTfulAPIClient >> deleteAt: aLocation accepting: aMediaType withSuccessfulResp
 		withSuccessfulResponseDo: aBlock
 ]
 
-{ #category : #invoking }
+{ #category : 'invoking' }
 RESTfulAPIClient >> deleteAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aBlock [
 
 	^ self
@@ -110,7 +111,7 @@ RESTfulAPIClient >> deleteAt: aLocation configuredBy: aRequestBuildingBlock with
 			]
 ]
 
-{ #category : #finalization }
+{ #category : 'finalization' }
 RESTfulAPIClient >> finalize [
 
 	httpClientPoolByAuthority
@@ -122,7 +123,7 @@ RESTfulAPIClient >> finalize [
 	^ super finalize
 ]
 
-{ #category : #'invoking - covenience' }
+{ #category : 'invoking - covenience' }
 RESTfulAPIClient >> get: aLocation accepting: aMediaType withSuccessfulResponseDo: aBlock [
 
 	^ self
@@ -131,7 +132,7 @@ RESTfulAPIClient >> get: aLocation accepting: aMediaType withSuccessfulResponseD
 		withSuccessfulResponseDo: aBlock
 ]
 
-{ #category : #'private - inkoving' }
+{ #category : 'private - inkoving' }
 RESTfulAPIClient >> get: aLocation executing: httpRequest [
 
 	^ self
@@ -150,13 +151,13 @@ RESTfulAPIClient >> get: aLocation executing: httpRequest [
 			]
 ]
 
-{ #category : #'invoking - covenience' }
+{ #category : 'invoking - covenience' }
 RESTfulAPIClient >> get: aLocation withSuccessfulResponseDo: aMonadicBlock [
 
 	^ self getAt: aLocation configuredBy: [  ] withSuccessfulResponseDo: aMonadicBlock
 ]
 
-{ #category : #invoking }
+{ #category : 'invoking' }
 RESTfulAPIClient >> getAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aMonadicBlock [
 
 	| key request |
@@ -169,7 +170,7 @@ RESTfulAPIClient >> getAt: aLocation configuredBy: aRequestBuildingBlock withSuc
 		do: aMonadicBlock
 ]
 
-{ #category : #'private - exception handling' }
+{ #category : 'private - exception handling' }
 RESTfulAPIClient >> handleExceptionsDuring: anInvokingBlock [
 
 	^ [ anInvokingBlock
@@ -181,7 +182,7 @@ RESTfulAPIClient >> handleExceptionsDuring: anInvokingBlock [
 		do: [ :signal | HTTPClientError badRequest signal: signal messageText ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 RESTfulAPIClient >> initializeBuildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache [
 
 	httpClientProvider := anHttpClientProvider.
@@ -191,19 +192,19 @@ RESTfulAPIClient >> initializeBuildingHttpClientWith: anHttpClientProvider cachi
 	expiringCache := anExpiringCache
 ]
 
-{ #category : #'private - caching' }
+{ #category : 'private - caching' }
 RESTfulAPIClient >> lastKnownRepresentationOf: aLocation [
 
 	^ lastKnownRepresentationByLocation at: ( self normalize: aLocation )
 ]
 
-{ #category : #'private - caching' }
+{ #category : 'private - caching' }
 RESTfulAPIClient >> normalize: aLocation [
 
 	^aLocation asString
 ]
 
-{ #category : #'invoking - covenience' }
+{ #category : 'invoking - covenience' }
 RESTfulAPIClient >> patch: anEntity at: aLocation withSuccessfulResponseDo: aBlock [
 
 	^ self
@@ -219,7 +220,7 @@ RESTfulAPIClient >> patch: anEntity at: aLocation withSuccessfulResponseDo: aBlo
 		  withSuccessfulResponseDo: aBlock
 ]
 
-{ #category : #invoking }
+{ #category : 'invoking' }
 RESTfulAPIClient >> patchAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aSuccessBlock [
 
 	^ self handleExceptionsDuring: [ 
@@ -237,7 +238,7 @@ RESTfulAPIClient >> patchAt: aLocation configuredBy: aRequestBuildingBlock withS
 		  ]
 ]
 
-{ #category : #'invoking - covenience' }
+{ #category : 'invoking - covenience' }
 RESTfulAPIClient >> post: anEntity at: aLocation withSuccessfulResponseDo: aBlock [
 
 	^ self
@@ -246,7 +247,7 @@ RESTfulAPIClient >> post: anEntity at: aLocation withSuccessfulResponseDo: aBloc
 		withSuccessfulResponseDo: aBlock
 ]
 
-{ #category : #invoking }
+{ #category : 'invoking' }
 RESTfulAPIClient >> postAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aBlock [
 
 	^ self
@@ -266,7 +267,7 @@ RESTfulAPIClient >> postAt: aLocation configuredBy: aRequestBuildingBlock withSu
 			]
 ]
 
-{ #category : #'private - inkoving' }
+{ #category : 'private - inkoving' }
 RESTfulAPIClient >> processPutResponse: response at: aLocation whenSuccessfulDo: aBlock [
 
 	response isSuccess
@@ -280,7 +281,7 @@ RESTfulAPIClient >> processPutResponse: response at: aLocation whenSuccessfulDo:
 	^ self signalCannotCompleteUpdateErrorBasedOn: response
 ]
 
-{ #category : #'invoking - covenience' }
+{ #category : 'invoking - covenience' }
 RESTfulAPIClient >> put: anEntity at: aLocation [
 
 	^ self
@@ -289,7 +290,7 @@ RESTfulAPIClient >> put: anEntity at: aLocation [
 		withSuccessfulResponseDo: [ :contents | contents ]
 ]
 
-{ #category : #invoking }
+{ #category : 'invoking' }
 RESTfulAPIClient >> putAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aBlock [
 
 	^ self
@@ -303,7 +304,7 @@ RESTfulAPIClient >> putAt: aLocation configuredBy: aRequestBuildingBlock withSuc
 			]
 ]
 
-{ #category : #'private - inkoving' }
+{ #category : 'private - inkoving' }
 RESTfulAPIClient >> raiseErrorBasedOn: httpResponse [
 
 	| message httpErrorClass |
@@ -317,7 +318,7 @@ RESTfulAPIClient >> raiseErrorBasedOn: httpResponse [
 	( httpErrorClass code: httpResponse code ) signal: message
 ]
 
-{ #category : #'private - inkoving' }
+{ #category : 'private - inkoving' }
 RESTfulAPIClient >> requestToGet: aLocation configuredUsing: aRequestBuildingBlock [
 
 	^ HttpRequest
@@ -330,19 +331,19 @@ RESTfulAPIClient >> requestToGet: aLocation configuredUsing: aRequestBuildingBlo
 			]
 ]
 
-{ #category : #'private - exception handling' }
+{ #category : 'private - exception handling' }
 RESTfulAPIClient >> signalCannotCompleteDeleteErrorBasedOn: response [
 
 	^ ( HTTPClientError code: response code ) signal: 'Cannot complete delete'
 ]
 
-{ #category : #'private - exception handling' }
+{ #category : 'private - exception handling' }
 RESTfulAPIClient >> signalCannotCompleteUpdateErrorBasedOn: response [
 
 	^ ( HTTPClientError code: response code ) signal: 'Cannot complete update'
 ]
 
-{ #category : #'private - caching' }
+{ #category : 'private - caching' }
 RESTfulAPIClient >> tryToCacheContentsOf: anHttpResponse basedOn: aLocation [
 
 	| contents normalizedLocation |
@@ -363,7 +364,7 @@ RESTfulAPIClient >> tryToCacheContentsOf: anHttpResponse basedOn: aLocation [
 	^ contents
 ]
 
-{ #category : #'private - caching' }
+{ #category : 'private - caching' }
 RESTfulAPIClient >> withCachedETagAt: aLocation do: aBlock [
 	"For using the ETag in the `If-None-Match` headers of a GET, we need to have available the last
 	representation, just in case the following requests respond with `Not Modified`.
@@ -374,13 +375,13 @@ RESTfulAPIClient >> withCachedETagAt: aLocation do: aBlock [
 		self withETagAt: aLocation do: aBlock ]
 ]
 
-{ #category : #'private - caching' }
+{ #category : 'private - caching' }
 RESTfulAPIClient >> withETagAt: aLocation do: aBlock [
 
 	^entityTagByLocationCache at: (self normalize: aLocation) ifPresent: aBlock
 ]
 
-{ #category : #'private - inkoving' }
+{ #category : 'private - inkoving' }
 RESTfulAPIClient >> withHttpClientFor: aLocation do: aBlock [
 
 	( self clientPoolFor: aLocation ) withPooled: aBlock

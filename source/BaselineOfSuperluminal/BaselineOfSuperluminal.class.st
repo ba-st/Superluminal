@@ -62,7 +62,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		project: 'Teachable-Core' copyFrom: 'Teachable' with: [ spec loads: 'Core' ].
 		
 	spec 
-		baseline: 'Memcached' with: [ spec repository: 'github://ba-st-dependencies/Memcached:v1' ];
+		baseline: 'Memcached' with: [ spec repository: 'github://ba-st-dependencies/Memcached:v2' ];
 		project: 'Memcached-Core' copyFrom: 'Memcached' with: [ spec loads: 'Deployment' ]
 ]
 
@@ -74,12 +74,21 @@ BaselineOfSuperluminal >> setUpDeploymentPackages: spec [
 		group: 'Core' with: 'Superluminal-Model';
 		group: 'Deployment' with: 'Superluminal-Model'.
 	spec
+		package: 'Superluminal-Model-Extensions' with: [ spec requires: 'Superluminal-Model' ];
+		group: 'Core' with: 'Superluminal-Model-Extensions';
+		group: 'Deployment' with: 'Superluminal-Model-Extensions'.
+	spec
 		package: 'Superluminal-RESTfulAPI'
-			with: [ spec requires: #('Superluminal-Model' 'ObjectPool-Core' 'Memcached-Core') ];
+			with: [ spec requires: #('Superluminal-Model-Extensions' 'ObjectPool-Core' 'Memcached-Core') ];
 		group: 'API Client' with: 'Superluminal-RESTfulAPI';
 		group: 'Deployment' with: 'Superluminal-RESTfulAPI'.
 	spec
-		package: 'Superluminal-Service-Discovery' with: [ spec requires: 'Superluminal-RESTfulAPI' ];
+		package: 'Superluminal-RESTfulAPI-Extensions'
+			with: [ spec requires: 'Superluminal-RESTfulAPI'];
+		group: 'API Client' with: 'Superluminal-RESTfulAPI-Extensions';
+		group: 'Deployment' with: 'Superluminal-RESTfulAPI-Extensions'.
+	spec
+		package: 'Superluminal-Service-Discovery' with: [ spec requires: 'Superluminal-RESTfulAPI-Extensions' ];
 		group: 'Service Discovery' with: 'Superluminal-Service-Discovery';
 		group: 'Deployment' with: 'Superluminal-Service-Discovery'
 ]
@@ -104,11 +113,11 @@ BaselineOfSuperluminal >> setUpTestPackages: spec [
 
 	spec
 		package: 'Superluminal-Model-Tests'
-			with: [ spec requires: #('Superluminal-Model' 'Hyperspace-SUnit') ];
+			with: [ spec requires: #('Superluminal-Model-Extensions' 'Hyperspace-SUnit') ];
 		group: 'Tests' with: 'Superluminal-Model-Tests'.
 	spec
 		package: 'Superluminal-RESTfulAPI-Tests'
-			with: [ spec requires: #('Superluminal-RESTfulAPI' 'Hyperspace-SUnit' 'Superluminal-SUnit-Model') ];
+			with: [ spec requires: #('Superluminal-RESTfulAPI-Extensions' 'Hyperspace-SUnit' 'Superluminal-SUnit-Model') ];
 		group: 'Tests' with: 'Superluminal-RESTfulAPI-Tests'.
 	spec
 		package: 'Superluminal-Service-Discovery-Tests'

@@ -1,14 +1,16 @@
 Class {
-	#name : #ExpiringCacheKeyBuilder,
-	#superclass : #Object,
+	#name : 'ExpiringCacheKeyBuilder',
+	#superclass : 'Object',
 	#instVars : [
 		'location',
 		'parameters'
 	],
-	#category : #'Superluminal-RESTfulAPI-Cache'
+	#category : 'Superluminal-RESTfulAPI-Cache',
+	#package : 'Superluminal-RESTfulAPI',
+	#tag : 'Cache'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 ExpiringCacheKeyBuilder class >> keyFor: aRequest at: aLocation [
 
 	| builder |
@@ -19,13 +21,13 @@ ExpiringCacheKeyBuilder class >> keyFor: aRequest at: aLocation [
 	^ builder build
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 ExpiringCacheKeyBuilder >> accept: anAcceptDirective [
 
 	parameters at: #accept put: anAcceptDirective asString
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 ExpiringCacheKeyBuilder >> build [
 
 	^ String
@@ -43,28 +45,28 @@ ExpiringCacheKeyBuilder >> build [
 			]
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 ExpiringCacheKeyBuilder >> entity: entity [
 
 	
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 ExpiringCacheKeyBuilder >> execute [
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 ExpiringCacheKeyBuilder >> formAt: key add: value [
 
 	parameters at: ( 'form-<1s>' expandMacrosWith: key asString ) asSymbol put: value asString
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 ExpiringCacheKeyBuilder >> headerAt: aSymbol put: aString [
 
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 ExpiringCacheKeyBuilder >> initialize [
 
 	super initialize.
@@ -72,41 +74,41 @@ ExpiringCacheKeyBuilder >> initialize [
 	parameters := Dictionary new
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 ExpiringCacheKeyBuilder >> location: aLocation [
 
 	location := aLocation asUrl asString
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 ExpiringCacheKeyBuilder >> method: aString [
 
 	
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 ExpiringCacheKeyBuilder >> queryAt: aKey put: aString [
 
 	parameters at: ( 'query-<1s>' expandMacrosWith: aKey asString ) asSymbol put: aString
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 ExpiringCacheKeyBuilder >> resetRequest [
 
 	
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 ExpiringCacheKeyBuilder >> response [
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 ExpiringCacheKeyBuilder >> setIfNoneMatchTo: anETag [
 
 	
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 ExpiringCacheKeyBuilder >> url: aUrl [
 
 	self location: aUrl

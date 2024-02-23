@@ -1,25 +1,27 @@
 Class {
-	#name : #SetBodyCommand,
-	#superclass : #HttpRequestCommand,
+	#name : 'SetBodyCommand',
+	#superclass : 'HttpRequestCommand',
 	#instVars : [
 		'entity'
 	],
-	#category : #'Superluminal-Model-Commands'
+	#category : 'Superluminal-Model-Commands',
+	#package : 'Superluminal-Model',
+	#tag : 'Commands'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 SetBodyCommand class >> to: anEntity [ 
 
 	^ self new initializeTo: anEntity 
 ]
 
-{ #category : #applying }
+{ #category : 'applying' }
 SetBodyCommand >> applyOn: httpClient [
 
 	httpClient entity: entity
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 SetBodyCommand >> initializeTo: anEntity [ 
 	
 	entity := anEntity 
