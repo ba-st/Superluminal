@@ -7,14 +7,16 @@ RwSimpleProjectLoadComponentV2 {
   ],
   #packageNames : [
     'Superluminal-Model-Tests',
-    'Superluminal-Model-Tests-Extensions'
+    'Superluminal-Model-Tests-Extensions',
+    'Superluminal-RESTfulAPI-Tests'
   ],
   #conditionalPackageMapSpecs : {
     'gemstone' : {
       'allusers' : {
         #packageNameToPlatformPropertiesMap : {
           'Superluminal-Model-Tests' : { 'symbolDictName' : 'Superluminal' },
-          'Superluminal-Model-Tests-Extensions' : { 'symbolDictName' : 'Globals' }
+          'Superluminal-Model-Tests-Extensions' : { 'symbolDictName' : 'Globals' },
+          'Superluminal-RESTfulAPI-Tests' : { 'symbolDictName' : 'Superluminal' }
         }
       }
     }

@@ -1,0 +1,22 @@
+RwSimpleProjectLoadComponentV2 {
+  #name : 'API-Client',
+  #projectNames : [
+    'Core',
+    'Memcached'
+  ],
+  #componentNames : [ ],
+  #packageNames : [
+    'Superluminal-RESTfulAPI',
+    'Superluminal-RESTfulAPI-Extensions'
+  ],
+  #conditionalPackageMapSpecs : {
+    'gemstone' : {
+      'allusers' : {
+        #packageNameToPlatformPropertiesMap : {
+          'Superluminal-RESTfulAPI' : { 'symbolDictName' : 'Superluminal' },
+          'Superluminal-RESTfulAPI-Extensions' : { 'symbolDictName' : 'Zinc' }
+        }
+      }
+    }
+  }
+}
