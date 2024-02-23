@@ -1,10 +1,11 @@
 RwSimpleProjectLoadComponentV2 {
   #name : 'API-Client',
   #projectNames : [
-    'Core',
     'Memcached'
   ],
-  #componentNames : [ ],
+  #componentNames : [
+    'Core'
+  ],
   #packageNames : [
     'Superluminal-RESTfulAPI',
     'Superluminal-RESTfulAPI-Extensions'
