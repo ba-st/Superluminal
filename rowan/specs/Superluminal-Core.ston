@@ -1,0 +1,10 @@
+RwLoadSpecificationV2 {
+  #specName: 'Superluminal-Core',
+  #projectName : 'Superluminal',
+  #diskUrl : 'Superluminal',
+  #projectSpecFile : 'rowan/project.ston',
+  #componentNames : [
+    'Core'
+  ],
+  #comment : 'Loading spec for Core'
+}

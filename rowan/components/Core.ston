@@ -1,0 +1,21 @@
+RwSimpleProjectLoadComponentV2 {
+  #name : 'Core',
+  #projectNames : [
+    'Hyperspace'
+  ],
+  #componentNames : [ ],
+  #packageNames : [
+    'Superluminal-Model',
+    'Superluminal-Model-Extensions'
+  ],
+  #conditionalPackageMapSpecs : {
+    'gemstone' : {
+      'allusers' : {
+        #packageNameToPlatformPropertiesMap : {
+          'Superluminal-Model' : { 'symbolDictName' : 'Superluminal' },
+          'Superluminal-Model-Extensions' : { 'symbolDictName' : 'Globals' }
+        }
+      }
+    }
+  }
+}

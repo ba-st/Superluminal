@@ -1,0 +1,20 @@
+RwSimpleProjectLoadComponentV2 {
+  #name : 'Tests',
+  #condition : 'tests',
+  #projectNames : [ ],
+  #componentNames : [
+    'Core'
+  ],
+  #packageNames : [
+    'Superluminal-Model-Tests'
+  ],
+  #conditionalPackageMapSpecs : {
+    'gemstone' : {
+      'allusers' : {
+        #packageNameToPlatformPropertiesMap : {
+          'Superluminal-Model-Tests' : { 'symbolDictName' : 'Superluminal' }
+        }
+      }
+    }
+  }
+}
