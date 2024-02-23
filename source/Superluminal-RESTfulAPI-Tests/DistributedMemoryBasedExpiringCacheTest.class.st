@@ -1,10 +1,12 @@
 Class {
-	#name : #DistributedMemoryBasedExpiringCacheTest,
-	#superclass : #ExpiringCacheTest,
-	#category : #'Superluminal-RESTfulAPI-Tests-Cache'
+	#name : 'DistributedMemoryBasedExpiringCacheTest',
+	#superclass : 'ExpiringCacheTest',
+	#category : 'Superluminal-RESTfulAPI-Tests-Cache',
+	#package : 'Superluminal-RESTfulAPI-Tests',
+	#tag : 'Cache'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DistributedMemoryBasedExpiringCacheTest >> setUpExpiringCache [
 	
 	| memcached |
@@ -12,7 +14,7 @@ DistributedMemoryBasedExpiringCacheTest >> setUpExpiringCache [
 	cache := ExpiringCache persistingTo: (DistributedMemoryCacheRepository using: currentTimeProvider persistingTo: memcached).
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 DistributedMemoryBasedExpiringCacheTest >> waitFor: aDuration [
 
 	currentDateTime := currentDateTime + aDuration.

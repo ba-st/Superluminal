@@ -2,15 +2,17 @@
 An ExpiringResourceTest is a test class for testing the behavior of ExpiringResource
 "
 Class {
-	#name : #ExpiringResourceTest,
-	#superclass : #TestCase,
+	#name : 'ExpiringResourceTest',
+	#superclass : 'TestCase',
 	#instVars : [
 		'currentDateTime'
 	],
-	#category : #'Superluminal-RESTfulAPI-Tests-Cache'
+	#category : 'Superluminal-RESTfulAPI-Tests-Cache',
+	#package : 'Superluminal-RESTfulAPI-Tests',
+	#tag : 'Cache'
 }
 
-{ #category : #'tests - support' }
+{ #category : 'tests - support' }
 ExpiringResourceTest >> assert: anExpiringResource expiresIn: aDuration at: aPointInTime [
 
 	anExpiringResource
@@ -18,25 +20,25 @@ ExpiringResourceTest >> assert: anExpiringResource expiresIn: aDuration at: aPoi
 		do: [ :timeToExpire | self assert: timeToExpire equals: aDuration ]
 ]
 
-{ #category : #'tests - support' }
+{ #category : 'tests - support' }
 ExpiringResourceTest >> assert: anExpiringResource hasExpiredAt: aPointInTime [
 
 	anExpiringResource withTimeToExpireAt: aPointInTime do: [ :timeToExpire | self fail ]
 ]
 
-{ #category : #'tests - support' }
+{ #category : 'tests - support' }
 ExpiringResourceTest >> assertHasTheExpectedContents: resource [
 
 	self assert: resource contents equals: 'here'
 ]
 
-{ #category : #'tests - support' }
+{ #category : 'tests - support' }
 ExpiringResourceTest >> expiringResourceControlledBy: response [
 
 	^ ExpiringResource for: 'here' controlledBy: response
 ]
 
-{ #category : #'tests - support' }
+{ #category : 'tests - support' }
 ExpiringResourceTest >> resourceOriginatedAt: dateTime expiresContaining: expires [
 
 	| response |
@@ -46,7 +48,7 @@ ExpiringResourceTest >> resourceOriginatedAt: dateTime expiresContaining: expire
 	^ self expiringResourceControlledBy: response
 ]
 
-{ #category : #'tests - support' }
+{ #category : 'tests - support' }
 ExpiringResourceTest >> resourceOriginatedAt: dateTime expiringAt: expiringDateTime [
 
 	| expires |
@@ -55,7 +57,7 @@ ExpiringResourceTest >> resourceOriginatedAt: dateTime expiringAt: expiringDateT
 	^ self resourceOriginatedAt: dateTime expiresContaining: expires
 ]
 
-{ #category : #'tests - support' }
+{ #category : 'tests - support' }
 ExpiringResourceTest >> resourceOriginatedAt: dateTime expiringIn: aDuration [
 
 	| response |
@@ -65,7 +67,7 @@ ExpiringResourceTest >> resourceOriginatedAt: dateTime expiringIn: aDuration [
 	^ self expiringResourceControlledBy: response
 ]
 
-{ #category : #'tests - support' }
+{ #category : 'tests - support' }
 ExpiringResourceTest >> resourceWithNoCacheDirectiveOriginatedAt: dateTime [
 
 	| response |
@@ -75,7 +77,7 @@ ExpiringResourceTest >> resourceWithNoCacheDirectiveOriginatedAt: dateTime [
 	^ self expiringResourceControlledBy: response
 ]
 
-{ #category : #'tests - support' }
+{ #category : 'tests - support' }
 ExpiringResourceTest >> resourceWithNoCacheDirectiveOriginatedAt: dateTime expiringIn: aDuration [
 
 	| response |
@@ -87,7 +89,7 @@ ExpiringResourceTest >> resourceWithNoCacheDirectiveOriginatedAt: dateTime expir
 	^ self expiringResourceControlledBy: response
 ]
 
-{ #category : #'tests - support' }
+{ #category : 'tests - support' }
 ExpiringResourceTest >> responseWithDateHeader: dateTime [
 
 	| response |
@@ -97,13 +99,13 @@ ExpiringResourceTest >> responseWithDateHeader: dateTime [
 	^ response
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 ExpiringResourceTest >> setUp [
 	
 	currentDateTime := DateAndTime now truncated
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 ExpiringResourceTest >> testCanBeStored [
 
 	| resource |
@@ -131,7 +133,7 @@ ExpiringResourceTest >> testCanBeStored [
 	self deny: resource canBeStored
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 ExpiringResourceTest >> testExpiredWhenExpiresSetToInvalidDate [
 	"A cache recipient MUST interpret invalid date formats, especially the
    value 0, as representing a time in the past (i.e., 'already
@@ -156,7 +158,7 @@ ExpiringResourceTest >> testExpiredWhenExpiresSetToInvalidDate [
 		assert: ( resource isExpiredAt: currentDateTime - 1 second )
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 ExpiringResourceTest >> testIsExpiredAtUsingExpires [
 
 	| resource |
@@ -178,7 +180,7 @@ ExpiringResourceTest >> testIsExpiredAtUsingExpires [
 		assert: ( resource isExpiredAt: currentDateTime + 56 seconds )
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 ExpiringResourceTest >> testIsExpiredAtUsingMaxAge [
 
 	| resource |
@@ -200,7 +202,7 @@ ExpiringResourceTest >> testIsExpiredAtUsingMaxAge [
 		assert: ( resource isExpiredAt: currentDateTime + 56 seconds )
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 ExpiringResourceTest >> testIsExpiredAtUsingNoCache [
 
 	| resource |
@@ -215,7 +217,7 @@ ExpiringResourceTest >> testIsExpiredAtUsingNoCache [
 		assert: ( resource isExpiredAt: currentDateTime + 56 seconds )
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 ExpiringResourceTest >> testIsExpiredAtUsingNoCacheAndMaxAge [
 
 	| resource |
@@ -230,7 +232,7 @@ ExpiringResourceTest >> testIsExpiredAtUsingNoCacheAndMaxAge [
 		assert: ( resource isExpiredAt: currentDateTime + 56 seconds )
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 ExpiringResourceTest >> testIsExpiredAtWithoutCacheDirectives [
 
 	| resource response |
@@ -245,7 +247,7 @@ ExpiringResourceTest >> testIsExpiredAtWithoutCacheDirectives [
 		assert: ( resource isExpiredAt: currentDateTime + 1 hour )
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 ExpiringResourceTest >> testWithTimeToExpireAtDoUsingExpires [
 
 	| resource |
@@ -268,7 +270,7 @@ ExpiringResourceTest >> testWithTimeToExpireAtDoUsingExpires [
 		assert: resource hasExpiredAt: currentDateTime + 1 minute
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 ExpiringResourceTest >> testWithTimeToExpireAtDoUsingMaxAge [
 
 	| resource |

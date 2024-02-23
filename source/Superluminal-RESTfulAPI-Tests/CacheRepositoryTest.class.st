@@ -1,21 +1,23 @@
 Class {
-	#name : #CacheRepositoryTest,
-	#superclass : #TestCase,
+	#name : 'CacheRepositoryTest',
+	#superclass : 'TestCase',
 	#instVars : [
 		'currentDateTime',
 		'repository',
 		'currentTimeProvider'
 	],
-	#category : #'Superluminal-RESTfulAPI-Tests-Cache'
+	#category : 'Superluminal-RESTfulAPI-Tests-Cache',
+	#package : 'Superluminal-RESTfulAPI-Tests',
+	#tag : 'Cache'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 CacheRepositoryTest class >> isAbstract [ 
 
 	^  self name = #CacheRepositoryTest
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 CacheRepositoryTest >> resourceFor: answer expiringIn: aDuration [
 
 	| headers response |
@@ -30,7 +32,7 @@ CacheRepositoryTest >> resourceFor: answer expiringIn: aDuration [
 	^ ExpiringResource for: answer controlledBy: response
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 CacheRepositoryTest >> setUp [
 
 	super setUp.
@@ -39,13 +41,13 @@ CacheRepositoryTest >> setUp [
 	self setUpRepository
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 CacheRepositoryTest >> setUpRepository [
 
 	self subclassResponsibility 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 CacheRepositoryTest >> testExpiring [
 
 	| answer resource |
@@ -58,7 +60,7 @@ CacheRepositoryTest >> testExpiring [
 	self should: [ repository get: 'key' ] raise: KeyNotFound withMessageText: '''key'' not found'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 CacheRepositoryTest >> testGetKeyIfAbsent [
 
 	self
@@ -67,7 +69,7 @@ CacheRepositoryTest >> testGetKeyIfAbsent [
 		withMessageText: '''absent_key'' not found'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 CacheRepositoryTest >> testRemove [
 
 	| answer |
@@ -79,13 +81,13 @@ CacheRepositoryTest >> testRemove [
 	self should: [ repository get: 'key' ] raise: KeyNotFound withMessageText: '''key'' not found'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 CacheRepositoryTest >> testRemoveAbsentKey [ 
 
 	self shouldnt: [ repository remove: 'absent_key' ] raise: KeyNotFound
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 CacheRepositoryTest >> testStoreAt [
 
 	| answer |
@@ -95,7 +97,7 @@ CacheRepositoryTest >> testStoreAt [
 	self assert: ( repository get: 'key' ) contents equals: answer
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 CacheRepositoryTest >> waitFor: aDuration [
 
 	self subclassResponsibility 

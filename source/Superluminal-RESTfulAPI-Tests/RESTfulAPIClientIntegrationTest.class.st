@@ -2,53 +2,54 @@
 A RESTfulAPIClientTest is a test class for testing the behavior of RESTfulAPIClient
 "
 Class {
-	#name : #RESTfulAPIClientIntegrationTest,
-	#superclass : #TestCase,
+	#name : 'RESTfulAPIClientIntegrationTest',
+	#superclass : 'TestCase',
 	#instVars : [
 		'apiClient'
 	],
-	#category : #'Superluminal-RESTfulAPI-Tests'
+	#category : 'Superluminal-RESTfulAPI-Tests',
+	#package : 'Superluminal-RESTfulAPI-Tests'
 }
 
-{ #category : #private }
+{ #category : 'private' }
 RESTfulAPIClientIntegrationTest >> httpbinAnythingLocation [
 
 	^ self httpbinLocation / 'anything'
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 RESTfulAPIClientIntegrationTest >> httpbinCacheLocation [
 
 	^ self httpbinLocation / 'cache'
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 RESTfulAPIClientIntegrationTest >> httpbinLocation [
 
 	^ 'http://localhost' asAbsoluteUrl
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 RESTfulAPIClientIntegrationTest >> httpbinStatusLocation [
 
 	^ self httpbinLocation / 'status'
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 RESTfulAPIClientIntegrationTest >> setUp [
 
 	super setUp.
 	apiClient := RESTfulAPIClient cachingOnLocalMemory
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 RESTfulAPIClientIntegrationTest >> tearDown [
 
 	apiClient finalize.
 	super tearDown
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testDeleteAcceptingWithSuccessfulResponseDo [
 
 	apiClient
@@ -67,7 +68,7 @@ RESTfulAPIClientIntegrationTest >> testDeleteAcceptingWithSuccessfulResponseDo [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testDeleteNotFound [
 
 	self
@@ -79,7 +80,7 @@ RESTfulAPIClientIntegrationTest >> testDeleteNotFound [
 		raise: HTTPClientError notFound
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testDeletePreconditionFailed [
 
 	self
@@ -87,7 +88,7 @@ RESTfulAPIClientIntegrationTest >> testDeletePreconditionFailed [
 		raise: HTTPClientError preconditionFailed
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testGetAcceptingWithSuccessfulResponseDo [
 
 	apiClient
@@ -106,7 +107,7 @@ RESTfulAPIClientIntegrationTest >> testGetAcceptingWithSuccessfulResponseDo [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testGetAtConfiguredByWithSuccessfulResponseDo [
 
 	apiClient
@@ -125,7 +126,7 @@ RESTfulAPIClientIntegrationTest >> testGetAtConfiguredByWithSuccessfulResponseDo
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testGetCached [
 
 	apiClient
@@ -149,7 +150,7 @@ RESTfulAPIClientIntegrationTest >> testGetCached [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testGetNotFound [
 
 	self
@@ -160,7 +161,7 @@ RESTfulAPIClientIntegrationTest >> testGetNotFound [
 		raise: HTTPClientError notFound
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testGetWithSuccessfulResponseDo [
 
 	apiClient
@@ -178,7 +179,7 @@ RESTfulAPIClientIntegrationTest >> testGetWithSuccessfulResponseDo [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testPatchAtNoContent [
 
 	apiClient
@@ -187,7 +188,7 @@ RESTfulAPIClientIntegrationTest >> testPatchAtNoContent [
 		withSuccessfulResponseDo: [ :responseContents | self assert: responseContents isNil ]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testPatchAtNotFound [
 
 	self
@@ -200,7 +201,7 @@ RESTfulAPIClientIntegrationTest >> testPatchAtNotFound [
 		withMessageText: 'Cannot complete update'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testPatchAtWithSuccessfulResponseDo [
 
 	apiClient
@@ -211,7 +212,7 @@ RESTfulAPIClientIntegrationTest >> testPatchAtWithSuccessfulResponseDo [
 				withJsonFrom: responseContents
 				do: [ :json | 
 					self
-						assert: json json equals: #();
+						assert: json json hasTheSameElementsInTheSameOrderThat: #();
 						assertUrl: json url equals: self httpbinAnythingLocation;
 						assert: json method equals: 'PATCH';
 						assert: ( json headers at: #Accept ) equals: '*/*'
@@ -219,7 +220,7 @@ RESTfulAPIClientIntegrationTest >> testPatchAtWithSuccessfulResponseDo [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testPostBadRequest [
 
 	self
@@ -232,7 +233,7 @@ RESTfulAPIClientIntegrationTest >> testPostBadRequest [
 		withMessageText: 'Cannot complete the request'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testPostWithSuccessfulResponseDo [
 
 	apiClient
@@ -243,7 +244,7 @@ RESTfulAPIClientIntegrationTest >> testPostWithSuccessfulResponseDo [
 				withJsonFrom: responseContents
 				do: [ :json | 
 					self
-						assert: json json equals: #();
+						assert: json json hasTheSameElementsInTheSameOrderThat: #();
 						assertUrl: json url equals: self httpbinAnythingLocation;
 						assert: json method equals: 'POST';
 						assert: ( json headers at: #Accept ) equals: '*/*'
@@ -251,7 +252,7 @@ RESTfulAPIClientIntegrationTest >> testPostWithSuccessfulResponseDo [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testPutAt [
 
 	| response |
@@ -260,14 +261,14 @@ RESTfulAPIClientIntegrationTest >> testPutAt [
 
 	self withJsonFrom: response contents do: [ :json | 
 		self
-			assert: json json equals: #( 'hi' );
+			assert: json json hasTheSameElementsInTheSameOrderThat: #( 'hi' );
 			assertUrl: json url equals: self httpbinLocation / 'put';
 			assert: ( json headers at: #Accept ) equals: '*/*';
 			assert: ( json headers at: #'Content-Length' ) equals: '6'
 		]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testPutAtNoContent [
 
 	| response |
@@ -277,7 +278,7 @@ RESTfulAPIClientIntegrationTest >> testPutAtNoContent [
 	self assert: response isNoContent
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 RESTfulAPIClientIntegrationTest >> testPutAtNotFound [
 
 	self
@@ -286,7 +287,7 @@ RESTfulAPIClientIntegrationTest >> testPutAtNotFound [
 		withMessageText: 'Cannot complete update'
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 RESTfulAPIClientIntegrationTest >> withJsonFrom: aString do: aBlock [
 
 	aBlock value: ( NeoJSONObject fromString: aString )

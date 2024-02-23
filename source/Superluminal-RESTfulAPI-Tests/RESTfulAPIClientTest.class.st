@@ -1,44 +1,45 @@
 Class {
-	#name : #RESTfulAPIClientTest,
-	#superclass : #APIClientTest,
+	#name : 'RESTfulAPIClientTest',
+	#superclass : 'APIClientTest',
 	#instVars : [
 		'apiClient',
 		'resourceIdentifier'
 	],
-	#category : #'Superluminal-RESTfulAPI-Tests'
+	#category : 'Superluminal-RESTfulAPI-Tests',
+	#package : 'Superluminal-RESTfulAPI-Tests'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 RESTfulAPIClientTest class >> isAbstract [ 
 
 	^  self name = #RESTfulAPIClientTest
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 RESTfulAPIClientTest >> apiClient [
 
 	^ self subclassResponsibility 
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 RESTfulAPIClientTest >> jsonOkResponse [
 
 	^ self jsonOkResponseWith: #(1 2 3)
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 RESTfulAPIClientTest >> location [
 
 	^ 'http://localhost' asAbsoluteUrl + resourceIdentifier
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 RESTfulAPIClientTest >> notFoundResponse [
 
 	^ ZnResponse notFound: self location
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 RESTfulAPIClientTest >> setUp [
 
 	super setUp.
@@ -46,14 +47,14 @@ RESTfulAPIClientTest >> setUp [
 	resourceIdentifier := UUID new asString
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 RESTfulAPIClientTest >> tearDown [
 
 	apiClient finalize.
 	super tearDown
 ]
 
-{ #category : #'tests - DELETE' }
+{ #category : 'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteAcceptingWithSuccessfulResponseDo [
 
 	| wasSuccessfull |
@@ -68,14 +69,14 @@ RESTfulAPIClientTest >> testDeleteAcceptingWithSuccessfulResponseDo [
 	self assert: wasSuccessfull
 ]
 
-{ #category : #'tests - DELETE' }
+{ #category : 'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteAtSuccess [
 
 	self configureHttpClientToRespondWith: ZnResponse noContent.
 	self shouldnt: [ apiClient deleteAt: self location ] raise: HTTPClientError
 ]
 
-{ #category : #'tests - DELETE' }
+{ #category : 'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteAtSuccessWhenCached [
 
 	| etagIsSet |
@@ -96,7 +97,7 @@ RESTfulAPIClientTest >> testDeleteAtSuccessWhenCached [
 	self assert: etagIsSet
 ]
 
-{ #category : #'tests - DELETE' }
+{ #category : 'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteNotFound [
 
 	self configureHttpClientToRespondWith: self notFoundResponse.
@@ -110,7 +111,7 @@ RESTfulAPIClientTest >> testDeleteNotFound [
 		raise: HTTPClientError notFound
 ]
 
-{ #category : #'tests - GET' }
+{ #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetAcceptingWithSuccessfulResponseDo [
 
 	self configureHttpClientToRespondWith: self jsonOkResponse.
@@ -118,11 +119,14 @@ RESTfulAPIClientTest >> testGetAcceptingWithSuccessfulResponseDo [
 	apiClient
 		get: self location
 		accepting: 'application/json;version=1.0.0' asMediaType
-		withSuccessfulResponseDo:
-			[ :responseContents | self withJsonFrom: responseContents do: [ :json | self assert: json equals: #(1 2 3) ] ]
+		withSuccessfulResponseDo: [ :responseContents |
+			self
+				withJsonFrom: responseContents
+				do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+			]
 ]
 
-{ #category : #'tests - GET' }
+{ #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetCached [
 
 	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
@@ -130,15 +134,21 @@ RESTfulAPIClientTest >> testGetCached [
 			  yourself ).
 
 	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ].
+		self
+			withJsonFrom: responseContents
+			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+		].
 
 	self configureHttpClientToRespondWith: self notFoundResponse.
 
 	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ]
+		self
+			withJsonFrom: responseContents
+			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+		]
 ]
 
-{ #category : #'tests - GET' }
+{ #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetDoNotStoreResponseInCache [
 
 	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
@@ -146,7 +156,10 @@ RESTfulAPIClientTest >> testGetDoNotStoreResponseInCache [
 			  yourself ).
 
 	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ].
+		self
+			withJsonFrom: responseContents
+			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+		].
 
 	self configureHttpClientToRespondWith: self notFoundResponse.
 
@@ -156,7 +169,7 @@ RESTfulAPIClientTest >> testGetDoNotStoreResponseInCache [
 		raise: HTTPClientError notFound
 ]
 
-{ #category : #'tests - GET' }
+{ #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetIgnoreETagsWhenDoNotStoreCachingPolicyIsInPlace [
 
 	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
@@ -165,7 +178,10 @@ RESTfulAPIClientTest >> testGetIgnoreETagsWhenDoNotStoreCachingPolicyIsInPlace [
 			  yourself ).
 
 	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ].
+		self
+			withJsonFrom: responseContents
+			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+		].
 
 	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
 			  setEntityTag: '"123"';
@@ -173,10 +189,13 @@ RESTfulAPIClientTest >> testGetIgnoreETagsWhenDoNotStoreCachingPolicyIsInPlace [
 			  yourself ).
 
 	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ]
+		self
+			withJsonFrom: responseContents
+			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+		]
 ]
 
-{ #category : #'tests - GET' }
+{ #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetNotFound [
 
 	self configureHttpClientToRespondWith: self notFoundResponse.
@@ -186,7 +205,7 @@ RESTfulAPIClientTest >> testGetNotFound [
 		raise: HTTPClientError notFound
 ]
 
-{ #category : #'tests - GET' }
+{ #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetUsingETagInASecondInvocation [
 
 	| ifNoneMatchHeaderWasSet |
@@ -196,7 +215,10 @@ RESTfulAPIClientTest >> testGetUsingETagInASecondInvocation [
 			  yourself ).
 
 	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ].
+		self
+			withJsonFrom: responseContents
+			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+		].
 
 	self configureHttpClientToRespondWith: ZnResponse notModified.
 
@@ -207,23 +229,27 @@ RESTfulAPIClientTest >> testGetUsingETagInASecondInvocation [
 		].
 
 	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self withJsonFrom: responseContents do: [ :json | self assert: json equals: #( 1 2 3 ) ] ].
+		self
+			withJsonFrom: responseContents
+			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+		].
 
 	self assert: ifNoneMatchHeaderWasSet
 ]
 
-{ #category : #'tests - GET' }
+{ #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetWithSuccessfulResponseDo [
 
 	self configureHttpClientToRespondWith: self jsonOkResponse.
 
-	apiClient
-		get: self location
-		withSuccessfulResponseDo:
-			[ :responseContents | self withJsonFrom: responseContents do: [ :json | self assert: json equals: #(1 2 3) ] ]
+	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+		self
+			withJsonFrom: responseContents
+			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+		]
 ]
 
-{ #category : #'tests - PATCH' }
+{ #category : 'tests - PATCH' }
 RESTfulAPIClientTest >> testPatchAtNoContent [
 
 	self configureHttpClientToRespondWith: ZnResponse noContent.
@@ -233,7 +259,7 @@ RESTfulAPIClientTest >> testPatchAtNoContent [
 		withSuccessfulResponseDo: [ :responseContents | self assert: responseContents isNil ]
 ]
 
-{ #category : #'tests - PATCH' }
+{ #category : 'tests - PATCH' }
 RESTfulAPIClientTest >> testPatchAtNotFound [
 
 	self configureHttpClientToRespondWith: self notFoundResponse.
@@ -247,7 +273,7 @@ RESTfulAPIClientTest >> testPatchAtNotFound [
 		withMessageText: 'Cannot complete update'
 ]
 
-{ #category : #'tests - PATCH' }
+{ #category : 'tests - PATCH' }
 RESTfulAPIClientTest >> testPatchAtWithSuccessfulResponseDo [
 
 	self configureHttpClientToRespondWith: self jsonOkResponse.
@@ -255,11 +281,14 @@ RESTfulAPIClientTest >> testPatchAtWithSuccessfulResponseDo [
 	apiClient
 		patch: ( ZnEntity json: '[]' )
 		at: self location
-		withSuccessfulResponseDo:
-			[ :responseContents | self withJsonFrom: responseContents do: [ :json | self assert: json equals: #(1 2 3) ] ]
+		withSuccessfulResponseDo: [ :responseContents |
+			self
+				withJsonFrom: responseContents
+				do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+			]
 ]
 
-{ #category : #'tests - POST' }
+{ #category : 'tests - POST' }
 RESTfulAPIClientTest >> testPostBadRequest [
 
 	self
@@ -274,7 +303,7 @@ RESTfulAPIClientTest >> testPostBadRequest [
 		withMessageText: 'Cannot complete the request'
 ]
 
-{ #category : #'tests - POST' }
+{ #category : 'tests - POST' }
 RESTfulAPIClientTest >> testPostWithSuccessfulResponseDo [
 
 	self configureHttpClientToRespondWith: ( ZnResponse created: self location ).
@@ -284,7 +313,7 @@ RESTfulAPIClientTest >> testPostWithSuccessfulResponseDo [
 		withSuccessfulResponseDo: [ :responseContents | self assert: ( responseContents beginsWith: 'Created' ) ]
 ]
 
-{ #category : #'tests - PUT' }
+{ #category : 'tests - PUT' }
 RESTfulAPIClientTest >> testPutAt [
 
 	| response |
@@ -293,10 +322,12 @@ RESTfulAPIClientTest >> testPutAt [
 
 	response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self location.
 
-	self withJsonFrom: response contents do: [ :json | self assert: json equals: #(1 2 3) ]
+	self
+		withJsonFrom: response contents
+		do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
 ]
 
-{ #category : #'tests - PUT' }
+{ #category : 'tests - PUT' }
 RESTfulAPIClientTest >> testPutAtNoContent [
 
 	| response |
@@ -307,7 +338,7 @@ RESTfulAPIClientTest >> testPutAtNoContent [
 	self assert: response isNoContent
 ]
 
-{ #category : #'tests - PUT' }
+{ #category : 'tests - PUT' }
 RESTfulAPIClientTest >> testPutAtNotFound [
 
 	self configureHttpClientToRespondWith: self notFoundResponse.
@@ -317,7 +348,7 @@ RESTfulAPIClientTest >> testPutAtNotFound [
 		withMessageText: 'Cannot complete update'
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 RESTfulAPIClientTest >> withJsonFrom: aString do: aBlock [
 
 	aBlock value: ( NeoJSONObject fromString: aString )
