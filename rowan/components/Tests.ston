@@ -3,7 +3,7 @@ RwSimpleProjectLoadComponentV2 {
   #condition : 'tests',
   #projectNames : [ ],
   #componentNames : [
-    'Core',
+    'API-Client',
     'Dependent-SUnit-Extensions'
   ],
   #packageNames : [
