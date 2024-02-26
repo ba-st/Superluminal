@@ -12,6 +12,7 @@ jobs:
         load-spec:
           - Core
           - API-Client
+          - Dependent-SUnit-Extensions
     name: GS64 + ${{ matrix.load-spec }}
     steps:
       - uses: actions/checkout@v4

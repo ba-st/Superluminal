@@ -3,7 +3,8 @@ RwSimpleProjectLoadComponentV2 {
   #condition : 'tests',
   #projectNames : [ ],
   #componentNames : [
-    'Core'
+    'Core',
+    'Dependent-SUnit-Extensions'
   ],
   #packageNames : [
     'Superluminal-Model-Tests',
