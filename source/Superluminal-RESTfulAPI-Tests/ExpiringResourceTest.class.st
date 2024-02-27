@@ -101,8 +101,9 @@ ExpiringResourceTest >> responseWithDateHeader: dateTime [
 
 { #category : 'running' }
 ExpiringResourceTest >> setUp [
-	
-	currentDateTime := DateAndTime now truncated
+
+	super setUp.
+	currentDateTime := DateAndTime now rounded
 ]
 
 { #category : 'tests' }

@@ -51,7 +51,7 @@ ExpiringCacheTest >> resourceFor: answer expiringIn: aDuration [
 ExpiringCacheTest >> setUp [
 
 	super setUp.
-	currentDateTime := DateAndTime now truncated.
+	currentDateTime := DateAndTime now rounded.
 	currentTimeProvider := [ currentDateTime ].
 	location := 'answers' asUrl / UUID new asString.
 	self setUpExpiringCache

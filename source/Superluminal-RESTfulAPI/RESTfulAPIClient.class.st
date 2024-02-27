@@ -114,13 +114,11 @@ RESTfulAPIClient >> deleteAt: aLocation configuredBy: aRequestBuildingBlock with
 { #category : 'finalization' }
 RESTfulAPIClient >> finalize [
 
-	httpClientPoolByAuthority
-		valuesDo: [ :pool | 
-			pool
-				minIdleObjects: nil;
-				clear
-			].
-	^ super finalize
+	httpClientPoolByAuthority valuesDo: [ :pool |
+		pool
+			minIdleObjects: nil;
+			clear
+		]
 ]
 
 { #category : 'invoking - covenience' }
