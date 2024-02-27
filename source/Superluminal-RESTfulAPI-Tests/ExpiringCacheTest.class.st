@@ -3,7 +3,7 @@ An ExpiringCacheTest is a test class for testing the behavior of ExpiringCache
 "
 Class {
 	#name : 'ExpiringCacheTest',
-	#superclass : 'TestCase',
+	#superclass : 'SuperluminalTest',
 	#instVars : [
 		'currentDateTime',
 		'cache',

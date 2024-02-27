@@ -116,7 +116,7 @@ BaselineOfSuperluminal >> setUpTestPackages: spec [
 		group: 'Tests' with: 'Superluminal-Model-Tests-Extensions'.
 	spec
 		package: 'Superluminal-Model-Tests'
-			with: [ spec requires: #('Superluminal-Model-Extensions' 'Hyperspace-SUnit') ];
+			with: [ spec requires: #('Superluminal-Model-Extensions' 'Hyperspace-SUnit' 'Superluminal-SUnit-Model') ];
 		group: 'Tests' with: 'Superluminal-Model-Tests'.
 	spec
 		package: 'Superluminal-RESTfulAPI-Tests'

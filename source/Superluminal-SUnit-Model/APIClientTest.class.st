@@ -1,25 +1,26 @@
 Class {
-	#name : #APIClientTest,
-	#superclass : #TestCase,
+	#name : 'APIClientTest',
+	#superclass : 'SuperluminalTest',
 	#instVars : [
 		'teachableHttpClient'
 	],
-	#category : #'Superluminal-SUnit-Model'
+	#category : 'Superluminal-SUnit-Model',
+	#package : 'Superluminal-SUnit-Model'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 APIClientTest class >> isAbstract [
 
 	^ self = APIClientTest
 ]
 
-{ #category : #'private - utility' }
+{ #category : 'private - utility' }
 APIClientTest >> configure: httpClient toRespondWith: response [
 
 	httpClient whenSend: #response return: response
 ]
 
-{ #category : #'private - utility' }
+{ #category : 'private - utility' }
 APIClientTest >> configure: httpClient toRespondWithAll: responses [
 
 	| responseQueue |
@@ -28,25 +29,25 @@ APIClientTest >> configure: httpClient toRespondWithAll: responses [
 	httpClient whenSend: #response evaluate: [ responseQueue removeFirst ]
 ]
 
-{ #category : #'private - utility' }
+{ #category : 'private - utility' }
 APIClientTest >> configureHttpClientToRespondWith: response [
 
 	self configure: teachableHttpClient toRespondWith: response
 ]
 
-{ #category : #'private - utility' }
+{ #category : 'private - utility' }
 APIClientTest >> configureHttpClientToRespondWithAll: responses [
 
 	self configure: teachableHttpClient toRespondWithAll: responses
 ]
 
-{ #category : #'private - utility' }
+{ #category : 'private - utility' }
 APIClientTest >> httpClient [
 
 	^ teachableHttpClient
 ]
 
-{ #category : #'private - utility' }
+{ #category : 'private - utility' }
 APIClientTest >> jsonOkResponseWith: jsonPayload [
 
 	^ ZnResponse
@@ -58,7 +59,7 @@ APIClientTest >> jsonOkResponseWith: jsonPayload [
 						otherwise: [ NeoJSONWriter toStringPretty: jsonPayload ] ) )
 ]
 
-{ #category : #'private - utility' }
+{ #category : 'private - utility' }
 APIClientTest >> newTeachableHttpClient [
 
 	^ Teachable new
@@ -76,7 +77,7 @@ APIClientTest >> newTeachableHttpClient [
 		yourself
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 APIClientTest >> setUp [
 
 	super setUp.

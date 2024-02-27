@@ -3,7 +3,7 @@ A RESTfulAPIClientTest is a test class for testing the behavior of RESTfulAPICli
 "
 Class {
 	#name : 'RESTfulAPIClientIntegrationTest',
-	#superclass : 'TestCase',
+	#superclass : 'SuperluminalTest',
 	#instVars : [
 		'apiClient'
 	],
@@ -26,7 +26,8 @@ RESTfulAPIClientIntegrationTest >> httpbinCacheLocation [
 { #category : 'private' }
 RESTfulAPIClientIntegrationTest >> httpbinLocation [
 
-	^ 'http://localhost' asAbsoluteUrl
+	^ ('http://<1s>' expandMacrosWith: self httpbinHostname)
+		  asAbsoluteUrl
 ]
 
 { #category : 'private' }

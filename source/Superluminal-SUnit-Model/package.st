@@ -1,1 +1,1 @@
-Package { #name : #'Superluminal-SUnit-Model' }
+Package { #name : 'Superluminal-SUnit-Model' }

@@ -1,6 +1,6 @@
 Class {
 	#name : 'CacheRepositoryTest',
-	#superclass : 'TestCase',
+	#superclass : 'SuperluminalTest',
 	#instVars : [
 		'currentDateTime',
 		'repository',

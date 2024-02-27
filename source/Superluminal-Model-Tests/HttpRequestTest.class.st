@@ -3,7 +3,7 @@ A NapTest is a test class for testing the behavior of Nap
 "
 Class {
 	#name : 'HttpRequestTest',
-	#superclass : 'TestCase',
+	#superclass : 'SuperluminalTest',
 	#category : 'Superluminal-Model-Tests-Core',
 	#package : 'Superluminal-Model-Tests',
 	#tag : 'Core'
@@ -43,14 +43,7 @@ HttpRequestTest >> fullNameVersion1dot0dot0MediaType [
 { #category : 'private' }
 HttpRequestTest >> httpbinLocation [
 
-	| hostname |
-
-	hostname := LanguagePlatform current os
-		            environmentAt: 'CI_HTTPBIN_HOSTNAME'
-		            ifPresent: [ :hostnameInVariable | hostnameInVariable ]
-		            ifAbsent: [ 'localhost' ].
-
-	^ 'http://<1s>/anything' expandMacrosWith: hostname
+	^ 'http://<1s>/anything' expandMacrosWith: self httpbinHostname
 ]
 
 { #category : 'private' }
