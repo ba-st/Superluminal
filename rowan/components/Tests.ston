@@ -10,7 +10,7 @@ RwSimpleProjectLoadComponentV2 {
     'Superluminal-Model-Tests',
     'Superluminal-Model-Tests-Extensions',
     'Superluminal-RESTfulAPI-Tests',
-    'Superluminal-Service-Discovery-Tests',
+    'Superluminal-Service-Discovery-Tests'
   ],
   #conditionalPackageMapSpecs : {
     'gemstone' : {
