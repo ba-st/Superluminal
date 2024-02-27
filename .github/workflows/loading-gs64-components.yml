@@ -13,6 +13,7 @@ jobs:
           - Core
           - API-Client
           - Dependent-SUnit-Extensions
+          - Service-Discovery
     name: GS64 + ${{ matrix.load-spec }}
     steps:
       - uses: actions/checkout@v4

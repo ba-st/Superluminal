@@ -1,0 +1,19 @@
+RwSimpleProjectLoadComponentV2 {
+  #name : 'Service-Discovery',
+  #projectNames : [ ],
+  #componentNames : [
+    'API-Client'
+  ],
+  #packageNames : [
+    'Superluminal-Service-Discovery'
+  ],
+  #conditionalPackageMapSpecs : {
+    'gemstone' : {
+      'allusers' : {
+        #packageNameToPlatformPropertiesMap : {
+          'Superluminal-Service-Discovery' : { 'symbolDictName' : 'Superluminal' }
+        }
+      }
+    }
+  }
+}
