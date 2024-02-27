@@ -104,7 +104,7 @@ ExpiringResource >> withExpirationDo: ifPresentBlock ifNone: noneBlock [
 	^ [
 	  ifPresentBlock value:
 		  ( self expirationDateApplyingCacheControlDirectivesIfNone: [ self expires ] ) ]
-		  on: NotFound , SubscriptOutOfBounds
+		  on: NotFound , SubscriptOutOfBounds , CollectionIsEmpty
 		  do: [ :ex | ex return: noneBlock value ]
 ]
 

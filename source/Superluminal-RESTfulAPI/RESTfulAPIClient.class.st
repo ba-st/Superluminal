@@ -268,13 +268,13 @@ RESTfulAPIClient >> postAt: aLocation configuredBy: aRequestBuildingBlock withSu
 { #category : 'private - inkoving' }
 RESTfulAPIClient >> processPutResponse: response at: aLocation whenSuccessfulDo: aBlock [
 
-	response isSuccess
-		then: [ 
-			expiringCache clearResourceAt: aLocation.
-			^ response isNoContent
-				then: [ response ]
-				otherwise: [ aBlock value: ( self tryToCacheContentsOf: response basedOn: aLocation ) ]
-			].
+	response isSuccess then: [
+		expiringCache clearResourceAt: aLocation.
+		[
+		aBlock value:
+			(self tryToCacheContentsOf: response basedOn: aLocation) ] unless:
+			response isNoContent.
+		^ response ].
 
 	^ self signalCannotCompleteUpdateErrorBasedOn: response
 ]
