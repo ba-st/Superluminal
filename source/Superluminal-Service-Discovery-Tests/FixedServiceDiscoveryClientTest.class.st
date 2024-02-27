@@ -2,12 +2,13 @@
 A FixedServiceDiscoveryClientTest is a test class for testing the behavior of FixedServiceDiscoveryClient
 "
 Class {
-	#name : #FixedServiceDiscoveryClientTest,
-	#superclass : #TestCase,
-	#category : #'Superluminal-Service-Discovery-Tests'
+	#name : 'FixedServiceDiscoveryClientTest',
+	#superclass : 'TestCase',
+	#category : 'Superluminal-Service-Discovery-Tests',
+	#package : 'Superluminal-Service-Discovery-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 FixedServiceDiscoveryClientTest >> testClientChaining [
 
 	| discoveryClient fallbackClient |
@@ -29,7 +30,7 @@ FixedServiceDiscoveryClientTest >> testClientChaining [
 		ifUnable: [ self fail ]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 FixedServiceDiscoveryClientTest >> testUnableToFindLocation [
 
 	| discoveryClient locationWasFound |
@@ -45,7 +46,7 @@ FixedServiceDiscoveryClientTest >> testUnableToFindLocation [
 	self deny: locationWasFound
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 FixedServiceDiscoveryClientTest >> testWithLocationOfDoIfUnable [
 
 	| discoveryClient |
