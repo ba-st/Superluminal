@@ -1,7 +1,9 @@
 RwSimpleProjectLoadComponentV2 {
   #name : 'Tests',
   #condition : 'tests',
-  #projectNames : [ ],
+  #projectNames : [
+    'Teapot'
+  ],
   #componentNames : [
     'Service-Discovery',
     'Dependent-SUnit-Extensions'
