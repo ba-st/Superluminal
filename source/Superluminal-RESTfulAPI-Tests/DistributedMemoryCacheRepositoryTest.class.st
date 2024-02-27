@@ -17,9 +17,9 @@ DistributedMemoryCacheRepositoryTest >> setUpRepository [
 		persistingTo: ( MDCacheClient onServers: {'127.0.0.1:11211'} )
 ]
 
-{ #category : 'private' }
+{ #category : 'running' }
 DistributedMemoryCacheRepositoryTest >> waitFor: aDuration [
 
 	currentDateTime := currentDateTime + aDuration.
-	aDuration asDelay wait.
+	aDuration wait.
 ]

@@ -49,7 +49,7 @@ ExpiringResource >> expirationDateApplyingCacheControlDirectivesIfNone: noneBloc
 		self if: lowercasedDirective isNoCacheDirectiveApplyTo: expirationDates
 		].
 
-	^ expirationDates ifEmpty: [ noneBlock value ] ifNotEmpty: [ :dates | dates min ]
+	^ expirationDates minUsing: [ :date | date ] ifEmpty: noneBlock
 ]
 
 { #category : 'private' }

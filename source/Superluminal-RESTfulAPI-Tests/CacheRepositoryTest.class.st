@@ -36,7 +36,7 @@ CacheRepositoryTest >> resourceFor: answer expiringIn: aDuration [
 CacheRepositoryTest >> setUp [
 
 	super setUp.
-	currentDateTime := DateAndTime now truncated.
+	currentDateTime := DateAndTime now rounded.
 	currentTimeProvider := [ currentDateTime ].
 	self setUpRepository
 ]

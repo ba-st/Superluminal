@@ -18,5 +18,5 @@ DistributedMemoryBasedExpiringCacheTest >> setUpExpiringCache [
 DistributedMemoryBasedExpiringCacheTest >> waitFor: aDuration [
 
 	currentDateTime := currentDateTime + aDuration.
-	aDuration asDelay wait.
+	aDuration wait.
 ]
