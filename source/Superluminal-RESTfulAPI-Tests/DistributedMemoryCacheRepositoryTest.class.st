@@ -1,23 +1,27 @@
 Class {
-	#name : #DistributedMemoryCacheRepositoryTest,
-	#superclass : #CacheRepositoryTest,
+	#name : 'DistributedMemoryCacheRepositoryTest',
+	#superclass : 'CacheRepositoryTest',
 	#instVars : [
 		'memcached'
 	],
-	#category : #'Superluminal-RESTfulAPI-Tests-Cache'
+	#category : 'Superluminal-RESTfulAPI-Tests-Cache',
+	#package : 'Superluminal-RESTfulAPI-Tests',
+	#tag : 'Cache'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DistributedMemoryCacheRepositoryTest >> setUpRepository [
 
 	repository := DistributedMemoryCacheRepository
-		using: currentTimeProvider
-		persistingTo: ( MDCacheClient onServers: {'127.0.0.1:11211'} )
+		              using: currentTimeProvider
+		              persistingTo:
+		              ( MDCacheClient onServers:
+			                { '<1s>:11211' expandMacrosWith: self memcachedHostname } )
 ]
 
-{ #category : #private }
+{ #category : 'running' }
 DistributedMemoryCacheRepositoryTest >> waitFor: aDuration [
 
 	currentDateTime := currentDateTime + aDuration.
-	aDuration asDelay wait.
+	aDuration wait.
 ]

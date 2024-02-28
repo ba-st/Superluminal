@@ -2,22 +2,23 @@
 A ConsulAgentHttpAPIBasedDiscoveryClientTest is a test class for testing the behavior of ConsulAgentHttpAPIBasedDiscoveryClient
 "
 Class {
-	#name : #ConsulAgentHttpAPIBasedDiscoveryClientTest,
-	#superclass : #TestCase,
+	#name : 'ConsulAgentHttpAPIBasedDiscoveryClientTest',
+	#superclass : 'TestCase',
 	#instVars : [
 		'consulAgent',
 		'port'
 	],
-	#category : #'Superluminal-Service-Discovery-Tests'
+	#category : 'Superluminal-Service-Discovery-Tests',
+	#package : 'Superluminal-Service-Discovery-Tests'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 ConsulAgentHttpAPIBasedDiscoveryClientTest >> consulAgentLocation [
 
 	^ 'http://localhost' asAbsoluteUrl port: port
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 ConsulAgentHttpAPIBasedDiscoveryClientTest >> setUp [
 
 	super setUp.
@@ -31,14 +32,14 @@ ConsulAgentHttpAPIBasedDiscoveryClientTest >> setUp [
 	consulAgent start
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 ConsulAgentHttpAPIBasedDiscoveryClientTest >> tearDown [
 
-	consulAgent ifNotNil: #stop.
+	consulAgent ifNotNil: [ consulAgent stop ].
 	super tearDown
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 ConsulAgentHttpAPIBasedDiscoveryClientTest >> testFoundLocation [
 
 	| discoveryClient locationWasFound |
@@ -60,7 +61,7 @@ ConsulAgentHttpAPIBasedDiscoveryClientTest >> testFoundLocation [
 	self assert: locationWasFound
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 ConsulAgentHttpAPIBasedDiscoveryClientTest >> testUnableToFindLocation [
 
 	| discoveryClient locationWasFound |

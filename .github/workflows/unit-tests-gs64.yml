@@ -1,0 +1,24 @@
+name: 'GS64 Unit Tests'
+on:
+  - push
+  - pull_request
+  - workflow_dispatch
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    name: GS64 Unit Tests
+    services:
+      httpbin:
+        image: fortizpenaloza/httpbin
+      memcached:
+        image: memcached:1.6.7-alpine
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load Image and Run Tests
+        uses: ba-st-actions/gs64-ci@v2
+        with:
+          project_name: 'Superluminal'
+          run_tests: 'true'
+        env:
+          CI_MEMCACHED_HOSTNAME: memcached
+          CI_HTTPBIN_HOSTNAME: httpbin

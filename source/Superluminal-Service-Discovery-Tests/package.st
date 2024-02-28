@@ -1,1 +1,1 @@
-Package { #name : #'Superluminal-Service-Discovery-Tests' }
+Package { #name : 'Superluminal-Service-Discovery-Tests' }

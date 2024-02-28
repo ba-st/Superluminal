@@ -2,24 +2,26 @@
 An ExpiringCacheTest is a test class for testing the behavior of ExpiringCache
 "
 Class {
-	#name : #ExpiringCacheTest,
-	#superclass : #TestCase,
+	#name : 'ExpiringCacheTest',
+	#superclass : 'SuperluminalTest',
 	#instVars : [
 		'currentDateTime',
 		'cache',
 		'location',
 		'currentTimeProvider'
 	],
-	#category : #'Superluminal-RESTfulAPI-Tests-Cache'
+	#category : 'Superluminal-RESTfulAPI-Tests-Cache',
+	#package : 'Superluminal-RESTfulAPI-Tests',
+	#tag : 'Cache'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 ExpiringCacheTest class >> isAbstract [ 
 
 	^  self name = #ExpiringCacheTest
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 ExpiringCacheTest >> in: aResource obtain: answer cachedFor: aDuration [
 
 	^ cache
@@ -28,13 +30,13 @@ ExpiringCacheTest >> in: aResource obtain: answer cachedFor: aDuration [
 		do: [ :resource | 'Obtained <1s>' expandMacrosWith: resource ]
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 ExpiringCacheTest >> obtain: answer cachedFor: aDuration [
 
 	^ self in: location obtain: answer cachedFor: aDuration
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 ExpiringCacheTest >> resourceFor: answer expiringIn: aDuration [
 
 	| response |
@@ -45,23 +47,23 @@ ExpiringCacheTest >> resourceFor: answer expiringIn: aDuration [
 	^ ExpiringResource for: answer controlledBy: response
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 ExpiringCacheTest >> setUp [
 
 	super setUp.
-	currentDateTime := DateAndTime now truncated.
+	currentDateTime := DateAndTime now rounded.
 	currentTimeProvider := [ currentDateTime ].
 	location := 'answers' asUrl / UUID new asString.
 	self setUpExpiringCache
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 ExpiringCacheTest >> setUpExpiringCache [
 
 	self subclassResponsibility 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 ExpiringCacheTest >> testCachedAnswerIsReturnedBeforeExpiration [
 
 	| answer |
@@ -76,7 +78,7 @@ ExpiringCacheTest >> testCachedAnswerIsReturnedBeforeExpiration [
 	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained an updated answer'	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 ExpiringCacheTest >> testClearResourceAt [
 
 	| answer |
@@ -89,7 +91,7 @@ ExpiringCacheTest >> testClearResourceAt [
 	self assert: ( self obtain: answer cachedFor: 2 seconds ) equals: 'Obtained an updated answer'
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 ExpiringCacheTest >> waitFor: aDuration [
 
 	self subclassResponsibility 

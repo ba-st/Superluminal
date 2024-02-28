@@ -1,22 +1,24 @@
 Class {
-	#name : #HttpRequestCommand,
-	#superclass : #Object,
-	#category : #'Superluminal-Model-Commands'
+	#name : 'HttpRequestCommand',
+	#superclass : 'Object',
+	#category : 'Superluminal-Model-Commands',
+	#package : 'Superluminal-Model',
+	#tag : 'Commands'
 }
 
-{ #category : #composing }
+{ #category : 'composing' }
 HttpRequestCommand >> + anHttpRequestCommand [
 
 	^ CompositeHttpRequestCommand ofAll: self commands , anHttpRequestCommand commands
 ]
 
-{ #category : #applying }
+{ #category : 'applying' }
 HttpRequestCommand >> applyOn: httpClient [
 
 	self subclassResponsibility 
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 HttpRequestCommand >> commands [
 
 	 ^Array with: self 

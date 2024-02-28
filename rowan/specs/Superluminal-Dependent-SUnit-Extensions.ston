@@ -1,0 +1,10 @@
+RwLoadSpecificationV2 {
+  #specName: 'Superluminal-Dependent-SUnit-Extensions',
+  #projectName : 'Superluminal',
+  #diskUrl : 'Superluminal',
+  #projectSpecFile : 'rowan/project.ston',
+  #componentNames : [
+    'Dependent-SUnit-Extensions'
+  ],
+  #comment : 'Loading spec for Dependent-SUnit-Extensions'
+}

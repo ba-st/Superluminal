@@ -7,16 +7,11 @@ RUN pharo metacello install gitlocal://. BaselineOfSuperluminal --groups=Example
 
 # Stage 2: Copy the resulting Pharo.image with our project loaded
 # into a new docker image with just the vm
-FROM ghcr.io/ba-st/launchpad:v4
+FROM ghcr.io/ba-st/launchpad:v5
 
-USER root
+COPY --from=loader --chown=pharo:users /opt/pharo/Pharo.image ./
+COPY --from=loader --chown=pharo:users /opt/pharo/Pharo*.sources ./
 
-COPY --from=loader /opt/pharo/Pharo.image ./
-COPY --from=loader /opt/pharo/Pharo*.sources ./
-
-RUN mkdir logs \
-  && chown --recursive pharo:users /opt/pharo
-
-USER pharo
+RUN mkdir logs
 
 CMD ["launchpad-start", "superluminal-service-discovery", "--retry-delay-in-ms=10000"]

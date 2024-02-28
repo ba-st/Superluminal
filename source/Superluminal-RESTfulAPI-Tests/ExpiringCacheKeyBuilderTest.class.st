@@ -2,12 +2,14 @@
 An ExpiringCacheKeyBuilderTest is a test class for testing the behavior of ExpiringCacheKeyBuilder
 "
 Class {
-	#name : #ExpiringCacheKeyBuilderTest,
-	#superclass : #TestCase,
-	#category : #'Superluminal-RESTfulAPI-Tests-Cache'
+	#name : 'ExpiringCacheKeyBuilderTest',
+	#superclass : 'TestCase',
+	#category : 'Superluminal-RESTfulAPI-Tests-Cache',
+	#package : 'Superluminal-RESTfulAPI-Tests',
+	#tag : 'Cache'
 }
 
-{ #category : #test }
+{ #category : 'test' }
 ExpiringCacheKeyBuilderTest >> testEntity [
 
 	| httpRequest key |
@@ -20,7 +22,7 @@ ExpiringCacheKeyBuilderTest >> testEntity [
 	self assert: key equals: 'http://google.com/'
 ]
 
-{ #category : #test }
+{ #category : 'test' }
 ExpiringCacheKeyBuilderTest >> testFormAtAdd [
 
 	| httpRequest key |
@@ -33,7 +35,7 @@ ExpiringCacheKeyBuilderTest >> testFormAtAdd [
 	self assert: key equals: 'http://google.com/|form-query[ba-st]'
 ]
 
-{ #category : #test }
+{ #category : 'test' }
 ExpiringCacheKeyBuilderTest >> testHeaderAtPut [
 
 	| httpRequest key |

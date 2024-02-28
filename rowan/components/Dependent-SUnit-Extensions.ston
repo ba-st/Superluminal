@@ -1,0 +1,22 @@
+RwSimpleProjectLoadComponentV2 {
+  #name : 'Dependent-SUnit-Extensions',
+  #condition : 'sunit',
+  #projectNames : [
+    'Teachable'
+  ],
+  #componentNames : [
+    'Core'
+  ],
+  #packageNames : [
+    'Superluminal-SUnit-Model'
+  ],
+  #conditionalPackageMapSpecs : {
+    'gemstone' : {
+      'allusers' : {
+        #packageNameToPlatformPropertiesMap : {
+          'Superluminal-SUnit-Model' : { 'symbolDictName' : 'Superluminal' }
+        }
+      }
+    }
+  }
+}

@@ -1,1 +1,1 @@
-Package { #name : #'Superluminal-RESTfulAPI-Tests' }
+Package { #name : 'Superluminal-RESTfulAPI-Tests' }

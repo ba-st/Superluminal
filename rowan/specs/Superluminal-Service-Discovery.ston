@@ -1,0 +1,10 @@
+RwLoadSpecificationV2 {
+  #specName: 'Superluminal-Service-Discovery',
+  #projectName : 'Superluminal',
+  #diskUrl : 'Superluminal',
+  #projectSpecFile : 'rowan/project.ston',
+  #componentNames : [
+    'Service-Discovery'
+  ],
+  #comment : 'Loading spec for Service-Discovery'
+}

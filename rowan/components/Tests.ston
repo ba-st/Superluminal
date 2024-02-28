@@ -1,0 +1,29 @@
+RwSimpleProjectLoadComponentV2 {
+  #name : 'Tests',
+  #condition : 'tests',
+  #projectNames : [
+    'Teapot'
+  ],
+  #componentNames : [
+    'Service-Discovery',
+    'Dependent-SUnit-Extensions'
+  ],
+  #packageNames : [
+    'Superluminal-Model-Tests',
+    'Superluminal-Model-Tests-Extensions',
+    'Superluminal-RESTfulAPI-Tests',
+    'Superluminal-Service-Discovery-Tests'
+  ],
+  #conditionalPackageMapSpecs : {
+    'gemstone' : {
+      'allusers' : {
+        #packageNameToPlatformPropertiesMap : {
+          'Superluminal-Model-Tests' : { 'symbolDictName' : 'Superluminal' },
+          'Superluminal-Model-Tests-Extensions' : { 'symbolDictName' : 'Globals' },
+          'Superluminal-RESTfulAPI-Tests' : { 'symbolDictName' : 'Superluminal' },
+          'Superluminal-Service-Discovery-Tests' : { 'symbolDictName' : 'Superluminal' }
+        }
+      }
+    }
+  }
+}

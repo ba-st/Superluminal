@@ -4,15 +4,17 @@ I'm a high-speed data storage layer which stores a set of resources, typically t
 I can store resources on locally by collaborating with a LocalMemoryCacheRespository or remotly using a DistribuedMemoryCacheRepository instead.
 "
 Class {
-	#name : #ExpiringCache,
-	#superclass : #Object,
+	#name : 'ExpiringCache',
+	#superclass : 'Object',
 	#instVars : [
 		'expiringResources'
 	],
-	#category : #'Superluminal-RESTfulAPI-Cache'
+	#category : 'Superluminal-RESTfulAPI-Cache',
+	#package : 'Superluminal-RESTfulAPI',
+	#tag : 'Cache'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 ExpiringCache class >> onDistributedMemoryAt: aLocationSet [
 
 	^ self
@@ -22,31 +24,31 @@ ExpiringCache class >> onDistributedMemoryAt: aLocationSet [
 				persistingTo: ( MDCacheClient onServers: aLocationSet ) )
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 ExpiringCache class >> onLocalMemory [
 
 	^ self persistingTo: ( LocalMemoryCacheRepository using: [ DateAndTime now ] )
 ]
 
-{ #category : #'private - instance creation' }
+{ #category : 'private - instance creation' }
 ExpiringCache class >> persistingTo: aRepository [
 
 	^ self new initializePersistingTo: aRepository
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 ExpiringCache >> clearResourceAt: aLocation [
 
 	expiringResources remove: aLocation asUrl asString
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 ExpiringCache >> initializePersistingTo: aRepository [
 
 	expiringResources := aRepository
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 ExpiringCache >> withResourceAt: aBuiltKey obtainedUsing: aGetBlock do: aProcessBlock [
 
 	| resource |

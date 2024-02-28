@@ -1,0 +1,10 @@
+RwLoadSpecificationV2 {
+  #specName: 'Teachable',
+  #projectName : 'Teachable',
+  #gitUrl : 'https://github.com/ba-st-dependencies/Teachable.git',
+  #revision : 'v3',
+  #projectSpecFile : 'rowan/project.ston',
+  #componentNames : [
+    'Core'
+  ]
+}

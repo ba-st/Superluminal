@@ -1,31 +1,33 @@
 Class {
-	#name : #MultiPartBodyBuilder,
-	#superclass : #Object,
+	#name : 'MultiPartBodyBuilder',
+	#superclass : 'Object',
 	#instVars : [
 		'commands'
 	],
-	#category : #'Superluminal-Model-Builders'
+	#category : 'Superluminal-Model-Builders',
+	#package : 'Superluminal-Model',
+	#tag : 'Builders'
 }
 
-{ #category : #building }
+{ #category : 'building' }
 MultiPartBodyBuilder >> build [
 
 	^ CompositeHttpRequestCommand ofAll: commands
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 MultiPartBodyBuilder >> fieldNamed: aName attaching: aFile [
 
 	commands add: ( AddMultiPartCommand named: aName attaching: aFile )
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 MultiPartBodyBuilder >> fieldNamed: aName pairedTo: aValue [
 
 	commands add: ( AddMultiPartCommand named: aName pairedTo: aValue )
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 MultiPartBodyBuilder >> initialize [
 
 	super initialize.

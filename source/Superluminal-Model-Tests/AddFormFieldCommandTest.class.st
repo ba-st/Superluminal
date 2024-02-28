@@ -2,12 +2,14 @@
 An AddFormFieldCommandTest is a test class for testing the behavior of AddFormFieldCommand
 "
 Class {
-	#name : #AddFormFieldCommandTest,
-	#superclass : #TestCase,
-	#category : #'Superluminal-Model-Tests-Commands'
+	#name : 'AddFormFieldCommandTest',
+	#superclass : 'TestCase',
+	#category : 'Superluminal-Model-Tests-Commands',
+	#package : 'Superluminal-Model-Tests',
+	#tag : 'Commands'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 AddFormFieldCommandTest >> testApplyOn [
 
 	| httpClient command |

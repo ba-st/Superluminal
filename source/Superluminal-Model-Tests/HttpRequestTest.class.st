@@ -2,18 +2,20 @@
 A NapTest is a test class for testing the behavior of Nap
 "
 Class {
-	#name : #HttpRequestTest,
-	#superclass : #TestCase,
-	#category : #'Superluminal-Model-Tests-Core'
+	#name : 'HttpRequestTest',
+	#superclass : 'SuperluminalTest',
+	#category : 'Superluminal-Model-Tests-Core',
+	#package : 'Superluminal-Model-Tests',
+	#tag : 'Core'
 }
 
-{ #category : #private }
+{ #category : 'private' }
 HttpRequestTest >> assertJson: json at: attribute equals: anObject [
 
 	self assert: ( json at: attribute ) equals: anObject
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 HttpRequestTest >> customEntity [
 
 	^ ZnEntity
@@ -21,7 +23,7 @@ HttpRequestTest >> customEntity [
 		type: self fullNameVersion1dot0dot0MediaType
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 HttpRequestTest >> encodedFullName [
 
 	^ NeoJSONWriter
@@ -32,25 +34,25 @@ HttpRequestTest >> encodedFullName [
 				yourself)
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 HttpRequestTest >> fullNameVersion1dot0dot0MediaType [
 
 	^ 'application/vnd.nap.full_name+json;version=1.0.0' asMediaType
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 HttpRequestTest >> httpbinLocation [
 
-	^ 'http://localhost/anything'
+	^ 'http://<1s>/anything' expandMacrosWith: self httpbinHostname
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 HttpRequestTest >> newHttpClient [
 
 	^ ZnClient new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testComposite [
 
 	| httpRequest response |
@@ -75,7 +77,7 @@ HttpRequestTest >> testComposite [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testDeleteContentAsCustomMediaType [
 
 	| httpRequest response |
@@ -103,7 +105,7 @@ HttpRequestTest >> testDeleteContentAsCustomMediaType [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testDeleteWithEmptyConfiguration [
 
 	| httpRequest response |
@@ -122,7 +124,7 @@ HttpRequestTest >> testDeleteWithEmptyConfiguration [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testGet [
 
 	| httpRequest response |
@@ -141,7 +143,7 @@ HttpRequestTest >> testGet [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testGetWithAuthorization [
 
 	| httpRequest response |
@@ -162,7 +164,7 @@ HttpRequestTest >> testGetWithAuthorization [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testGetWithCustomHeader [
 
 	| httpRequest response |
@@ -182,7 +184,7 @@ HttpRequestTest >> testGetWithCustomHeader [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testGetWithEmptyConfiguration [
 
 	| httpRequest response |
@@ -201,7 +203,7 @@ HttpRequestTest >> testGetWithEmptyConfiguration [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testGetWithToken [
 
 	| httpRequest response |
@@ -223,7 +225,7 @@ HttpRequestTest >> testGetWithToken [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testPatchContentAsCustomMediaType [
 
 	| httpRequest response |
@@ -251,7 +253,7 @@ HttpRequestTest >> testPatchContentAsCustomMediaType [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testPatchContentAsFormUrlEncoded [
 
 	| httpRequest response |
@@ -278,7 +280,7 @@ HttpRequestTest >> testPatchContentAsFormUrlEncoded [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testPatchContentAsJson [
 
 	| httpRequest response |
@@ -306,7 +308,7 @@ HttpRequestTest >> testPatchContentAsJson [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testPatchContentAsMultiPart [
 
 	self withFileNamed: 'testApplyOnWhenAttachingFiles-1.txt'
@@ -343,7 +345,7 @@ HttpRequestTest >> testPatchContentAsMultiPart [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testPostEncodedAsJson [
 
 	| httpRequest response |
@@ -372,7 +374,7 @@ HttpRequestTest >> testPostEncodedAsJson [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testPostEncodedDataAndMediaType [
 
 	| httpRequest response |
@@ -400,7 +402,7 @@ HttpRequestTest >> testPostEncodedDataAndMediaType [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testPostFormUrlEncoded [
 
 	| httpRequest response |
@@ -427,7 +429,7 @@ HttpRequestTest >> testPostFormUrlEncoded [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testPostMultiPart [
 
 	self withFileNamed: 'testApplyOnWhenAttachingFiles-1.txt'
@@ -464,7 +466,7 @@ HttpRequestTest >> testPostMultiPart [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testPostUsingEntity [
 
 	| httpRequest response |
@@ -489,7 +491,7 @@ HttpRequestTest >> testPostUsingEntity [
 		]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testPutEncodedAsJson [
 
 	| httpRequest response |
@@ -518,7 +520,7 @@ HttpRequestTest >> testPutEncodedAsJson [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testPutIfMatch [
 
 	| httpRequest response |
@@ -541,7 +543,7 @@ HttpRequestTest >> testPutIfMatch [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testPutIfNoneMatch [
 
 	| httpRequest response |
@@ -564,7 +566,7 @@ HttpRequestTest >> testPutIfNoneMatch [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testQueryString [
 
 	| httpRequest response |
@@ -592,7 +594,7 @@ HttpRequestTest >> testQueryString [
 			]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 HttpRequestTest >> testRequestConfigurationIsClearedWhenReusingClient [
 
 	| response client |
@@ -620,13 +622,13 @@ HttpRequestTest >> testRequestConfigurationIsClearedWhenReusingClient [
 			]
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 HttpRequestTest >> withJsonFrom: aString do: aBlock [
 
 	aBlock value: ( NeoJSONObject fromString: aString )
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 HttpRequestTest >> withJsonFromContentsIn: httpResponse do: aBlock [
 
 	self withJsonFrom: httpResponse contents do: aBlock

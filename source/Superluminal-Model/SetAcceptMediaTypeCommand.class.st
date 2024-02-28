@@ -1,25 +1,27 @@
 Class {
-	#name : #SetAcceptMediaTypeCommand,
-	#superclass : #HttpRequestCommand,
+	#name : 'SetAcceptMediaTypeCommand',
+	#superclass : 'HttpRequestCommand',
 	#instVars : [
 		'mediaType'
 	],
-	#category : #'Superluminal-Model-Commands'
+	#category : 'Superluminal-Model-Commands',
+	#package : 'Superluminal-Model',
+	#tag : 'Commands'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 SetAcceptMediaTypeCommand class >> to: aMediaType [ 
 
 	 ^ self new initializeTo: aMediaType 
 ]
 
-{ #category : #applying }
+{ #category : 'applying' }
 SetAcceptMediaTypeCommand >> applyOn: httpClient [ 
 
 	httpClient accept: mediaType 
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 SetAcceptMediaTypeCommand >> initializeTo: aMediaType [ 
 
 	mediaType := aMediaType 

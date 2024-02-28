@@ -2,22 +2,23 @@
 I'm a test double stubbing the health HTTP API of the Consul Agent.
 "
 Class {
-	#name : #StubbedConsulAgentHealthHttpAPI,
-	#superclass : #Object,
+	#name : 'StubbedConsulAgentHealthHttpAPI',
+	#superclass : 'Object',
 	#instVars : [
 		'asserter',
 		'server'
 	],
-	#category : #'Superluminal-Service-Discovery-Tests'
+	#category : 'Superluminal-Service-Discovery-Tests',
+	#package : 'Superluminal-Service-Discovery-Tests'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 StubbedConsulAgentHealthHttpAPI class >> configuredBy: configuration on: aTestAsserter [
 
 	^ self new initializeConfiguredBy: configuration on: aTestAsserter
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 StubbedConsulAgentHealthHttpAPI >> configureTeapotServerWith: configuration [
 
 	server := Teapot configure: configuration , { #defaultOutput -> #json }.
@@ -26,7 +27,7 @@ StubbedConsulAgentHealthHttpAPI >> configureTeapotServerWith: configuration [
 		-> [ :request | self handleServiceHealthLookup: request ]
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 StubbedConsulAgentHealthHttpAPI >> handleServiceHealthLookup: httpRequest [
 
 	| serviceName json |
@@ -43,26 +44,26 @@ StubbedConsulAgentHealthHttpAPI >> handleServiceHealthLookup: httpRequest [
 		  yourself
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 StubbedConsulAgentHealthHttpAPI >> initializeConfiguredBy: configuration on: aTestAsserter [
 
 	asserter := aTestAsserter.
 	self configureTeapotServerWith: configuration
 ]
 
-{ #category : #controlling }
+{ #category : 'controlling' }
 StubbedConsulAgentHealthHttpAPI >> start [
 
 	server start
 ]
 
-{ #category : #controlling }
+{ #category : 'controlling' }
 StubbedConsulAgentHealthHttpAPI >> stop [
 
 	server stop
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 StubbedConsulAgentHealthHttpAPI >> stubbedBodyResponse [ 
 		
 	^'[

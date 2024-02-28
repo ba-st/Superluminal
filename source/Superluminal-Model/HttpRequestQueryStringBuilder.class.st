@@ -1,25 +1,27 @@
 Class {
-	#name : #HttpRequestQueryStringBuilder,
-	#superclass : #Object,
+	#name : 'HttpRequestQueryStringBuilder',
+	#superclass : 'Object',
 	#instVars : [
 		'commands'
 	],
-	#category : #'Superluminal-Model-Builders'
+	#category : 'Superluminal-Model-Builders',
+	#package : 'Superluminal-Model',
+	#tag : 'Builders'
 }
 
-{ #category : #building }
+{ #category : 'building' }
 HttpRequestQueryStringBuilder >> build [
 
 	^ CompositeHttpRequestCommand ofAll: commands
 ]
 
-{ #category : #configuring }
+{ #category : 'configuring' }
 HttpRequestQueryStringBuilder >> fieldNamed: aName pairedTo: aValue [
 
 	commands add: (AddQueryStringFieldCommand named: aName pairedTo: aValue)
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 HttpRequestQueryStringBuilder >> initialize [
 
 	super initialize.

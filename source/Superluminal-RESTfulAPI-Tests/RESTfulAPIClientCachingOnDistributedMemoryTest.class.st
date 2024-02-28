@@ -1,13 +1,15 @@
 Class {
-	#name : #RESTfulAPIClientCachingOnDistributedMemoryTest,
-	#superclass : #RESTfulAPIClientTest,
-	#category : #'Superluminal-RESTfulAPI-Tests'
+	#name : 'RESTfulAPIClientCachingOnDistributedMemoryTest',
+	#superclass : 'RESTfulAPIClientTest',
+	#category : 'Superluminal-RESTfulAPI-Tests',
+	#package : 'Superluminal-RESTfulAPI-Tests'
 }
 
-{ #category : #running }
+{ #category : 'accessing' }
 RESTfulAPIClientCachingOnDistributedMemoryTest >> apiClient [
 
 	^ RESTfulAPIClient
-		buildingHttpClientWith: [ self httpClient ]
-		cachingIn: ( ExpiringCache onDistributedMemoryAt: {'127.0.0.1:11211'} )
+		  buildingHttpClientWith: [ self httpClient ]
+		  cachingIn: (ExpiringCache onDistributedMemoryAt:
+				   { ('<1s>:11211' expandMacrosWith: self memcachedHostname) })
 ]

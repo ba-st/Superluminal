@@ -2,12 +2,14 @@
 A SetAcceptMediaTypeTest is a test class for testing the behavior of SetAcceptMediaType
 "
 Class {
-	#name : #SetAcceptMediaTypeCommandTest,
-	#superclass : #TestCase,
-	#category : #'Superluminal-Model-Tests-Commands'
+	#name : 'SetAcceptMediaTypeCommandTest',
+	#superclass : 'TestCase',
+	#category : 'Superluminal-Model-Tests-Commands',
+	#package : 'Superluminal-Model-Tests',
+	#tag : 'Commands'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 SetAcceptMediaTypeCommandTest >> testApplyOn [
 
 	| httpClient command |

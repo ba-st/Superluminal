@@ -1,0 +1,14 @@
+RwLoadSpecificationV2 {
+  #specName: 'Superluminal-CI',
+  #projectName : 'Superluminal',
+  #diskUrl : 'Superluminal',
+  #projectSpecFile : 'rowan/project.ston',
+  #componentNames : [
+    'Tests'
+  ],
+  #customConditionalAttributes : [
+    'tests',
+    'sunit'
+  ],
+  #comment : 'Loading spec for the continuous integration setup'
+}

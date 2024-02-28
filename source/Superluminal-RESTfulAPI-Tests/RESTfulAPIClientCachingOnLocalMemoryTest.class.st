@@ -1,10 +1,11 @@
 Class {
-	#name : #RESTfulAPIClientCachingOnLocalMemoryTest,
-	#superclass : #RESTfulAPIClientTest,
-	#category : #'Superluminal-RESTfulAPI-Tests'
+	#name : 'RESTfulAPIClientCachingOnLocalMemoryTest',
+	#superclass : 'RESTfulAPIClientTest',
+	#category : 'Superluminal-RESTfulAPI-Tests',
+	#package : 'Superluminal-RESTfulAPI-Tests'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 RESTfulAPIClientCachingOnLocalMemoryTest >> apiClient [
 
 	^ RESTfulAPIClient

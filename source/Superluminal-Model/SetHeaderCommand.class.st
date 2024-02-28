@@ -12,22 +12,24 @@ Directives
 
 "
 Class {
-	#name : #SetHeaderCommand,
-	#superclass : #HttpRequestCommand,
+	#name : 'SetHeaderCommand',
+	#superclass : 'HttpRequestCommand',
 	#instVars : [
 		'headerName',
 		'headerValue'
 	],
-	#category : #'Superluminal-Model-Commands'
+	#category : 'Superluminal-Model-Commands',
+	#package : 'Superluminal-Model',
+	#tag : 'Commands'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 SetHeaderCommand class >> setting: aHeaderName to: aHeaderValue [
 
 	^ self new initializeSetting: aHeaderName to: aHeaderValue
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 SetHeaderCommand class >> settingAuthorizationTo: anAuthorizationDirective [
 
 	AssertionChecker
@@ -38,19 +40,19 @@ SetHeaderCommand class >> settingAuthorizationTo: anAuthorizationDirective [
 	^ self setting: #Authorization to: anAuthorizationDirective asString
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 SetHeaderCommand class >> settingAuthorizationToBearerToken: token [
 
 	^ self settingAuthorizationTo: ( #'Bearer <1s>' expandMacrosWith: token asString)
 ]
 
-{ #category : #applying }
+{ #category : 'applying' }
 SetHeaderCommand >> applyOn: httpClient [
 
 	httpClient headerAt: headerName put: headerValue
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 SetHeaderCommand >> initializeSetting: aHeaderName to: aHeaderValue [
 
 	headerName := aHeaderName.

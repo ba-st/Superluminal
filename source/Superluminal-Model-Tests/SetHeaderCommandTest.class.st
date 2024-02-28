@@ -1,10 +1,12 @@
 Class {
-	#name : #SetHeaderCommandTest,
-	#superclass : #TestCase,
-	#category : #'Superluminal-Model-Tests-Commands'
+	#name : 'SetHeaderCommandTest',
+	#superclass : 'TestCase',
+	#category : 'Superluminal-Model-Tests-Commands',
+	#package : 'Superluminal-Model-Tests',
+	#tag : 'Commands'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 SetHeaderCommandTest >> testApplyOn [
 
 	| httpClient command |
@@ -16,7 +18,7 @@ SetHeaderCommandTest >> testApplyOn [
 	self assert: ( httpClient request headers at: #Authorization ) equals: 'Bearer token'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 SetHeaderCommandTest >> testCannotUseAnEmptyValue [
 
 	self
