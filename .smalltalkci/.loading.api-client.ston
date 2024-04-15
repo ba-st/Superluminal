@@ -4,7 +4,8 @@ SmalltalkCISpec {
       #baseline : 'Superluminal',
       #directory : '../source',
       #load : [ 'API Client' ],
-      #platforms : [  #pharo ]
+      #platforms : [  #pharo ],
+      #failOn : [ #Warning ]
     }
   ],
   #testing : {
