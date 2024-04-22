@@ -2,54 +2,52 @@
 A SuperluminalServiceDiscoveryExampleLauncherTest is a test class for testing the behavior of SuperluminalServiceDiscoveryExampleLauncher
 "
 Class {
-	#name : #SuperluminalServiceDiscoveryExampleLauncherTest,
-	#superclass : #TestCase,
-	#category : #'Superluminal-Service-Discovery-Examples-Tests'
+	#name : 'SuperluminalServiceDiscoveryExampleLauncherTest',
+	#superclass : 'TestCase',
+	#category : 'Superluminal-Service-Discovery-Examples-Tests',
+	#package : 'Superluminal-Service-Discovery-Examples-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 SuperluminalServiceDiscoveryExampleLauncherTest >> testActivate [
 
-	| commandLine |
-
-	commandLine := CommandLineArguments withArguments:
-		               #( 'launchpad' 'start' '--debug-mode' 'superluminal-service-discovery'
-		                  '--consul-agent-location=http://consul:8500'
-		                  '--message=Hello' '--retry-delay-in-ms=1' ).
-
-	self should: [ LaunchpadCommandLineHandler activateWith: commandLine ] raise: HTTPError
+	self
+		should: [
+			LaunchpadCommandLineHandler activateWithArguments:
+				#( 'launchpad' 'start' '--debug-mode' 'superluminal-service-discovery'
+				   '--consul-agent-location=http://consul:8500' '--message=Hello' '--retry-delay-in-ms=1' )
+			]
+		raise: HTTPError
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 SuperluminalServiceDiscoveryExampleLauncherTest >> testActivateInReleaseMode [
 
-	| commandLine |
-
-	commandLine := CommandLineArguments withArguments:
-		               #( 'launchpad' 'start' 'superluminal-service-discovery'
-		                  '--consul-agent-location=http://consul:8500'
-		                  '--message=Hello' '--retry-delay-in-ms=1' ).
-
-	self should: [ LaunchpadCommandLineHandler activateWith: commandLine ]
+	self
+		should: [
+			LaunchpadCommandLineHandler activateWithArguments:
+				#( 'launchpad' 'start' 'superluminal-service-discovery' '--consul-agent-location=http://consul:8500'
+				   '--message=Hello' '--retry-delay-in-ms=1' )
+			]
 		raise: Exit
 		withExceptionDo: [ :exit | self deny: exit isSuccess ]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 SuperluminalServiceDiscoveryExampleLauncherTest >> testCommandName [
 
 	self assert: SuperluminalServiceDiscoveryExample commandName
 		equals: 'superluminal-service-discovery'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 SuperluminalServiceDiscoveryExampleLauncherTest >> testDescription [
 
 	self assert: SuperluminalServiceDiscoveryExample description
 		equals: 'I''m a command line example using as dependency an echo API'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 SuperluminalServiceDiscoveryExampleLauncherTest >> testHelp [
 
 	self assert:
