@@ -43,7 +43,8 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 
 	spec
 		baseline: 'Launchpad' with: [ spec repository: 'github://ba-st/Launchpad:v5' ];
-		project: 'Launchpad-Deployment' copyFrom: 'Launchpad' with: [ spec loads: 'Deployment' ].
+		project: 'Launchpad-Deployment' copyFrom: 'Launchpad' with: [ spec loads: 'Deployment' ];
+		project: 'Launchpad-SUnit' copyFrom: 'Launchpad' with: [ spec loads: 'Dependent-SUnit-Extensions' ].
 
 	spec
 		baseline: 'NeoJSON' with: [ spec repository: 'github://svenvc/NeoJSON:master' ];
@@ -128,6 +129,6 @@ BaselineOfSuperluminal >> setUpTestPackages: spec [
 		group: 'Tests' with: 'Superluminal-Service-Discovery-Tests'.
 	spec
 		package: 'Superluminal-Service-Discovery-Examples-Tests'
-			with: [ spec requires: 'Superluminal-Service-Discovery-Examples' ];
+			with: [ spec requires: #('Superluminal-Service-Discovery-Examples' 'Launchpad-SUnit')];
 		group: 'Tests' with: 'Superluminal-Service-Discovery-Examples-Tests'
 ]
