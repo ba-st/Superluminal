@@ -32,7 +32,7 @@ BaselineOfSuperluminal >> projectClass [
 BaselineOfSuperluminal >> setUpDependencies: spec [
 
 	spec
-		baseline: 'Hyperspace' with: [ spec repository: 'github://ba-st/Hyperspace:v5' ];
+		baseline: 'Hyperspace' with: [ spec repository: 'github://ba-st/Hyperspace:v6' ];
 		project: 'Hyperspace-Deployment' copyFrom: 'Hyperspace' with: [ spec loads: 'Deployment' ];
 		project: 'Hyperspace-SUnit'
 			copyFrom: 'Hyperspace'
@@ -42,7 +42,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 			with: [ spec loads: 'Tools' ].
 
 	spec
-		baseline: 'Launchpad' with: [ spec repository: 'github://ba-st/Launchpad:v5' ];
+		baseline: 'Launchpad' with: [ spec repository: 'github://ba-st/Launchpad:v6' ];
 		project: 'Launchpad-Deployment' copyFrom: 'Launchpad' with: [ spec loads: 'Deployment' ];
 		project: 'Launchpad-SUnit' copyFrom: 'Launchpad' with: [ spec loads: 'Dependent-SUnit-Extensions' ].
 
@@ -51,19 +51,19 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		project: 'NeoJSON-Core' copyFrom: 'NeoJSON' with: [ spec loads: 'core' ].
 
 	spec
-		baseline: 'ObjectPool' with: [ spec repository: 'github://ba-st-dependencies/ObjectPool:v2' ];
+		baseline: 'ObjectPool' with: [ spec repository: 'github://ba-st-dependencies/ObjectPool:v3' ];
 		project: 'ObjectPool-Core' copyFrom: 'ObjectPool' with: [ spec loads: 'Core' ].
 
 	spec
-		baseline: 'Teapot' with: [ spec repository: 'github://ba-st-dependencies/Teapot:v2' ];
+		baseline: 'Teapot' with: [ spec repository: 'github://ba-st-dependencies/Teapot:v3' ];
 		project: 'Teapot-Deployment' copyFrom: 'Teapot' with: [ spec loads: 'Deployment' ].
 
 	spec
-		baseline: 'Teachable' with: [ spec repository: 'github://ba-st-dependencies/Teachable:v3' ];
+		baseline: 'Teachable' with: [ spec repository: 'github://ba-st-dependencies/Teachable:v4' ];
 		project: 'Teachable-Core' copyFrom: 'Teachable' with: [ spec loads: 'Core' ].
 		
 	spec 
-		baseline: 'Memcached' with: [ spec repository: 'github://ba-st-dependencies/Memcached:v2' ];
+		baseline: 'Memcached' with: [ spec repository: 'github://ba-st-dependencies/Memcached:v3' ];
 		project: 'Memcached-Core' copyFrom: 'Memcached' with: [ spec loads: 'Deployment' ]
 ]
 
