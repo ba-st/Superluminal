@@ -48,7 +48,7 @@ ExpiringCacheKeyBuilder >> build [
 { #category : 'configuring' }
 ExpiringCacheKeyBuilder >> entity: entity [
 
-	
+  entity contents ifNotEmpty: [ :contents | parameters at: #entity put: contents asString ]
 ]
 
 { #category : 'configuring' }

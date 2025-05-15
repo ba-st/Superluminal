@@ -12,14 +12,16 @@ Class {
 { #category : 'test' }
 ExpiringCacheKeyBuilderTest >> testEntity [
 
-	| httpRequest key |
+  | httpRequest key |
+  httpRequest := HttpRequest
+                   post: 'http://google.com'
+                   configuredUsing: [ :request |
+                     request body
+                       contents: '{"name":"original"}'
+                       encodedAs: ZnMimeType applicationJson ].
 
-	httpRequest := HttpRequest
-		post: 'http://google.com'
-		configuredUsing: [ :request | request body contents: '[]' encodedAs: ZnMimeType applicationJson ].
-
-	key := ExpiringCacheKeyBuilder keyFor: httpRequest at: 'http://google.com'.
-	self assert: key equals: 'http://google.com/'
+  key := ExpiringCacheKeyBuilder keyFor: httpRequest at: 'http://google.com'.
+  self assert: key equals: 'http://google.com/|entity[{"name":"original"}]'
 ]
 
 { #category : 'test' }

@@ -13,44 +13,50 @@ Class {
 
 { #category : 'instance creation' }
 HttpRequest class >> delete: aLocation configuredUsing: aBlock [
-	
-	^ self performing: #DELETE on: aLocation configuredUsing: aBlock 
+
+  ^ self performing: #DELETE on: aLocation configuredUsing: aBlock
 ]
 
 { #category : 'instance creation' }
 HttpRequest class >> get: aLocation [
 
-	^ self get: aLocation configuredUsing: [  ]
+  ^ self get: aLocation configuredUsing: [  ]
 ]
 
 { #category : 'instance creation' }
 HttpRequest class >> get: aLocation configuredUsing: aBlock [
-	
-	^ self performing: #GET on: aLocation configuredUsing: aBlock 
+
+  ^ self performing: #GET on: aLocation configuredUsing: aBlock
 ]
 
 { #category : 'instance creation' }
 HttpRequest class >> patch: aLocation configuredUsing: aBlock [
 
-	 ^ self performing: #PATCH on: aLocation configuredUsing: aBlock
+  ^ self performing: #PATCH on: aLocation configuredUsing: aBlock
 ]
 
 { #category : 'private' }
-HttpRequest class >> performing: anHttpMethod on: aLocation configuredUsing: aBlock [ 
-	
-	^ self new initializePerforming: anHttpMethod on: aLocation asUrl configuredUsing: aBlock 
+HttpRequest class >> performing: anHttpMethod on: aLocation configuredUsing: aBlock [
+
+  ^ self new initializePerforming: anHttpMethod on: aLocation asUrl configuredUsing: aBlock
 ]
 
 { #category : 'instance creation' }
 HttpRequest class >> post: aLocation configuredUsing: aBlock [
 
-	 ^ self performing: #POST on: aLocation configuredUsing: aBlock
+  ^ self performing: #POST on: aLocation configuredUsing: aBlock
 ]
 
 { #category : 'instance creation' }
 HttpRequest class >> put: aLocation configuredUsing: aBlock [
 
-	 ^ self performing: #PUT on: aLocation configuredUsing: aBlock
+  ^ self performing: #PUT on: aLocation configuredUsing: aBlock
+]
+
+{ #category : 'instance creation' }
+HttpRequest class >> query: aLocation configuredUsing: aBlock [
+
+  ^ self performing: #QUERY on: aLocation configuredUsing: aBlock
 ]
 
 { #category : 'applying' }

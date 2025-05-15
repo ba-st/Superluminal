@@ -111,6 +111,25 @@ RESTfulAPIClient >> deleteAt: aLocation configuredBy: aRequestBuildingBlock with
 			]
 ]
 
+{ #category : 'private - inkoving' }
+RESTfulAPIClient >> execute: httpRequest aimedAt: aLocation [
+
+	^ self
+		handleExceptionsDuring: [ 
+			| response contents |
+			self
+				withHttpClientFor: aLocation
+				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
+			contents := response isNotModified
+				ifTrue: [ self lastKnownRepresentationOf: aLocation ]
+				ifFalse: [ response isSuccess
+						ifTrue: [ self tryToCacheContentsOf: response basedOn: aLocation ]
+						ifFalse: [ self raiseErrorBasedOn: response ]
+					].
+			ExpiringResource for: contents controlledBy: response
+			]
+]
+
 { #category : 'finalization' }
 RESTfulAPIClient >> finalize [
 
@@ -130,25 +149,6 @@ RESTfulAPIClient >> get: aLocation accepting: aMediaType withSuccessfulResponseD
 		withSuccessfulResponseDo: aBlock
 ]
 
-{ #category : 'private - inkoving' }
-RESTfulAPIClient >> get: aLocation executing: httpRequest [
-
-	^ self
-		handleExceptionsDuring: [ 
-			| response contents |
-			self
-				withHttpClientFor: aLocation
-				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
-			contents := response isNotModified
-				ifTrue: [ self lastKnownRepresentationOf: aLocation ]
-				ifFalse: [ response isSuccess
-						ifTrue: [ self tryToCacheContentsOf: response basedOn: aLocation ]
-						ifFalse: [ self raiseErrorBasedOn: response ]
-					].
-			ExpiringResource for: contents controlledBy: response
-			]
-]
-
 { #category : 'invoking - covenience' }
 RESTfulAPIClient >> get: aLocation withSuccessfulResponseDo: aMonadicBlock [
 
@@ -158,14 +158,13 @@ RESTfulAPIClient >> get: aLocation withSuccessfulResponseDo: aMonadicBlock [
 { #category : 'invoking' }
 RESTfulAPIClient >> getAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aMonadicBlock [
 
-	| key request |
-
-	request := self requestToGet: aLocation configuredUsing: aRequestBuildingBlock.
-	key := ExpiringCacheKeyBuilder keyFor: request at: aLocation.
-	^ expiringCache
-		withResourceAt: key
-		obtainedUsing: [ self get: aLocation executing: request ]
-		do: aMonadicBlock
+  | key request |
+  request := self requestToGet: aLocation configuredUsing: aRequestBuildingBlock.
+  key := ExpiringCacheKeyBuilder keyFor: request at: aLocation.
+  ^ expiringCache
+      withResourceAt: key
+      obtainedUsing: [ self execute: request aimedAt: aLocation ]
+      do: aMonadicBlock
 ]
 
 { #category : 'private - exception handling' }
@@ -300,6 +299,31 @@ RESTfulAPIClient >> putAt: aLocation configuredBy: aRequestBuildingBlock withSuc
 				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
 			self processPutResponse: response at: aLocation whenSuccessfulDo: aBlock
 			]
+]
+
+{ #category : 'invoking - covenience' }
+RESTfulAPIClient >> query: anEntity at: aLocation accepting: aMediaType withSuccessfulResponseDo: aBlock [
+
+  ^ self
+      queryAt: aLocation
+      configuredBy: [ :request |
+          request headers setAcceptTo: aMediaType.
+          request body contents: anEntity
+        ]
+      withSuccessfulResponseDo: aBlock
+]
+
+{ #category : 'invoking' }
+RESTfulAPIClient >> queryAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aMonadicBlock [
+
+  | key httpRequest |
+  httpRequest := HttpRequest query: aLocation configuredUsing: aRequestBuildingBlock.
+  key := ExpiringCacheKeyBuilder keyFor: httpRequest at: aLocation.
+  ^ expiringCache
+      withResourceAt: key
+      obtainedUsing: [
+        ZnRequest supportQUERYDuring: [ self execute: httpRequest aimedAt: aLocation ] ]
+      do: aMonadicBlock
 ]
 
 { #category : 'private - inkoving' }

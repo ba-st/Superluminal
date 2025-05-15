@@ -288,6 +288,97 @@ RESTfulAPIClientIntegrationTest >> testPutAtNotFound [
 		withMessageText: 'Cannot complete update'
 ]
 
+{ #category : 'tests' }
+RESTfulAPIClientIntegrationTest >> testQueryAtAcceptingWithSuccessfulResponseDo [
+
+  apiClient
+    query: ( ZnEntity json: '{"name":"original"}' )
+    at: self httpbinAnythingLocation
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents |
+        self withJsonFrom: responseContents do: [ :json |
+            self
+              assertUrl: json url equals: self httpbinAnythingLocation;
+              assert: json method equals: 'QUERY';
+              assert: ( json headers at: #'Content-Type' ) equals: 'application/json'.
+            self withJsonFrom: json data do: [ :data | self assert: data name equals: 'original' ]
+          ]
+      ]
+]
+
+{ #category : 'tests' }
+RESTfulAPIClientIntegrationTest >> testQueryAtConfiguredByWithSuccessfulResponseDo [
+
+  apiClient
+    queryAt: self httpbinAnythingLocation
+    configuredBy: [ :request |
+      request queryString: [ :queryString | queryString fieldNamed: #step pairedTo: 20 ] ]
+    withSuccessfulResponseDo: [ :responseContents |
+        self withJsonFrom: responseContents do: [ :json |
+            self
+              assert: json data isEmpty;
+              assertUrl: json url equals: ( self httpbinAnythingLocation queryAt: 'step' put: 20 );
+              assert: json method equals: 'QUERY';
+              assert: ( json headers at: #Accept ) equals: '*/*'
+          ]
+      ]
+]
+
+{ #category : 'tests' }
+RESTfulAPIClientIntegrationTest >> testQueryBadRequest [
+
+  self
+    should: [
+        apiClient
+          query: ( ZnEntity json: '["hi"]' )
+          at: self httpbinStatusLocation / '400'
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [ self fail ]
+      ]
+    raise: HTTPClientError badRequest
+    withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests' }
+RESTfulAPIClientIntegrationTest >> testQueryCached [
+
+  apiClient
+    query: ( ZnEntity json: '{"name":"original"}' )
+    at: self httpbinCacheLocation
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assertUrl: json url equals: self httpbinCacheLocation ]
+      ].
+
+  apiClient
+    query: ( ZnEntity json: '{"name":"original"}' )
+    at: self httpbinCacheLocation
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents |
+        self withJsonFrom: responseContents do: [ :json |
+            self
+              assertUrl: json url equals: self httpbinCacheLocation;
+              assert: ( json headers at: #Accept ) equals: '*/*'
+          ]
+      ]
+]
+
+{ #category : 'tests' }
+RESTfulAPIClientIntegrationTest >> testQueryNotFound [
+
+  self
+    should: [
+        apiClient
+          query: ( ZnEntity json: '{"name":"original"}' )
+          at: self httpbinStatusLocation / '404'
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [ :responseContents | self fail ]
+      ]
+    raise: HTTPClientError notFound
+]
+
 { #category : 'private' }
 RESTfulAPIClientIntegrationTest >> withJsonFrom: aString do: aBlock [
 

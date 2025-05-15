@@ -11,6 +11,7 @@ later applied to an HTTP client (like `ZnClient` in Pharo).
 - `delete:configuredUsing:`
 - `patch:configuredUsing:`
 - `put:configuredUsing:`
+- `query:configuredUsing:`
 
 where the first argument is anything convertible to an URL (it will receive the
 `asUrl` message), and the second argument is a configuration closure providing
