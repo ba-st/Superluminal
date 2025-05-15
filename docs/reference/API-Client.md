@@ -74,9 +74,9 @@ It also supports some convenience methods built on the previous ones:
 - `deleteAt:` will execute a `DELETE` against the location in the first argument.
   If there's an entity tag associated with this location it will set the
   `If-Match` header making the `DELETE` conditional.
-- `query:at:accepting:withSuccessfulResponseDo:` will execute a `QUERY`, whose body and
-  `Content-Type` is defined by the entity in the first argument, against the
-  second argument, setting the `Accept` header according to the
+- `query:at:accepting:withSuccessfulResponseDo:` will execute a `QUERY`,
+  whose body and `Content-Type` is defined by the entity in the first argument,
+  against the second argument, setting the `Accept` header according to the
   third argument. If the response is successful the last argument is evaluated
   with the response's body.  
 
@@ -139,15 +139,17 @@ ExpiringCache onDistributedMemoryAt: serverList
 where `serverList` is something like `{'127.0.0.1:11211'}`
 
 Both kinds of caches take into account the `Cache-Control` headers received in
-the responses. When the API client receives any of the `GET` or `QUERY`-related messages it
-looks up in the cache if there's a non-expired resource cached for this location (also 
-considering the content of the body in the case of `QUERY`).
+the responses. When the API client receives any of the `GET` or
+`QUERY`-related messages it looks up in the cache if there's a non-expired
+resource cached for this location (also  considering the content of the body
+in the case of `QUERY`).
+
 If it is, it will reuse that. In case there's no cached resource or the cached one
 has expired it will proceed to execute the `GET` or `QUERY`.
 
-Resources are cached when a successful `GET` or `QUERY` response is received; and cleared when
-any `POST`, `PUT`, `PATCH`, or `DELETE` method is executed against this location,
-or when a cached resource is expired.
+Resources are cached when a successful `GET` or `QUERY` response is received;
+and cleared when any `POST`, `PUT`, `PATCH`, or `DELETE` method 
+is executed against this location, or when a cached resource is expired.
 
 The following caching headers are supported:
 
