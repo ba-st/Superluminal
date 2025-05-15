@@ -148,7 +148,7 @@ If it is, it will reuse that. In case there's no cached resource or the cached o
 has expired it will proceed to execute the `GET` or `QUERY`.
 
 Resources are cached when a successful `GET` or `QUERY` response is received;
-and cleared when any `POST`, `PUT`, `PATCH`, or `DELETE` method 
+and cleared when any `POST`, `PUT`, `PATCH`, or `DELETE` method
 is executed against this location, or when a cached resource is expired.
 
 The following caching headers are supported:
