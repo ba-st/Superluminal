@@ -300,7 +300,7 @@ RESTfulAPIClientIntegrationTest >> testQueryAtAcceptingWithSuccessfulResponseDo 
             self
               assertUrl: json url equals: self httpbinAnythingLocation;
               assert: json method equals: 'QUERY';
-              assert: ( json headers at: #'Content-Type' ) equals: 'application/json'.
+              assert: ( json headers at: #Accept ) equals: 'application/json;version=1.0.0'.
             self withJsonFrom: json data do: [ :data | self assert: data name equals: 'original' ]
           ]
       ]
@@ -360,7 +360,7 @@ RESTfulAPIClientIntegrationTest >> testQueryCached [
         self withJsonFrom: responseContents do: [ :json |
             self
               assertUrl: json url equals: self httpbinCacheLocation;
-              assert: ( json headers at: #Accept ) equals: '*/*'
+              assert: ( json headers at: #Accept ) equals: 'application/json;version=1.0.0'
           ]
       ]
 ]

@@ -307,9 +307,7 @@ RESTfulAPIClient >> query: anEntity at: aLocation accepting: aMediaType withSucc
   ^ self
       queryAt: aLocation
       configuredBy: [ :request |
-          request headers setAcceptTo: aMediaType.
-          request body contents: anEntity
-        ]
+        ( request headers setAcceptTo: aMediaType ) + ( request body contents: anEntity ) ]
       withSuccessfulResponseDo: aBlock
 ]
 
