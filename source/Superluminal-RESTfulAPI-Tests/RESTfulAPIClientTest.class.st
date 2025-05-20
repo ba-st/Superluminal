@@ -151,22 +151,23 @@ RESTfulAPIClientTest >> testGetCached [
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetDoNotStoreResponseInCache [
 
-	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
-			  addCachingDirective: 'no-store';
-			  yourself ).
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        addCachingDirective: 'no-store';
+        yourself ).
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		].
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ].
 
-	self configureHttpClientToRespondWith: self notFoundResponse.
+  self configureHttpClientToRespondWith: self notFoundResponse.
 
-	self
-		should: [
-		apiClient get: self location withSuccessfulResponseDo: [ :responseContents | self fail ] ]
-		raise: HTTPClientError notFound
+  self
+    should: [
+      apiClient get: self location withSuccessfulResponseDo: [ :responseContents | self fail ] ]
+    raise: HTTPClientError notFound
+    withMessageText: 'Cannot complete the request'
 ]
 
 { #category : 'tests - GET' }
@@ -198,11 +199,13 @@ RESTfulAPIClientTest >> testGetIgnoreETagsWhenDoNotStoreCachingPolicyIsInPlace [
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetNotFound [
 
-	self configureHttpClientToRespondWith: self notFoundResponse.
+  self configureHttpClientToRespondWith: self notFoundResponse.
 
-	self
-		should: [ apiClient get: self location withSuccessfulResponseDo: [ :responseContents | self fail ] ]
-		raise: HTTPClientError notFound
+  self
+    should: [
+      apiClient get: self location withSuccessfulResponseDo: [ :responseContents | self fail ] ]
+    raise: HTTPClientError notFound
+    withMessageText: 'Cannot complete the request'
 ]
 
 { #category : 'tests - GET' }
@@ -346,6 +349,202 @@ RESTfulAPIClientTest >> testPutAtNotFound [
 		should: [ apiClient put: ( ZnEntity json: '["hi"]' ) at: self location ]
 		raise: HTTPClientError notFound
 		withMessageText: 'Cannot complete update'
+]
+
+{ #category : 'tests - QUERY' }
+RESTfulAPIClientTest >> testQueryAtAcceptingWithSuccessfulResponseDo [
+
+  self configureHttpClientToRespondWith: self jsonOkResponse.
+  apiClient
+    query: ( ZnEntity json: '[]' )
+    at: self location
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ]
+]
+
+{ #category : 'tests - QUERY' }
+RESTfulAPIClientTest >> testQueryBadRequest [
+
+  self configureHttpClientToRespondWith:
+    ( ZnResponse badRequest: '' entity: ( ZnEntity text: 'COVID-19' ) ).
+  self
+    should: [
+        apiClient
+          query: ( ZnEntity json: '["hi"]' )
+          at: self location
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [ self fail ]
+      ]
+    raise: HTTPClientError badRequest
+    withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - QUERY' }
+RESTfulAPIClientTest >> testQueryCacheDependsOnBody [
+
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        addCachingDirective: 'Max-Age=60';
+        yourself ).
+
+  apiClient
+    query: ( ZnEntity json: '{"name":"original"}' )
+    at: self location
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ].
+
+  self configureHttpClientToRespondWith: self notFoundResponse.
+
+  self
+    should: [
+        apiClient
+          query: ( ZnEntity json: '{"name":"variation"}' )
+          at: self location
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [ :responseContents | self fail ]
+      ]
+    raise: HTTPClientError notFound
+    withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - QUERY' }
+RESTfulAPIClientTest >> testQueryCached [
+
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        addCachingDirective: 'Max-Age=60';
+        yourself ).
+
+  apiClient
+    query: ( ZnEntity json: '{"name":"original"}' )
+    at: self location
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ].
+
+  self configureHttpClientToRespondWith: self notFoundResponse.
+
+  apiClient
+    query: ( ZnEntity json: '{"name":"original"}' )
+    at: self location
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ]
+]
+
+{ #category : 'tests - QUERY' }
+RESTfulAPIClientTest >> testQueryDoNotStoreResponseInCache [
+
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        addCachingDirective: 'no-store';
+        yourself ).
+
+  apiClient
+    query: ( ZnEntity json: '{"name":"original"}' )
+    at: self location
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ].
+
+  self configureHttpClientToRespondWith: self notFoundResponse.
+
+  self
+    should: [
+        apiClient
+          query: ( ZnEntity json: '{"name":"original"}' )
+          at: self location
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [
+            apiClient get: self location withSuccessfulResponseDo: [ :responseContents | self fail ] ]
+      ]
+    raise: HTTPClientError notFound
+    withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - QUERY' }
+RESTfulAPIClientTest >> testQueryEntityMustBeString [
+
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        addCachingDirective: 'Max-Age=60';
+        yourself ).
+
+  self
+    should: [
+        apiClient
+          query: ( ZnEntity bytes:
+                ( ByteArray streamContents: [ :out | 32 timesRepeat: [ out nextPut: 255 atRandom ] ] ) )
+          at: self location
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [ :responseContents | self fail ]
+      ]
+    raise: HTTPClientError badRequest
+    withMessageText: 'Entity to cache can''t be binary'
+]
+
+{ #category : 'tests - QUERY' }
+RESTfulAPIClientTest >> testQueryIgnoreETagsWhenDoNotStoreCachingPolicyIsInPlace [
+
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        setEntityTag: '"123"';
+        addCachingDirective: 'no-store';
+        yourself ).
+
+  apiClient
+    query: ( ZnEntity json: '{"name":"original"}' )
+    at: self location
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ].
+
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        setEntityTag: '"123"';
+        addCachingDirective: 'no-store';
+        yourself ).
+
+  apiClient
+    query: ( ZnEntity json: '{"name":"original"}' )
+    at: self location
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ]
+]
+
+{ #category : 'tests - QUERY' }
+RESTfulAPIClientTest >> testQueryNotFound [
+
+  self configureHttpClientToRespondWith: self notFoundResponse.
+
+  self
+    should: [
+        apiClient
+          query: ( ZnEntity json: '{"name":"original"}' )
+          at: self location
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [ :responseContents | self fail ]
+      ]
+    raise: HTTPClientError notFound
+    withMessageText: 'Cannot complete the request'
 ]
 
 { #category : 'private' }

@@ -48,7 +48,10 @@ ExpiringCacheKeyBuilder >> build [
 { #category : 'configuring' }
 ExpiringCacheKeyBuilder >> entity: entity [
 
-	
+  ( entity hasContentType and: [ entity contentType isBinary ] ) ifTrue: [
+      HTTPClientError badRequest signal: 'Entity to cache can''t be binary' ].
+
+  entity contents ifNotEmpty: [ :contents | parameters at: #entity put: contents asString ]
 ]
 
 { #category : 'configuring' }

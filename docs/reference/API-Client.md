@@ -42,6 +42,9 @@ API clients support the following methods:
 - `deleteAt:configuredBy:withSuccessfulResponseDo:` will execute a DELETE against
   the location in the first argument, configured by the second argument. If the
   response is successful the last argument is evaluated with the response's body.
+- `queryAt:configuredBy:withSuccessfulResponseDo:` will execute a QUERY against
+  the location in the first argument, configured by the second argument. If the
+  response is successful the last argument is evaluated with the response's body.
 
 The configuration blocks follow the builder pattern defined [here](HTTP-Request.md).
 
@@ -71,6 +74,11 @@ It also supports some convenience methods built on the previous ones:
 - `deleteAt:` will execute a `DELETE` against the location in the first argument.
   If there's an entity tag associated with this location it will set the
   `If-Match` header making the `DELETE` conditional.
+- `query:at:accepting:withSuccessfulResponseDo:` will execute a `QUERY`,
+  whose body and `Content-Type` is defined by the entity in the first argument,
+  against the second argument, setting the `Accept` header according to the
+  third argument. If the response is successful the last argument is evaluated
+  with the response's body.  
 
 ## Pooling
 
@@ -131,14 +139,17 @@ ExpiringCache onDistributedMemoryAt: serverList
 where `serverList` is something like `{'127.0.0.1:11211'}`
 
 Both kinds of caches take into account the `Cache-Control` headers received in
-the responses. When the API client receives any of the `GET`-related messages it
-looks up in the cache if there's a non-expired resource cached for this location.
-If it is, it will reuse that. In case there's no cached resource or the cached one
-has expired it will proceed to execute the `GET`.
+the responses. When the API client receives any of the `GET` or
+`QUERY`-related messages it looks up in the cache if there's a non-expired
+resource cached for this location (also  considering the content of the body
+in the case of `QUERY`).
 
-Resources are cached when a successful `GET` response is received; and cleared when
-any `POST`, `PUT`, `PATCH`, or `DELETE` method is executed against this location,
-or when a cached resource is expired.
+If it is, it will reuse that. In case there's no cached resource or the cached one
+has expired it will proceed to execute the `GET` or `QUERY`.
+
+Resources are cached when a successful `GET` or `QUERY` response is received;
+and cleared when any `POST`, `PUT`, `PATCH`, or `DELETE` method
+is executed against this location, or when a cached resource is expired.
 
 The following caching headers are supported:
 
