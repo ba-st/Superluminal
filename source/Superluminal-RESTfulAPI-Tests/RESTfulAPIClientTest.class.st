@@ -477,6 +477,26 @@ RESTfulAPIClientTest >> testQueryDoNotStoreResponseInCache [
 ]
 
 { #category : 'tests - QUERY' }
+RESTfulAPIClientTest >> testQueryEntityMustBeString [
+
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        addCachingDirective: 'Max-Age=60';
+        yourself ).
+
+  self
+    should: [
+        apiClient
+          query: ( ZnEntity bytes:
+                ( ByteArray streamContents: [ :out | 32 timesRepeat: [ out nextPut: 255 atRandom ] ] ) )
+          at: self location
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [ :responseContents | self fail ]
+      ]
+    raise: HTTPClientError badRequest
+    withMessageText: 'Entity to cache can''t be binary'
+]
+
+{ #category : 'tests - QUERY' }
 RESTfulAPIClientTest >> testQueryIgnoreETagsWhenDoNotStoreCachingPolicyIsInPlace [
 
   self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
