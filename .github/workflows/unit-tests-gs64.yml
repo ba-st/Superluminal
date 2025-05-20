@@ -9,7 +9,7 @@ jobs:
     name: GS64 v3.7.0 Unit Tests
     services:
       httpbin:
-        image: fortizpenaloza/httpbin
+        image: ghcr.io/ba-st-dependencies/httpbin:master
       memcached:
         image: memcached:1.6.7-alpine
     steps:
@@ -27,7 +27,7 @@ jobs:
     name: GS64 v3.7.1 Unit Tests
     services:
       httpbin:
-        image: fortizpenaloza/httpbin
+        image: ghcr.io/ba-st-dependencies/httpbin:master
       memcached:
         image: memcached:1.6.7-alpine
     steps:
