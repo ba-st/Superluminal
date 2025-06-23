@@ -146,22 +146,22 @@ HttpRequestTest >> testGet [
 { #category : 'tests' }
 HttpRequestTest >> testGetWithAuthorization [
 
-	| httpRequest response |
+  | httpRequest response |
+  httpRequest := HttpRequest
+                   get: self httpbinLocation
+                   configuredUsing: [ :request |
+                     request headers setUsername: 'aladdin' andPassword: 'opensesame' ].
 
-	httpRequest := HttpRequest get: self httpbinLocation
-		               configuredUsing: [ :request | 
-		               request headers setAuthorizationTo: 'Basic YWxhZGRpbjpvcGVuc2VzYW1l' ].
+  response := httpRequest applyOn: self newHttpClient.
 
-	response := httpRequest applyOn: self newHttpClient.
-
-	self
-		assert: response isSuccess;
-		withJsonFromContentsIn: response do: [ :json | 
-			self
-				assertUrl: json url equals: self httpbinLocation;
-				assert: json method equals: 'GET';
-				assertJson: json headers at: #Authorization equals: 'Basic YWxhZGRpbjpvcGVuc2VzYW1l'
-			]
+  self
+    assert: response isSuccess;
+    withJsonFromContentsIn: response do: [ :json |
+        self
+          assertUrl: json url equals: self httpbinLocation;
+          assert: json method equals: 'GET';
+          assertJson: json headers at: #Authorization equals: 'Basic YWxhZGRpbjpvcGVuc2VzYW1l'
+      ]
 ]
 
 { #category : 'tests' }
