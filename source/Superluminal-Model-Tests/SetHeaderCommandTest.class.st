@@ -7,15 +7,27 @@ Class {
 }
 
 { #category : 'tests' }
-SetHeaderCommandTest >> testApplyOn [
+SetHeaderCommandTest >> testApplyOnWhenSettingBasicAuth [
 
-	| httpClient command |
+  | httpClient command |
+  httpClient := ZnClient new.
+  command := SetHeaderCommand settingAuthorizationToBasicWith: 'username' and: 'secret'.
+  command applyOn: httpClient.
 
-	httpClient := ZnClient new.
-	command := SetHeaderCommand settingAuthorizationToBearerToken:  'token'.
-	command applyOn: httpClient.
+  self
+    assert: ( httpClient request headers at: #Authorization )
+    equals: 'Basic dXNlcm5hbWU6c2VjcmV0'
+]
 
-	self assert: ( httpClient request headers at: #Authorization ) equals: 'Bearer token'
+{ #category : 'tests' }
+SetHeaderCommandTest >> testApplyOnWhenSettingBearerTokenAuth [
+
+  | httpClient command |
+  httpClient := ZnClient new.
+  command := SetHeaderCommand settingAuthorizationToBearerToken: 'token'.
+  command applyOn: httpClient.
+
+  self assert: ( httpClient request headers at: #Authorization ) equals: 'Bearer token'
 ]
 
 { #category : 'tests' }

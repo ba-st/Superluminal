@@ -41,3 +41,9 @@ HttpRequestHeadersBuilder >> setIfNoneMatchTo: anEntityTag [
 
 	^ SetIfNoneMatchCommand to: anEntityTag
 ]
+
+{ #category : 'configuring' }
+HttpRequestHeadersBuilder >> setUsername: username andPassword: password [
+
+  ^ SetHeaderCommand settingAuthorizationToBasicWith: username and: password
+]

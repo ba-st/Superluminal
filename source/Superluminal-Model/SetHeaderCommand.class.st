@@ -41,6 +41,12 @@ SetHeaderCommand class >> settingAuthorizationTo: anAuthorizationDirective [
 ]
 
 { #category : 'instance creation' }
+SetHeaderCommand class >> settingAuthorizationToBasicWith: username and: password [
+
+  ^ self settingAuthorizationTo: 'Basic ' , ( ZnUtils encodeBase64: username , ':' , password )
+]
+
+{ #category : 'instance creation' }
 SetHeaderCommand class >> settingAuthorizationToBearerToken: token [
 
 	^ self settingAuthorizationTo: ( #'Bearer <1s>' expandMacrosWith: token asString)
