@@ -32,7 +32,7 @@ BaselineOfSuperluminal >> projectClass [
 BaselineOfSuperluminal >> setUpDependencies: spec [
 
 	spec
-		baseline: 'Hyperspace' with: [ spec repository: 'github://ba-st/Hyperspace:v6' ];
+		baseline: 'Hyperspace' with: [ spec repository: 'github://ba-st/Hyperspace:v7' ];
 		project: 'Hyperspace-Deployment' copyFrom: 'Hyperspace' with: [ spec loads: 'Deployment' ];
 		project: 'Hyperspace-SUnit'
 			copyFrom: 'Hyperspace'
@@ -42,7 +42,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 			with: [ spec loads: 'Tools' ].
 
 	spec
-		baseline: 'Launchpad' with: [ spec repository: 'github://ba-st/Launchpad:v6' ];
+		baseline: 'Launchpad' with: [ spec repository: 'github://ba-st/Launchpad:v7' ];
 		project: 'Launchpad-Deployment' copyFrom: 'Launchpad' with: [ spec loads: 'Deployment' ];
 		project: 'Launchpad-SUnit' copyFrom: 'Launchpad' with: [ spec loads: 'Dependent-SUnit-Extensions' ].
 
@@ -55,7 +55,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		project: 'ObjectPool-Core' copyFrom: 'ObjectPool' with: [ spec loads: 'Core' ].
 
 	spec
-		baseline: 'Teapot' with: [ spec repository: 'github://ba-st-dependencies/Teapot:v3' ];
+		baseline: 'Teapot' with: [ spec repository: 'github://ba-st-dependencies/Teapot:v4' ];
 		project: 'Teapot-Deployment' copyFrom: 'Teapot' with: [ spec loads: 'Deployment' ].
 
 	spec
@@ -63,7 +63,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		project: 'Teachable-Core' copyFrom: 'Teachable' with: [ spec loads: 'Core' ].
 		
 	spec 
-		baseline: 'Memcached' with: [ spec repository: 'github://ba-st-dependencies/Memcached:v3' ];
+		baseline: 'Memcached' with: [ spec repository: 'github://ba-st-dependencies/Memcached:v4' ];
 		project: 'Memcached-Core' copyFrom: 'Memcached' with: [ spec loads: 'Deployment' ]
 ]
 
