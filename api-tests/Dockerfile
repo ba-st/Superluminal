@@ -1,5 +1,5 @@
 # Stage 1: Load the project
-FROM ghcr.io/ba-st/pharo-loader:v12.1.0 AS loader
+FROM ghcr.io/ba-st/pharo-loader:v12.0.1 AS loader
 
 COPY --chown=pharo:users ./source /opt/pharo/source
 COPY --chown=pharo:users ./.git /opt/pharo/.git
