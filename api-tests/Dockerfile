@@ -1,5 +1,5 @@
 # Stage 1: Load the project
-FROM ghcr.io/ba-st/pharo-loader:v11.0.0 AS loader
+FROM ghcr.io/ba-st/pharo-loader:v12.0.1 AS loader
 
 COPY --chown=pharo:users ./source /opt/pharo/source
 COPY --chown=pharo:users ./.git /opt/pharo/.git
@@ -7,7 +7,7 @@ RUN pharo metacello install gitlocal://. BaselineOfSuperluminal --groups=Example
 
 # Stage 2: Copy the resulting Pharo.image with our project loaded
 # into a new docker image with just the vm
-FROM ghcr.io/ba-st/launchpad:v5
+FROM ghcr.io/ba-st/launchpad:v7
 
 COPY --from=loader --chown=pharo:users /opt/pharo/Pharo.image ./
 COPY --from=loader --chown=pharo:users /opt/pharo/Pharo*.sources ./

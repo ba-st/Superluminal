@@ -47,10 +47,6 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 		project: 'Launchpad-SUnit' copyFrom: 'Launchpad' with: [ spec loads: 'Dependent-SUnit-Extensions' ].
 
 	spec
-		baseline: 'NeoJSON' with: [ spec repository: 'github://svenvc/NeoJSON:master' ];
-		project: 'NeoJSON-Core' copyFrom: 'NeoJSON' with: [ spec loads: 'core' ].
-
-	spec
 		baseline: 'ObjectPool' with: [ spec repository: 'github://ba-st-dependencies/ObjectPool:v3' ];
 		project: 'ObjectPool-Core' copyFrom: 'ObjectPool' with: [ spec loads: 'Core' ].
 
@@ -71,7 +67,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 BaselineOfSuperluminal >> setUpDeploymentPackages: spec [
 
 	spec
-		package: 'Superluminal-Model' with: [ spec requires: #('Hyperspace-Deployment' 'NeoJSON-Core') ];
+		package: 'Superluminal-Model' with: [ spec requires: 'Hyperspace-Deployment' ];
 		group: 'Core' with: 'Superluminal-Model';
 		group: 'Deployment' with: 'Superluminal-Model'.
 	spec
