@@ -41,7 +41,7 @@ SuperluminalServiceDiscoveryExample >> basicStartWithin: context [
 
 	| echoServiceLocation |
 
-	LaunchpadLogRecord emitInfo: 'Discovering dependencies'
+	LogRecord emitInfo: 'Discovering dependencies'
 		during: [ echoServiceLocation := self discoverEchoServiceQueryingConsulAgent ].
 
 	RESTfulAPIClient cachingOnLocalMemory
@@ -74,7 +74,7 @@ SuperluminalServiceDiscoveryExample >> retryOptions [
 	  retry
 		  upTo: 3 timesEvery: self configuration retryDelayInMs;
 		  on: Error evaluating: [ :attemptNumber :exception | 
-			  LaunchpadLogRecord emitWarning:
+			  LogRecord emitWarning:
 					  ( 'Attempt #<1p> failed with error: <2s>' expandMacrosWith: attemptNumber
 						    with: exception messageText )
 			  ]
