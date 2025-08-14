@@ -170,13 +170,17 @@ RESTfulAPIClient >> getAt: aLocation configuredBy: aRequestBuildingBlock withSuc
 { #category : 'private - exception handling' }
 RESTfulAPIClient >> handleExceptionsDuring: anInvokingBlock [
 
-	^ [ anInvokingBlock
-		on: NetworkError
-		do:
-			[ :signal | HTTPServerError signalInternalServerError: 'Cannot complete the request due to some network error' ]
-	]
-		on: AssertionFailed , InstanceCreationFailed , NeoJSONMappingNotFound , NeoJSONParseError
-		do: [ :signal | HTTPClientError badRequest signal: signal messageText ]
+  ^ [
+      [
+        anInvokingBlock
+          on: ConnectionTimedOut
+          do: [ :signal | HTTPServerError signalGatewayTimeout: signal messageText ]
+      ] on: NetworkError except: ConnectionTimedOut do: [ :signal |
+          HTTPServerError signalInternalServerError:
+            'Cannot complete the request due to some network error' ]
+    ]
+      on: AssertionFailed , InstanceCreationFailed , NeoJSONMappingNotFound , NeoJSONParseError
+      do: [ :signal | HTTPClientError badRequest signal: signal messageText ]
 ]
 
 { #category : 'initialization' }

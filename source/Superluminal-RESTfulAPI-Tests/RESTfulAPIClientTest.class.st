@@ -111,6 +111,24 @@ RESTfulAPIClientTest >> testDeleteNotFound [
 		raise: HTTPClientError notFound
 ]
 
+{ #category : 'tests - DELETE' }
+RESTfulAPIClientTest >> testDeleteTimeout [
+
+  teachableHttpClient
+    whenSend: #response
+    evaluate: [ ConnectionTimedOut signal: 'Data receive timed out.' ].
+
+  self
+    should: [
+        apiClient
+          deleteAt: self location
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [ :responseContents | self fail ]
+      ]
+    raise: HTTPServerError gatewayTimeout
+    withMessageText: 'Data receive timed out.'
+]
+
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetAcceptingWithSuccessfulResponseDo [
 
@@ -209,6 +227,20 @@ RESTfulAPIClientTest >> testGetNotFound [
 ]
 
 { #category : 'tests - GET' }
+RESTfulAPIClientTest >> testGetTimeout [
+
+  teachableHttpClient
+    whenSend: #response
+    evaluate: [ ConnectionTimedOut signal: 'Data receive timed out.' ].
+
+  self
+    should: [
+      apiClient get: self location withSuccessfulResponseDo: [ :responseContents | self fail ] ]
+    raise: HTTPServerError gatewayTimeout
+    withMessageText: 'Data receive timed out.'
+]
+
+{ #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetUsingETagInASecondInvocation [
 
 	| ifNoneMatchHeaderWasSet |
@@ -291,6 +323,24 @@ RESTfulAPIClientTest >> testPatchAtWithSuccessfulResponseDo [
 			]
 ]
 
+{ #category : 'tests - PATCH' }
+RESTfulAPIClientTest >> testPatchTimeout [
+
+  teachableHttpClient
+    whenSend: #response
+    evaluate: [ ConnectionTimedOut signal: 'Data receive timed out.' ].
+
+  self
+    should: [
+        apiClient
+          patch: ( ZnEntity json: '[]' )
+          at: self location
+          withSuccessfulResponseDo: [ :response | self fail ]
+      ]
+    raise: HTTPServerError gatewayTimeout
+    withMessageText: 'Data receive timed out.'
+]
+
 { #category : 'tests - POST' }
 RESTfulAPIClientTest >> testPostBadRequest [
 
@@ -304,6 +354,24 @@ RESTfulAPIClientTest >> testPostBadRequest [
 			]
 		raise: HTTPClientError badRequest
 		withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - POST' }
+RESTfulAPIClientTest >> testPostTimeout [
+
+  teachableHttpClient
+    whenSend: #response
+    evaluate: [ ConnectionTimedOut signal: 'Data receive timed out.' ].
+
+  self
+    should: [
+        apiClient
+          post: ( ZnEntity json: '["hi"]' )
+          at: self location
+          withSuccessfulResponseDo: [ self fail ]
+      ]
+    raise: HTTPServerError gatewayTimeout
+    withMessageText: 'Data receive timed out.'
 ]
 
 { #category : 'tests - POST' }
@@ -349,6 +417,19 @@ RESTfulAPIClientTest >> testPutAtNotFound [
 		should: [ apiClient put: ( ZnEntity json: '["hi"]' ) at: self location ]
 		raise: HTTPClientError notFound
 		withMessageText: 'Cannot complete update'
+]
+
+{ #category : 'tests - PUT' }
+RESTfulAPIClientTest >> testPutTimeout [
+
+  teachableHttpClient
+    whenSend: #response
+    evaluate: [ ConnectionTimedOut signal: 'Data receive timed out.' ].
+
+  self
+    should: [ apiClient put: ( ZnEntity json: '["hi"]' ) at: self location ]
+    raise: HTTPServerError gatewayTimeout
+    withMessageText: 'Data receive timed out.'
 ]
 
 { #category : 'tests - QUERY' }
@@ -545,6 +626,25 @@ RESTfulAPIClientTest >> testQueryNotFound [
       ]
     raise: HTTPClientError notFound
     withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - QUERY' }
+RESTfulAPIClientTest >> testQueryTimeout [
+
+  teachableHttpClient
+    whenSend: #response
+    evaluate: [ ConnectionTimedOut signal: 'Data receive timed out.' ].
+
+  self
+    should: [
+        apiClient
+          query: ( ZnEntity json: '{"name":"original"}' )
+          at: self location
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [ :responseContents | self fail ]
+      ]
+    raise: HTTPServerError gatewayTimeout
+    withMessageText: 'Data receive timed out.'
 ]
 
 { #category : 'private' }
