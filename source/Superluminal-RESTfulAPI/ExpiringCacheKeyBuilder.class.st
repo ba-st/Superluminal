@@ -67,6 +67,7 @@ ExpiringCacheKeyBuilder >> formAt: key add: value [
 { #category : 'configuring' }
 ExpiringCacheKeyBuilder >> headerAt: aSymbol put: aString [
 
+  aSymbol = #Authorization then: [ parameters at: #'header-authorization' put: aString ]
 ]
 
 { #category : 'initialization' }

@@ -167,6 +167,35 @@ RESTfulAPIClientTest >> testGetCached [
 ]
 
 { #category : 'tests - GET' }
+RESTfulAPIClientTest >> testGetDifferentAuthoritzationsDoNotShareCachedResponse [
+
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        addCachingDirective: 'Max-Age=60';
+        yourself ).
+
+  apiClient
+    getAt: self location
+    configuredBy: [ :request | request headers setAuthorizationTo: 'let me pass' ]
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ].
+
+  self configureHttpClientToRespondWith: self unauthorizedResponse.
+
+  self
+    should: [
+        apiClient
+          getAt: self location
+          configuredBy: [ :request | request headers setAuthorizationTo: 'stop me' ]
+          withSuccessfulResponseDo: [ :responseContents | self fail ]
+      ]
+    raise: ( HTTPClientError code: 401 )
+    withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetDoNotStoreResponseInCache [
 
   self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
@@ -645,6 +674,12 @@ RESTfulAPIClientTest >> testQueryTimeout [
       ]
     raise: HTTPServerError gatewayTimeout
     withMessageText: 'Data receive timed out.'
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> unauthorizedResponse [
+
+  ^ ZnResponse unauthorized
 ]
 
 { #category : 'private' }
