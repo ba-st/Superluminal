@@ -46,7 +46,7 @@ ExpiringCacheKeyBuilderTest >> testHeaderAtPut [
                    configuredUsing: [ :request | request headers setBearerTokenTo: '123' ].
 
   key := ExpiringCacheKeyBuilder keyFor: httpRequest at: 'https://google.com'.
-  self assert: key equals: 'https://google.com/|header-authorization[Bearer 123]'.
+  self assert: key equals: 'https://google.com/|header-authorization[128280371]'.
 
   httpRequest := HttpRequest
                    post: 'http://google.com'
