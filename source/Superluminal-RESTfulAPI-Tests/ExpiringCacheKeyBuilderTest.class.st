@@ -40,12 +40,21 @@ ExpiringCacheKeyBuilderTest >> testFormAtAdd [
 { #category : 'test' }
 ExpiringCacheKeyBuilderTest >> testHeaderAtPut [
 
-	| httpRequest key |
+  | httpRequest key |
+  httpRequest := HttpRequest
+                   post: 'http://google.com'
+                   configuredUsing: [ :request | request headers setBearerTokenTo: '123' ].
 
-	httpRequest := HttpRequest
-		post: 'http://google.com'
-		configuredUsing: [ :request | request headers setBearerTokenTo: '123' ].
+  key := ExpiringCacheKeyBuilder keyFor: httpRequest at: 'https://google.com'.
+  self
+    assert: ( key beginsWith: 'https://google.com/|header-authorization[' );
+    assert: ( key endsWith: ']' ).
 
-	key := ExpiringCacheKeyBuilder keyFor: httpRequest at: 'https://google.com'.
-	self assert: key equals: 'https://google.com/'
+  httpRequest := HttpRequest
+                   post: 'http://google.com'
+                   configuredUsing: [ :request |
+                     request headers set: #'Another-Header' to: 'Something' ].
+
+  key := ExpiringCacheKeyBuilder keyFor: httpRequest at: 'https://google.com'.
+  self assert: key equals: 'https://google.com/'
 ]

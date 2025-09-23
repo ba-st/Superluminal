@@ -167,6 +167,35 @@ RESTfulAPIClientTest >> testGetCached [
 ]
 
 { #category : 'tests - GET' }
+RESTfulAPIClientTest >> testGetDifferentAuthorizationsDoNotShareCachedResponse [
+
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        addCachingDirective: 'Max-Age=60';
+        yourself ).
+
+  apiClient
+    getAt: self location
+    configuredBy: [ :request | request headers setAuthorizationTo: 'let me pass' ]
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ].
+
+  self configureHttpClientToRespondWith: self unauthorizedResponse.
+
+  self
+    should: [
+        apiClient
+          getAt: self location
+          configuredBy: [ :request | request headers setAuthorizationTo: 'stop me' ]
+          withSuccessfulResponseDo: [ :responseContents | self fail ]
+      ]
+    raise: ( HTTPClientError code: 401 )
+    withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetDoNotStoreResponseInCache [
 
   self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
@@ -526,6 +555,41 @@ RESTfulAPIClientTest >> testQueryCached [
 ]
 
 { #category : 'tests - QUERY' }
+RESTfulAPIClientTest >> testQueryDifferentAuthorizationsDoNotShareCachedResponse [
+
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        addCachingDirective: 'Max-Age=60';
+        yourself ).
+
+  apiClient
+    queryAt: self location
+    configuredBy: [ :request |
+        ( request headers setAuthorizationTo: 'let me pass' )
+        + ( request body contents: ( ZnEntity json: '{"name":"original"}' ) )
+      ]
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ].
+
+  self configureHttpClientToRespondWith: self unauthorizedResponse.
+
+  self
+    should: [
+        apiClient
+          queryAt: self location
+          configuredBy: [ :request |
+              ( request headers setAuthorizationTo: 'stop me' )
+              + ( request body contents: ( ZnEntity json: '{"name":"original"}' ) )
+            ]
+          withSuccessfulResponseDo: [ :responseContents | self fail ]
+      ]
+    raise: ( HTTPClientError code: 401 )
+    withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - QUERY' }
 RESTfulAPIClientTest >> testQueryDoNotStoreResponseInCache [
 
   self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
@@ -645,6 +709,12 @@ RESTfulAPIClientTest >> testQueryTimeout [
       ]
     raise: HTTPServerError gatewayTimeout
     withMessageText: 'Data receive timed out.'
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> unauthorizedResponse [
+
+  ^ ZnResponse unauthorized
 ]
 
 { #category : 'private' }
