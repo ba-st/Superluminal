@@ -68,7 +68,10 @@ ExpiringCacheKeyBuilder >> formAt: key add: value [
 ExpiringCacheKeyBuilder >> headerAt: aSymbol put: aString [
 
   aSymbol = #Authorization then: [
-      parameters at: #'header-authorization' put: aString hash asString ]
+      | hash |
+      hash := LanguagePlatform current messageDigest: aString.
+      parameters at: #'header-authorization' put: hash hex
+    ]
 ]
 
 { #category : 'initialization' }
