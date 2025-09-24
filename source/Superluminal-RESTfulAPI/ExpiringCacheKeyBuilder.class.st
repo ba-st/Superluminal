@@ -70,7 +70,7 @@ ExpiringCacheKeyBuilder >> headerAt: aSymbol put: aString [
   aSymbol = #Authorization then: [
       | hash |
       hash := LanguagePlatform current messageDigest: aString.
-      parameters at: #'header-authorization' put: hash hex
+      parameters at: #'header-authorization' put: hash asHexString
     ]
 ]
 
