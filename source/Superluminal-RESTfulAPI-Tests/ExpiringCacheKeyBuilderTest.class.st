@@ -47,7 +47,8 @@ ExpiringCacheKeyBuilderTest >> testHeaderAtPut [
 
   key := ExpiringCacheKeyBuilder keyFor: httpRequest at: 'https://google.com'.
   self
-    assert: key equals: 'https://google.com/|header-authorization[d8006d79bb0c03c58a17b31d3dbead8e65dcd2b00ee7f7b7447d30af255af56e]' .
+    assert: key asLowercase
+    equals: 'https://google.com/|header-authorization[d8006d79bb0c03c58a17b31d3dbead8e65dcd2b00ee7f7b7447d30af255af56e]'.
 
   httpRequest := HttpRequest
                    post: 'http://google.com'
