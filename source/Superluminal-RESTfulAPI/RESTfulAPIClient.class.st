@@ -399,7 +399,7 @@ RESTfulAPIClient >> withCachedETagAt: aLocation do: aBlock [
 		self withETagAt: aLocation do: aBlock ]
 ]
 
-{ #category : 'private - caching' }
+{ #category : 'caching' }
 RESTfulAPIClient >> withETagAt: aLocation do: aBlock [
 
 	^entityTagByLocationCache at: (self normalize: aLocation) ifPresent: aBlock
