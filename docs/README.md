@@ -19,7 +19,7 @@ you will need to run local containers of [httpbin](http://httpbin.org/) and
 [memcached](https://memcached.org/), which can be achieved by executing:
 `docker run -d -p 127.0.0.1:80:80 ghcr.io/ba-st-dependencies/httpbin:master`
 and
-`docker run -d -p 127.0.0.1:11211:11211 memcached:1.6.7-alpine`
+`docker run -d -p 127.0.0.1:11211:11211 memcached:1.6-alpine`
 respectively.
 
 ---

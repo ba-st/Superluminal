@@ -32,7 +32,7 @@ BaselineOfSuperluminal >> projectClass [
 BaselineOfSuperluminal >> setUpDependencies: spec [
 
 	spec
-		baseline: 'Hyperspace' with: [ spec repository: 'github://ba-st/Hyperspace:v7' ];
+		baseline: 'Hyperspace' with: [ spec repository: 'github://ba-st/Hyperspace:v8' ];
 		project: 'Hyperspace-Deployment' copyFrom: 'Hyperspace' with: [ spec loads: 'Deployment' ];
 		project: 'Hyperspace-SUnit'
 			copyFrom: 'Hyperspace'
@@ -42,7 +42,7 @@ BaselineOfSuperluminal >> setUpDependencies: spec [
 			with: [ spec loads: 'Tools' ].
 
 	spec
-		baseline: 'Launchpad' with: [ spec repository: 'github://ba-st/Launchpad:v7' ];
+		baseline: 'Launchpad' with: [ spec repository: 'github://ba-st/Launchpad:v8' ];
 		project: 'Launchpad-Deployment' copyFrom: 'Launchpad' with: [ spec loads: 'Deployment' ];
 		project: 'Launchpad-SUnit' copyFrom: 'Launchpad' with: [ spec loads: 'Dependent-SUnit-Extensions' ].
 
