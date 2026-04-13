@@ -11,9 +11,9 @@ jobs:
       httpbin:
         image: ghcr.io/ba-st-dependencies/httpbin:master
       memcached:
-        image: memcached:1.6.7-alpine
+        image: memcached:1.6-alpine
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Load Image and Run Tests
         uses: ba-st-actions/gs64-ci@v3
         with:
