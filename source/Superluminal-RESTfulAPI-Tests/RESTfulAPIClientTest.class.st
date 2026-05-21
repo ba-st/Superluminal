@@ -391,40 +391,64 @@ RESTfulAPIClientTest >> testGetWithSuccessfulResponseDo [
 { #category : 'tests - PATCH' }
 RESTfulAPIClientTest >> testPatchAtNoContent [
 
-	self configureHttpClientToRespondWith: ZnResponse noContent.
-	apiClient
-		patch: ( ZnEntity json: '[]' )
-		at: self location
-		withSuccessfulResponseDo: [ :responseContents | self assert: responseContents isNil ]
+  self configureHttpClientToRespondWith: ZnResponse noContent.
+
+  apiClient
+    patch: ( ZnEntity json: '[]' )
+    at: self location
+    withSuccessfulResponseDo: [ :responseContents | self assert: responseContents isNil ]
 ]
 
 { #category : 'tests - PATCH' }
 RESTfulAPIClientTest >> testPatchAtNotFound [
 
-	self configureHttpClientToRespondWith: self notFoundResponse.
-	self
-		should: [ apiClient
-				patch: ( ZnEntity json: '[]' )
-				at: self location
-				withSuccessfulResponseDo: [ :response | self fail ]
-			]
-		raise: HTTPClientError notFound
-		withMessageText: 'Cannot complete update'
+  self configureHttpClientToRespondWith: self notFoundResponse.
+
+  self
+    should: [
+        apiClient
+          patch: ( ZnEntity json: '[]' )
+          at: self location
+          withSuccessfulResponseDo: [ :response | self fail ]
+      ]
+    raise: HTTPClientError notFound
+    withMessageText: 'Cannot complete update'
+]
+
+{ #category : 'tests - PATCH' }
+RESTfulAPIClientTest >> testPatchAtNotFoundUsingCustomErrorHandlingBasedOnResponseMediaType [
+
+  apiClient
+    forErrorResponsesTyped: ZnMimeType applicationJson
+    extractErrorDescriptionWith: [ :response |
+      ( NeoJSONObject fromString: response contents ) atPath: #( error messageText ) ].
+
+  self configureHttpClientToRespondWith: self notFoundJsonResponse.
+
+  self
+    should: [
+        apiClient
+          patch: ( ZnEntity json: '[]' )
+          at: self location
+          withSuccessfulResponseDo: [ :response | self fail ]
+      ]
+    raise: HTTPClientError notFound
+    withMessageText: self customizedErrorDescription
 ]
 
 { #category : 'tests - PATCH' }
 RESTfulAPIClientTest >> testPatchAtWithSuccessfulResponseDo [
 
-	self configureHttpClientToRespondWith: self jsonOkResponse.
+  self configureHttpClientToRespondWith: self jsonOkResponse.
 
-	apiClient
-		patch: ( ZnEntity json: '[]' )
-		at: self location
-		withSuccessfulResponseDo: [ :responseContents |
-			self
-				withJsonFrom: responseContents
-				do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-			]
+  apiClient
+    patch: ( ZnEntity json: '[]' )
+    at: self location
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ]
 ]
 
 { #category : 'tests - PATCH' }
@@ -491,36 +515,52 @@ RESTfulAPIClientTest >> testPostWithSuccessfulResponseDo [
 { #category : 'tests - PUT' }
 RESTfulAPIClientTest >> testPutAt [
 
-	| response |
+  | response |
+  self configureHttpClientToRespondWith: self jsonOkResponse.
 
-	self configureHttpClientToRespondWith: self jsonOkResponse.
+  response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self location.
 
-	response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self location.
-
-	self
-		withJsonFrom: response contents
-		do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+  self
+    withJsonFrom: response contents
+    do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
 ]
 
 { #category : 'tests - PUT' }
 RESTfulAPIClientTest >> testPutAtNoContent [
 
-	| response |
+  | response |
+  self configureHttpClientToRespondWith: ZnResponse noContent.
 
-	self configureHttpClientToRespondWith: ZnResponse noContent.
-	response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self location.
+  response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self location.
 
-	self assert: response isNoContent
+  self assert: response isNoContent
 ]
 
 { #category : 'tests - PUT' }
 RESTfulAPIClientTest >> testPutAtNotFound [
 
-	self configureHttpClientToRespondWith: self notFoundResponse.
-	self
-		should: [ apiClient put: ( ZnEntity json: '["hi"]' ) at: self location ]
-		raise: HTTPClientError notFound
-		withMessageText: 'Cannot complete update'
+  self configureHttpClientToRespondWith: self notFoundResponse.
+
+  self
+    should: [ apiClient put: ( ZnEntity json: '["hi"]' ) at: self location ]
+    raise: HTTPClientError notFound
+    withMessageText: 'Cannot complete update'
+]
+
+{ #category : 'tests - PUT' }
+RESTfulAPIClientTest >> testPutAtNotFoundUsingCustomErrorHandlingBasedOnResponseMediaType [
+
+  apiClient
+    forErrorResponsesTyped: ZnMimeType applicationJson
+    extractErrorDescriptionWith: [ :response |
+      ( NeoJSONObject fromString: response contents ) atPath: #( error messageText ) ].
+
+  self configureHttpClientToRespondWith: self notFoundJsonResponse.
+
+  self
+    should: [ apiClient put: ( ZnEntity json: '["hi"]' ) at: self location ]
+    raise: HTTPClientError notFound
+    withMessageText: self customizedErrorDescription
 ]
 
 { #category : 'tests - PUT' }

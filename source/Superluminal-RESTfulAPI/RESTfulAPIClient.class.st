@@ -290,17 +290,16 @@ RESTfulAPIClient >> postAt: aLocation configuredBy: aRequestBuildingBlock withSu
 ]
 
 { #category : 'private - inkoving' }
-RESTfulAPIClient >> processPutResponse: response at: aLocation whenSuccessfulDo: aBlock [
+RESTfulAPIClient >> processPutResponse: aResponse at: aLocation whenSuccessfulDo: aBlock [
 
-	response isSuccess then: [
-		expiringCache clearResourceAt: aLocation.
-		[
-		aBlock value:
-			(self tryToCacheContentsOf: response basedOn: aLocation) ] unless:
-			response isNoContent.
-		^ response ].
+  aResponse isSuccess then: [
+      expiringCache clearResourceAt: aLocation.
+      [ aBlock value: ( self tryToCacheContentsOf: aResponse basedOn: aLocation ) ] unless:
+        aResponse isNoContent.
+      ^ aResponse
+    ].
 
-	^ self signalCannotCompleteUpdateErrorBasedOn: response
+  ^ self signalCannotCompleteUpdateErrorBasedOn: aResponse
 ]
 
 { #category : 'invoking - covenience' }
@@ -315,15 +314,14 @@ RESTfulAPIClient >> put: anEntity at: aLocation [
 { #category : 'invoking' }
 RESTfulAPIClient >> putAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aBlock [
 
-	^ self
-		handleExceptionsDuring: [ | httpRequest response |
-
-			httpRequest := HttpRequest put: aLocation configuredUsing: aRequestBuildingBlock.
-			self
-				withHttpClientFor: aLocation
-				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
-			self processPutResponse: response at: aLocation whenSuccessfulDo: aBlock
-			]
+  ^ self handleExceptionsDuring: [
+        | httpRequest response |
+        httpRequest := HttpRequest put: aLocation configuredUsing: aRequestBuildingBlock.
+        self
+          withHttpClientFor: aLocation
+          do: [ :httpClient | response := httpRequest applyOn: httpClient ].
+        self processPutResponse: response at: aLocation whenSuccessfulDo: aBlock
+      ]
 ]
 
 { #category : 'invoking - covenience' }
@@ -381,9 +379,10 @@ RESTfulAPIClient >> signalCannotCompleteDeleteErrorBasedOn: aResponse [
 ]
 
 { #category : 'private - exception handling' }
-RESTfulAPIClient >> signalCannotCompleteUpdateErrorBasedOn: response [
+RESTfulAPIClient >> signalCannotCompleteUpdateErrorBasedOn: aResponse [
 
-	^ ( HTTPClientError code: response code ) signal: 'Cannot complete update'
+  ^ ( HTTPClientError code: aResponse code ) signal:
+      ( self errorMessageFrom: aResponse ifNone: 'Cannot complete update' )
 ]
 
 { #category : 'private - caching' }
