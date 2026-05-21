@@ -82,26 +82,25 @@ RESTfulAPIClient >> deleteAt: aLocation accepting: aMediaType withSuccessfulResp
 { #category : 'invoking' }
 RESTfulAPIClient >> deleteAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aBlock [
 
-	^ self
-		handleExceptionsDuring: [ 
-			| httpRequest response |
-
-			httpRequest := HttpRequest delete: aLocation configuredUsing: aRequestBuildingBlock.
-			self
-				withHttpClientFor: aLocation
-				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
-			( response isSuccess or: [ response isNoContent ] )
-				ifTrue: [ expiringCache clearResourceAt: aLocation.
-					aBlock cull: ( self tryToCacheContentsOf: response basedOn: aLocation )
-					]
-				ifFalse: [ self signalCannotCompleteDeleteErrorBasedOn: response ]
-			]
+  ^ self handleExceptionsDuring: [
+        | httpRequest response |
+        httpRequest := HttpRequest delete: aLocation configuredUsing: aRequestBuildingBlock.
+        self
+          withHttpClientFor: aLocation
+          do: [ :httpClient | response := httpRequest applyOn: httpClient ].
+        ( response isSuccess or: [ response isNoContent ] )
+          ifTrue: [
+              expiringCache clearResourceAt: aLocation.
+              aBlock cull: ( self tryToCacheContentsOf: response basedOn: aLocation )
+            ]
+          ifFalse: [ self signalCannotCompleteDeleteErrorBasedOn: response ]
+      ]
 ]
 
 { #category : 'private - exception handling' }
 RESTfulAPIClient >> errorMessageFrom: aResponse [
 
-  ^ self errorMessageFrom: aResponse ifNone: [ 'Cannot complete the request' ]
+  ^ self errorMessageFrom: aResponse ifNone: 'Cannot complete the request'
 ]
 
 { #category : 'private - exception handling' }
@@ -351,14 +350,14 @@ RESTfulAPIClient >> queryAt: aLocation configuredBy: aRequestBuildingBlock withS
 ]
 
 { #category : 'private - inkoving' }
-RESTfulAPIClient >> raiseErrorBasedOn: httpResponse [
+RESTfulAPIClient >> raiseErrorBasedOn: aResponse [
 
   | message httpErrorClass |
-  message := self errorMessageFrom: httpResponse.
-  httpErrorClass := httpResponse code > 499
+  message := self errorMessageFrom: aResponse.
+  httpErrorClass := aResponse code > 499
                       ifTrue: [ HTTPServerError ]
                       ifFalse: [ HTTPClientError ].
-  ( httpErrorClass code: httpResponse code ) signal: message
+  ( httpErrorClass code: aResponse code ) signal: message
 ]
 
 { #category : 'private - inkoving' }
@@ -375,9 +374,10 @@ RESTfulAPIClient >> requestToGet: aLocation configuredUsing: aRequestBuildingBlo
 ]
 
 { #category : 'private - exception handling' }
-RESTfulAPIClient >> signalCannotCompleteDeleteErrorBasedOn: response [
+RESTfulAPIClient >> signalCannotCompleteDeleteErrorBasedOn: aResponse [
 
-	^ ( HTTPClientError code: response code ) signal: 'Cannot complete delete'
+  ^ ( HTTPClientError code: aResponse code ) signal:
+      ( self errorMessageFrom: aResponse ifNone: 'Cannot complete delete' )
 ]
 
 { #category : 'private - exception handling' }

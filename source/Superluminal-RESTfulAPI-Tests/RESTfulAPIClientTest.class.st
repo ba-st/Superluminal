@@ -22,6 +22,15 @@ RESTfulAPIClientTest >> apiClient [
 ]
 
 { #category : 'private' }
+RESTfulAPIClientTest >> badRequestJsonResponse [
+
+  ^ ZnResponse
+      badRequest: self location
+      entity:
+      ( ZnEntity json: ( self jsonErrorPayloadDescribedBy: self customizedErrorDescription ) )
+]
+
+{ #category : 'private' }
 RESTfulAPIClientTest >> customizedErrorDescription [
 
   ^ 'Customized description'
@@ -84,58 +93,81 @@ RESTfulAPIClientTest >> tearDown [
 { #category : 'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteAcceptingWithSuccessfulResponseDo [
 
-	| wasSuccessfull |
+  | wasSuccessfull |
+  self configureHttpClientToRespondWith: ZnResponse noContent.
 
-	self configureHttpClientToRespondWith: ZnResponse noContent.
-	wasSuccessfull := false.
-	apiClient
-		deleteAt: self location
-		accepting: 'application/json;version=1.0.0' asMediaType
-		withSuccessfulResponseDo: [ :responseContents | wasSuccessfull := true ].
+  wasSuccessfull := false.
 
-	self assert: wasSuccessfull
+  apiClient
+    deleteAt: self location
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents | wasSuccessfull := true ].
+
+  self assert: wasSuccessfull
 ]
 
 { #category : 'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteAtSuccess [
 
-	self configureHttpClientToRespondWith: ZnResponse noContent.
-	self shouldnt: [ apiClient deleteAt: self location ] raise: HTTPClientError
+  self configureHttpClientToRespondWith: ZnResponse noContent.
+  self shouldnt: [ apiClient deleteAt: self location ] raise: HTTPClientError
 ]
 
 { #category : 'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteAtSuccessWhenCached [
 
-	| etagIsSet |
+  | etagIsSet |
+  etagIsSet := false.
 
-	etagIsSet := false.
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        addCachingDirective: 'Max-Age=60';
+        setEntityTag: '"1"' asEntityTag;
+        yourself ).
 
-	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
-			  addCachingDirective: 'Max-Age=60';
-			  setEntityTag: '"1"' asEntityTag;
-			  yourself ).
+  self httpClient whenSend: #setIfMatchTo: evaluate: [ :etag | etagIsSet := etag = '"1"' ].
 
-	self httpClient whenSend: #setIfMatchTo: evaluate: [ :etag | etagIsSet := etag = '"1"' ].
+  apiClient get: self location withSuccessfulResponseDo: [ :contents |  ].
 
-	apiClient get: self location withSuccessfulResponseDo: [ :contents |  ].
-
-	self configureHttpClientToRespondWith: ZnResponse noContent.
-	self shouldnt: [ apiClient deleteAt: self location ] raise: HTTPClientError.
-	self assert: etagIsSet
+  self configureHttpClientToRespondWith: ZnResponse noContent.
+  self shouldnt: [ apiClient deleteAt: self location ] raise: HTTPClientError.
+  self assert: etagIsSet
 ]
 
 { #category : 'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteNotFound [
 
-	self configureHttpClientToRespondWith: self notFoundResponse.
+  self configureHttpClientToRespondWith: self notFoundResponse.
 
-	self
-		should: [ apiClient
-				deleteAt: self location
-				accepting: 'application/json;version=1.0.0' asMediaType
-				withSuccessfulResponseDo: [ :responseContents | self fail ]
-			]
-		raise: HTTPClientError notFound
+  self
+    should: [
+        apiClient
+          deleteAt: self location
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [ :responseContents | self fail ]
+      ]
+    raise: HTTPClientError notFound
+    withMessageText: 'Cannot complete delete'
+]
+
+{ #category : 'tests - DELETE' }
+RESTfulAPIClientTest >> testDeleteNotFoundUsingCustomErrorHandlingBasedOnResponseMediaType [
+
+  apiClient
+    forErrorResponsesTyped: ZnMimeType applicationJson
+    extractErrorDescriptionWith: [ :response |
+      ( NeoJSONObject fromString: response contents ) atPath: #( error messageText ) ].
+
+  self configureHttpClientToRespondWith: self notFoundJsonResponse.
+
+  self
+    should: [
+        apiClient
+          deleteAt: self location
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [ :responseContents | self fail ]
+      ]
+    raise: HTTPClientError notFound
+    withMessageText: self customizedErrorDescription
 ]
 
 { #category : 'tests - DELETE' }
