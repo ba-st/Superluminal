@@ -22,6 +22,24 @@ RESTfulAPIClientTest >> apiClient [
 ]
 
 { #category : 'private' }
+RESTfulAPIClientTest >> customizedErrorDescription [
+
+  ^ 'Customized description'
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> jsonErrorPayloadDescribedBy: aMessageString [
+
+  ^ String streamContents: [ :stream |
+        ( NeoJSONWriter on: stream ) nextPut: ( NeoJSONObject new
+              at: #error put: ( NeoJSONObject new
+                    at: #messageText put: aMessageString;
+                    yourself );
+              yourself )
+      ]
+]
+
+{ #category : 'private' }
 RESTfulAPIClientTest >> jsonOkResponse [
 
 	^ self jsonOkResponseWith: #(1 2 3)
@@ -31,6 +49,15 @@ RESTfulAPIClientTest >> jsonOkResponse [
 RESTfulAPIClientTest >> location [
 
 	^ 'http://localhost' asAbsoluteUrl + resourceIdentifier
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> notFoundJsonResponse [
+
+  ^ ZnResponse
+      notFound: self location
+      entity:
+      ( ZnEntity json: ( self jsonErrorPayloadDescribedBy: self customizedErrorDescription ) )
 ]
 
 { #category : 'private' }
@@ -132,38 +159,38 @@ RESTfulAPIClientTest >> testDeleteTimeout [
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetAcceptingWithSuccessfulResponseDo [
 
-	self configureHttpClientToRespondWith: self jsonOkResponse.
+  self configureHttpClientToRespondWith: self jsonOkResponse.
 
-	apiClient
-		get: self location
-		accepting: 'application/json;version=1.0.0' asMediaType
-		withSuccessfulResponseDo: [ :responseContents |
-			self
-				withJsonFrom: responseContents
-				do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-			]
+  apiClient
+    get: self location
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ]
 ]
 
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetCached [
 
-	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
-			  addCachingDirective: 'Max-Age=60';
-			  yourself ).
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        addCachingDirective: 'Max-Age=60';
+        yourself ).
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		].
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ].
 
-	self configureHttpClientToRespondWith: self notFoundResponse.
+  self configureHttpClientToRespondWith: self notFoundResponse.
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		]
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ]
 ]
 
 { #category : 'tests - GET' }
@@ -220,27 +247,27 @@ RESTfulAPIClientTest >> testGetDoNotStoreResponseInCache [
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetIgnoreETagsWhenDoNotStoreCachingPolicyIsInPlace [
 
-	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
-			  setEntityTag: '"123"';
-			  addCachingDirective: 'no-store';
-			  yourself ).
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        setEntityTag: '"123"';
+        addCachingDirective: 'no-store';
+        yourself ).
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		].
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ].
 
-	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
-			  setEntityTag: '"123"';
-			  addCachingDirective: 'no-store';
-			  yourself ).
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        setEntityTag: '"123"';
+        addCachingDirective: 'no-store';
+        yourself ).
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		]
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ]
 ]
 
 { #category : 'tests - GET' }
@@ -253,6 +280,23 @@ RESTfulAPIClientTest >> testGetNotFound [
       apiClient get: self location withSuccessfulResponseDo: [ :responseContents | self fail ] ]
     raise: HTTPClientError notFound
     withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - GET' }
+RESTfulAPIClientTest >> testGetNotFoundUsingCustomErrorHandlingBasedOnResponseMediaType [
+
+  apiClient
+    forErrorResponsesTyped: ZnMimeType applicationJson
+    extractErrorDescriptionWith: [ :response |
+      ( NeoJSONObject fromString: response contents ) atPath: #( error messageText ) ].
+
+  self configureHttpClientToRespondWith: self notFoundJsonResponse.
+
+  self
+    should: [
+      apiClient get: self location withSuccessfulResponseDo: [ :responseContents | self fail ] ]
+    raise: HTTPClientError notFound
+    withMessageText: self customizedErrorDescription
 ]
 
 { #category : 'tests - GET' }
@@ -272,45 +316,44 @@ RESTfulAPIClientTest >> testGetTimeout [
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetUsingETagInASecondInvocation [
 
-	| ifNoneMatchHeaderWasSet |
+  | ifNoneMatchHeaderWasSet |
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        setEntityTag: '"123"';
+        yourself ).
 
-	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
-			  setEntityTag: '"123"';
-			  yourself ).
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ].
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		].
+  self configureHttpClientToRespondWith: ZnResponse notModified.
 
-	self configureHttpClientToRespondWith: ZnResponse notModified.
+  ifNoneMatchHeaderWasSet := false.
+  self httpClient whenSend: #setIfNoneMatchTo: evaluate: [ :etag |
+      self assert: etag equals: '"123"' asEntityTag.
+      ifNoneMatchHeaderWasSet := true
+    ].
 
-	ifNoneMatchHeaderWasSet := false.
-	self httpClient whenSend: #setIfNoneMatchTo: evaluate: [ :etag |
-		self assert: etag equals: '"123"' asEntityTag.
-		ifNoneMatchHeaderWasSet := true
-		].
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ].
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		].
-
-	self assert: ifNoneMatchHeaderWasSet
+  self assert: ifNoneMatchHeaderWasSet
 ]
 
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetWithSuccessfulResponseDo [
 
-	self configureHttpClientToRespondWith: self jsonOkResponse.
+  self configureHttpClientToRespondWith: self jsonOkResponse.
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		]
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ]
 ]
 
 { #category : 'tests - PATCH' }
