@@ -472,16 +472,39 @@ RESTfulAPIClientTest >> testPatchTimeout [
 { #category : 'tests - POST' }
 RESTfulAPIClientTest >> testPostBadRequest [
 
-	self
-		configureHttpClientToRespondWith: ( ZnResponse badRequest: '' entity: ( ZnEntity text: 'COVID-19' ) ).
-	self
-		should: [ apiClient
-				post: ( ZnEntity json: '["hi"]' )
-				at: self location
-				withSuccessfulResponseDo: [ self fail ]
-			]
-		raise: HTTPClientError badRequest
-		withMessageText: 'Cannot complete the request'
+  self configureHttpClientToRespondWith:
+    ( ZnResponse badRequest: '' entity: ( ZnEntity text: 'COVID-19' ) ).
+
+  self
+    should: [
+        apiClient
+          post: ( ZnEntity json: '["hi"]' )
+          at: self location
+          withSuccessfulResponseDo: [ self fail ]
+      ]
+    raise: HTTPClientError badRequest
+    withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - POST' }
+RESTfulAPIClientTest >> testPostBadRequestUsingCustomErrorHandlingBasedOnResponseMediaType [
+
+  apiClient
+    forErrorResponsesTyped: ZnMimeType applicationJson
+    extractErrorDescriptionWith: [ :response |
+      ( NeoJSONObject fromString: response contents ) atPath: #( error messageText ) ].
+
+  self configureHttpClientToRespondWith: self badRequestJsonResponse.
+
+  self
+    should: [
+        apiClient
+          post: ( ZnEntity json: '["hi"]' )
+          at: self location
+          withSuccessfulResponseDo: [ self fail ]
+      ]
+    raise: HTTPClientError badRequest
+    withMessageText: self customizedErrorDescription
 ]
 
 { #category : 'tests - POST' }
@@ -505,11 +528,13 @@ RESTfulAPIClientTest >> testPostTimeout [
 { #category : 'tests - POST' }
 RESTfulAPIClientTest >> testPostWithSuccessfulResponseDo [
 
-	self configureHttpClientToRespondWith: ( ZnResponse created: self location ).
-	apiClient
-		post: ( ZnEntity json: '[]' )
-		at: self location
-		withSuccessfulResponseDo: [ :responseContents | self assert: ( responseContents beginsWith: 'Created' ) ]
+  self configureHttpClientToRespondWith: ( ZnResponse created: self location ).
+
+  apiClient
+    post: ( ZnEntity json: '[]' )
+    at: self location
+    withSuccessfulResponseDo: [ :responseContents |
+      self assert: ( responseContents beginsWith: 'Created' ) ]
 ]
 
 { #category : 'tests - PUT' }
@@ -580,6 +605,7 @@ RESTfulAPIClientTest >> testPutTimeout [
 RESTfulAPIClientTest >> testQueryAtAcceptingWithSuccessfulResponseDo [
 
   self configureHttpClientToRespondWith: self jsonOkResponse.
+
   apiClient
     query: ( ZnEntity json: '[]' )
     at: self location
@@ -596,6 +622,7 @@ RESTfulAPIClientTest >> testQueryBadRequest [
 
   self configureHttpClientToRespondWith:
     ( ZnResponse badRequest: '' entity: ( ZnEntity text: 'COVID-19' ) ).
+
   self
     should: [
         apiClient
@@ -606,6 +633,28 @@ RESTfulAPIClientTest >> testQueryBadRequest [
       ]
     raise: HTTPClientError badRequest
     withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - QUERY' }
+RESTfulAPIClientTest >> testQueryBadRequestUsingCustomErrorHandlingBasedOnResponseMediaType [
+
+  apiClient
+    forErrorResponsesTyped: ZnMimeType applicationJson
+    extractErrorDescriptionWith: [ :response |
+      ( NeoJSONObject fromString: response contents ) atPath: #( error messageText ) ].
+
+  self configureHttpClientToRespondWith: self badRequestJsonResponse.
+
+  self
+    should: [
+        apiClient
+          query: ( ZnEntity json: '["hi"]' )
+          at: self location
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [ self fail ]
+      ]
+    raise: HTTPClientError badRequest
+    withMessageText: self customizedErrorDescription
 ]
 
 { #category : 'tests - QUERY' }
