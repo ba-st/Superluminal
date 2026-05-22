@@ -22,12 +22,39 @@ RESTfulAPIClientTest >> apiClient [
 ]
 
 { #category : 'private' }
+RESTfulAPIClientTest >> applicationJSONErrorMessageBuilder [
+
+  ^ [ :response |
+      | message |
+      message := 'Cannot complete the request'.
+      response contents ifNotNil: [ :contents |
+          self
+            withJsonFrom: contents
+            do: [ :json | ( json atPath: #( error messageText ) ) ifNotNil: [ :m | message := m ] ]
+        ].
+      message
+    ]
+]
+
+{ #category : 'private' }
 RESTfulAPIClientTest >> badRequestJsonResponse [
 
   ^ ZnResponse
       badRequest: self location
       entity:
       ( ZnEntity json: ( self jsonErrorPayloadDescribedBy: self customizedErrorDescription ) )
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> buildRESTfulAPIClientHandlingErrorsAccordingTo: aConfiguringBlock thenDo: aBlock [
+
+  | restfulAPIClient |
+  restfulAPIClient := RESTfulAPIClient
+                        buildingHttpClientWith: [ self httpClient ]
+                        cachingIn: ExpiringCache onLocalMemory
+                        handlingErrorsAccordingTo: aConfiguringBlock.
+
+  [ aBlock cull: restfulAPIClient ] ensure: [ restfulAPIClient finalize ]
 ]
 
 { #category : 'private' }
@@ -152,22 +179,25 @@ RESTfulAPIClientTest >> testDeleteNotFound [
 { #category : 'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteNotFoundUsingCustomErrorHandlingBasedOnResponseMediaType [
 
-  apiClient
-    forErrorResponsesTyped: ZnMimeType applicationJson
-    extractErrorDescriptionWith: [ :response |
-      ( NeoJSONObject fromString: response contents ) atPath: #( error messageText ) ].
-
   self configureHttpClientToRespondWith: self notFoundJsonResponse.
 
   self
-    should: [
-        apiClient
-          deleteAt: self location
-          accepting: 'application/json;version=1.0.0' asMediaType
-          withSuccessfulResponseDo: [ :responseContents | self fail ]
+    buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
+        client
+          whenReceiving: ZnMimeType applicationJson
+          extractApplying: self applicationJSONErrorMessageBuilder
       ]
-    raise: HTTPClientError notFound
-    withMessageText: self customizedErrorDescription
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [
+              restfulAPIClient
+                deleteAt: self location
+                accepting: 'application/json;version=1.0.0' asMediaType
+                withSuccessfulResponseDo: [ :responseContents | self fail ]
+            ]
+          raise: HTTPClientError notFound
+          withMessageText: self customizedErrorDescription
+      ]
 ]
 
 { #category : 'tests - DELETE' }
@@ -317,18 +347,23 @@ RESTfulAPIClientTest >> testGetNotFound [
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetNotFoundUsingCustomErrorHandlingBasedOnResponseMediaType [
 
-  apiClient
-    forErrorResponsesTyped: ZnMimeType applicationJson
-    extractErrorDescriptionWith: [ :response |
-      ( NeoJSONObject fromString: response contents ) atPath: #( error messageText ) ].
-
   self configureHttpClientToRespondWith: self notFoundJsonResponse.
 
   self
-    should: [
-      apiClient get: self location withSuccessfulResponseDo: [ :responseContents | self fail ] ]
-    raise: HTTPClientError notFound
-    withMessageText: self customizedErrorDescription
+    buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
+        client
+          whenReceiving: ZnMimeType applicationJson
+          extractApplying: self applicationJSONErrorMessageBuilder
+      ]
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [
+            restfulAPIClient
+              get: self location
+              withSuccessfulResponseDo: [ :responseContents | self fail ] ]
+          raise: HTTPClientError notFound
+          withMessageText: self customizedErrorDescription
+      ]
 ]
 
 { #category : 'tests - GET' }
@@ -418,22 +453,25 @@ RESTfulAPIClientTest >> testPatchAtNotFound [
 { #category : 'tests - PATCH' }
 RESTfulAPIClientTest >> testPatchAtNotFoundUsingCustomErrorHandlingBasedOnResponseMediaType [
 
-  apiClient
-    forErrorResponsesTyped: ZnMimeType applicationJson
-    extractErrorDescriptionWith: [ :response |
-      ( NeoJSONObject fromString: response contents ) atPath: #( error messageText ) ].
-
   self configureHttpClientToRespondWith: self notFoundJsonResponse.
 
   self
-    should: [
-        apiClient
-          patch: ( ZnEntity json: '[]' )
-          at: self location
-          withSuccessfulResponseDo: [ :response | self fail ]
+    buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
+        client
+          whenReceiving: ZnMimeType applicationJson
+          extractApplying: self applicationJSONErrorMessageBuilder
       ]
-    raise: HTTPClientError notFound
-    withMessageText: self customizedErrorDescription
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [
+              restfulAPIClient
+                patch: ( ZnEntity json: '[]' )
+                at: self location
+                withSuccessfulResponseDo: [ :response | self fail ]
+            ]
+          raise: HTTPClientError notFound
+          withMessageText: self customizedErrorDescription
+      ]
 ]
 
 { #category : 'tests - PATCH' }
@@ -489,22 +527,25 @@ RESTfulAPIClientTest >> testPostBadRequest [
 { #category : 'tests - POST' }
 RESTfulAPIClientTest >> testPostBadRequestUsingCustomErrorHandlingBasedOnResponseMediaType [
 
-  apiClient
-    forErrorResponsesTyped: ZnMimeType applicationJson
-    extractErrorDescriptionWith: [ :response |
-      ( NeoJSONObject fromString: response contents ) atPath: #( error messageText ) ].
-
   self configureHttpClientToRespondWith: self badRequestJsonResponse.
 
   self
-    should: [
-        apiClient
-          post: ( ZnEntity json: '["hi"]' )
-          at: self location
-          withSuccessfulResponseDo: [ self fail ]
+    buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
+        client
+          whenReceiving: ZnMimeType applicationJson
+          extractApplying: self applicationJSONErrorMessageBuilder
       ]
-    raise: HTTPClientError badRequest
-    withMessageText: self customizedErrorDescription
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [
+              restfulAPIClient
+                post: ( ZnEntity json: '["hi"]' )
+                at: self location
+                withSuccessfulResponseDo: [ self fail ]
+            ]
+          raise: HTTPClientError badRequest
+          withMessageText: self customizedErrorDescription
+      ]
 ]
 
 { #category : 'tests - POST' }
@@ -575,17 +616,20 @@ RESTfulAPIClientTest >> testPutAtNotFound [
 { #category : 'tests - PUT' }
 RESTfulAPIClientTest >> testPutAtNotFoundUsingCustomErrorHandlingBasedOnResponseMediaType [
 
-  apiClient
-    forErrorResponsesTyped: ZnMimeType applicationJson
-    extractErrorDescriptionWith: [ :response |
-      ( NeoJSONObject fromString: response contents ) atPath: #( error messageText ) ].
-
   self configureHttpClientToRespondWith: self notFoundJsonResponse.
 
   self
-    should: [ apiClient put: ( ZnEntity json: '["hi"]' ) at: self location ]
-    raise: HTTPClientError notFound
-    withMessageText: self customizedErrorDescription
+    buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
+        client
+          whenReceiving: ZnMimeType applicationJson
+          extractApplying: self applicationJSONErrorMessageBuilder
+      ]
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [ restfulAPIClient put: ( ZnEntity json: '["hi"]' ) at: self location ]
+          raise: HTTPClientError notFound
+          withMessageText: self customizedErrorDescription
+      ]
 ]
 
 { #category : 'tests - PUT' }
@@ -638,23 +682,26 @@ RESTfulAPIClientTest >> testQueryBadRequest [
 { #category : 'tests - QUERY' }
 RESTfulAPIClientTest >> testQueryBadRequestUsingCustomErrorHandlingBasedOnResponseMediaType [
 
-  apiClient
-    forErrorResponsesTyped: ZnMimeType applicationJson
-    extractErrorDescriptionWith: [ :response |
-      ( NeoJSONObject fromString: response contents ) atPath: #( error messageText ) ].
-
   self configureHttpClientToRespondWith: self badRequestJsonResponse.
 
   self
-    should: [
-        apiClient
-          query: ( ZnEntity json: '["hi"]' )
-          at: self location
-          accepting: 'application/json;version=1.0.0' asMediaType
-          withSuccessfulResponseDo: [ self fail ]
+    buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
+        client
+          whenReceiving: ZnMimeType applicationJson
+          extractApplying: self applicationJSONErrorMessageBuilder
       ]
-    raise: HTTPClientError badRequest
-    withMessageText: self customizedErrorDescription
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [
+              restfulAPIClient
+                query: ( ZnEntity json: '["hi"]' )
+                at: self location
+                accepting: 'application/json;version=1.0.0' asMediaType
+                withSuccessfulResponseDo: [ self fail ]
+            ]
+          raise: HTTPClientError badRequest
+          withMessageText: self customizedErrorDescription
+      ]
 ]
 
 { #category : 'tests - QUERY' }
