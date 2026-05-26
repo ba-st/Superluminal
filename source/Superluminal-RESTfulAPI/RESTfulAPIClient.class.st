@@ -7,7 +7,7 @@ Class {
 		'entityTagByLocationCache',
 		'lastKnownRepresentationByLocation',
 		'expiringCache',
-		'httpErrorMessageBuilder'
+		'httpErrorHandlingPolicy'
 	],
 	#category : 'Superluminal-RESTfulAPI-Core',
 	#package : 'Superluminal-RESTfulAPI',
@@ -20,8 +20,8 @@ RESTfulAPIClient class >> buildingHttpClientWith: anHttpClientProvider cachingIn
   ^ self
       buildingHttpClientWith: anHttpClientProvider
       cachingIn: anExpiringCache
-      handlingErrorsAccordingTo: [ :apiClient |
-          apiClient whenReceiving: ZnMimeType applicationJson extractApplying: [ :response |
+      handlingErrorsConfiguredBy: [ :apiClient |
+          apiClient whenReceivingMediaType: ZnMimeType applicationJson extractMessageApplying: [ :response |
               | message |
               message := 'Cannot complete the request'.
               response contents ifNotNil: [ :contents |
@@ -32,7 +32,7 @@ RESTfulAPIClient class >> buildingHttpClientWith: anHttpClientProvider cachingIn
 ]
 
 { #category : 'instance creation' }
-RESTfulAPIClient class >> buildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache handlingErrorsAccordingTo: aBlock [
+RESTfulAPIClient class >> buildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache handlingErrorsConfiguredBy: aBlock [
 
   ^ self new
       initializeBuildingHttpClientWith: anHttpClientProvider
@@ -204,12 +204,16 @@ RESTfulAPIClient >> httpErrorClassBasedOn: aResponse [
 { #category : 'initialization' }
 RESTfulAPIClient >> initializeBuildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache handlingErrorsAccordingTo: aBlock [
 
+  | httpErrorHandlingPolicyBuilder |
   httpClientProvider := anHttpClientProvider.
   httpClientPoolByAuthority := Dictionary new.
   entityTagByLocationCache := Dictionary new.
   lastKnownRepresentationByLocation := Dictionary new.
   expiringCache := anExpiringCache.
-  httpErrorMessageBuilder := aBlock cull: HttpErrorMessageBuilder new
+
+  httpErrorHandlingPolicyBuilder := HttpErrorHandlingPolicyBuilder new.
+  aBlock cull: httpErrorHandlingPolicyBuilder.
+  httpErrorHandlingPolicy := httpErrorHandlingPolicyBuilder build
 ]
 
 { #category : 'private - caching' }
@@ -350,7 +354,7 @@ RESTfulAPIClient >> raiseErrorBasedOn: aResponse defaultingTo: aDefaultMessage [
 
   | httpErrorClass message |
   httpErrorClass := self httpErrorClassBasedOn: aResponse.
-  message := httpErrorMessageBuilder errorMessageFrom: aResponse ifNone: [ aDefaultMessage ].
+  message := httpErrorHandlingPolicy errorMessageFrom: aResponse ifNone: [ aDefaultMessage ].
 
   ( httpErrorClass code: aResponse code ) signal: message
 ]

@@ -52,7 +52,7 @@ RESTfulAPIClientTest >> buildRESTfulAPIClientHandlingErrorsAccordingTo: aConfigu
   restfulAPIClient := RESTfulAPIClient
                         buildingHttpClientWith: [ self httpClient ]
                         cachingIn: ExpiringCache onLocalMemory
-                        handlingErrorsAccordingTo: aConfiguringBlock.
+                        handlingErrorsConfiguredBy: aConfiguringBlock.
 
   [ aBlock cull: restfulAPIClient ] ensure: [ restfulAPIClient finalize ]
 ]
@@ -184,8 +184,8 @@ RESTfulAPIClientTest >> testDeleteNotFoundUsingCustomErrorHandlingBasedOnRespons
   self
     buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
         client
-          whenReceiving: ZnMimeType applicationJson
-          extractApplying: self applicationJSONErrorMessageBuilder
+          whenReceivingMediaType: ZnMimeType applicationJson
+          extractMessageApplying: self applicationJSONErrorMessageBuilder
       ]
     thenDo: [ :restfulAPIClient |
         self
@@ -352,8 +352,8 @@ RESTfulAPIClientTest >> testGetNotFoundUsingCustomErrorHandlingBasedOnResponseMe
   self
     buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
         client
-          whenReceiving: ZnMimeType applicationJson
-          extractApplying: self applicationJSONErrorMessageBuilder
+          whenReceivingMediaType: ZnMimeType applicationJson
+          extractMessageApplying: self applicationJSONErrorMessageBuilder
       ]
     thenDo: [ :restfulAPIClient |
         self
@@ -458,8 +458,8 @@ RESTfulAPIClientTest >> testPatchAtNotFoundUsingCustomErrorHandlingBasedOnRespon
   self
     buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
         client
-          whenReceiving: ZnMimeType applicationJson
-          extractApplying: self applicationJSONErrorMessageBuilder
+          whenReceivingMediaType: ZnMimeType applicationJson
+          extractMessageApplying: self applicationJSONErrorMessageBuilder
       ]
     thenDo: [ :restfulAPIClient |
         self
@@ -532,8 +532,8 @@ RESTfulAPIClientTest >> testPostBadRequestUsingCustomErrorHandlingBasedOnRespons
   self
     buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
         client
-          whenReceiving: ZnMimeType applicationJson
-          extractApplying: self applicationJSONErrorMessageBuilder
+          whenReceivingMediaType: ZnMimeType applicationJson
+          extractMessageApplying: self applicationJSONErrorMessageBuilder
       ]
     thenDo: [ :restfulAPIClient |
         self
@@ -621,8 +621,8 @@ RESTfulAPIClientTest >> testPutAtNotFoundUsingCustomErrorHandlingBasedOnResponse
   self
     buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
         client
-          whenReceiving: ZnMimeType applicationJson
-          extractApplying: self applicationJSONErrorMessageBuilder
+          whenReceivingMediaType: ZnMimeType applicationJson
+          extractMessageApplying: self applicationJSONErrorMessageBuilder
       ]
     thenDo: [ :restfulAPIClient |
         self
@@ -687,8 +687,8 @@ RESTfulAPIClientTest >> testQueryBadRequestUsingCustomErrorHandlingBasedOnRespon
   self
     buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
         client
-          whenReceiving: ZnMimeType applicationJson
-          extractApplying: self applicationJSONErrorMessageBuilder
+          whenReceivingMediaType: ZnMimeType applicationJson
+          extractMessageApplying: self applicationJSONErrorMessageBuilder
       ]
     thenDo: [ :restfulAPIClient |
         self
