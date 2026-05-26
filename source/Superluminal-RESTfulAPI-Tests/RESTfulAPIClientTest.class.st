@@ -22,7 +22,7 @@ RESTfulAPIClientTest >> apiClient [
 ]
 
 { #category : 'private' }
-RESTfulAPIClientTest >> applicationJSONErrorMessageBuilder [
+RESTfulAPIClientTest >> applicationJSONErrorMessageBlock [
 
   ^ [ :response |
       | message |
@@ -46,7 +46,26 @@ RESTfulAPIClientTest >> badRequestJsonResponse [
 ]
 
 { #category : 'private' }
-RESTfulAPIClientTest >> buildRESTfulAPIClientHandlingErrorsAccordingTo: aConfiguringBlock thenDo: aBlock [
+RESTfulAPIClientTest >> badRequestProblemDetailsResponse [
+
+  | json |
+  json := String streamContents: [ :stream |
+              ( NeoJSONWriter on: stream ) nextPut: ( Dictionary new
+                    at: 'type' put: 'https://example.com/probs/out-of-credit';
+                    at: 'title' put: 'Out of Credit';
+                    at: 'status' put: 400;
+                    at: 'detail' put: 'Your current balance is 30, but that costs 50.';
+                    at: 'instance' put: '/account/12345/msgs/abc';
+                    yourself )
+            ].
+
+  ^ ZnResponse
+      badRequest: self location
+      entity: ( ZnEntity with: json type: 'application/problem+json' asMediaType )
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> buildRESTfulAPIClientHandlingErrorsConfiguredBy: aConfiguringBlock thenDo: aBlock [
 
   | restfulAPIClient |
   restfulAPIClient := RESTfulAPIClient
@@ -100,6 +119,20 @@ RESTfulAPIClientTest >> notFoundJsonResponse [
 RESTfulAPIClientTest >> notFoundResponse [
 
 	^ ZnResponse notFound: self location
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> problemDetailsErrorMessageBlock [
+
+  ^ [ :response |
+      | message |
+      message := 'Cannot complete the request'.
+      response contents ifNotNil: [ :contents |
+          self
+            withJsonFrom: contents
+            do: [ :json | ( json at: #detail ) ifNotNil: [ :m | message := m ] ] ].
+      message
+    ]
 ]
 
 { #category : 'running' }
@@ -182,10 +215,10 @@ RESTfulAPIClientTest >> testDeleteNotFoundUsingCustomErrorHandlingBasedOnRespons
   self configureHttpClientToRespondWith: self notFoundJsonResponse.
 
   self
-    buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :client |
         client
           whenReceivingMediaType: ZnMimeType applicationJson
-          extractMessageApplying: self applicationJSONErrorMessageBuilder
+          extractMessageApplying: self applicationJSONErrorMessageBlock
       ]
     thenDo: [ :restfulAPIClient |
         self
@@ -350,10 +383,10 @@ RESTfulAPIClientTest >> testGetNotFoundUsingCustomErrorHandlingBasedOnResponseMe
   self configureHttpClientToRespondWith: self notFoundJsonResponse.
 
   self
-    buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :client |
         client
           whenReceivingMediaType: ZnMimeType applicationJson
-          extractMessageApplying: self applicationJSONErrorMessageBuilder
+          extractMessageApplying: self applicationJSONErrorMessageBlock
       ]
     thenDo: [ :restfulAPIClient |
         self
@@ -456,10 +489,10 @@ RESTfulAPIClientTest >> testPatchAtNotFoundUsingCustomErrorHandlingBasedOnRespon
   self configureHttpClientToRespondWith: self notFoundJsonResponse.
 
   self
-    buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :client |
         client
           whenReceivingMediaType: ZnMimeType applicationJson
-          extractMessageApplying: self applicationJSONErrorMessageBuilder
+          extractMessageApplying: self applicationJSONErrorMessageBlock
       ]
     thenDo: [ :restfulAPIClient |
         self
@@ -530,10 +563,10 @@ RESTfulAPIClientTest >> testPostBadRequestUsingCustomErrorHandlingBasedOnRespons
   self configureHttpClientToRespondWith: self badRequestJsonResponse.
 
   self
-    buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :client |
         client
           whenReceivingMediaType: ZnMimeType applicationJson
-          extractMessageApplying: self applicationJSONErrorMessageBuilder
+          extractMessageApplying: self applicationJSONErrorMessageBlock
       ]
     thenDo: [ :restfulAPIClient |
         self
@@ -545,6 +578,30 @@ RESTfulAPIClientTest >> testPostBadRequestUsingCustomErrorHandlingBasedOnRespons
             ]
           raise: HTTPClientError badRequest
           withMessageText: self customizedErrorDescription
+      ]
+]
+
+{ #category : 'tests - POST' }
+RESTfulAPIClientTest >> testPostBadRequestUsingProblemDetails [
+
+  self configureHttpClientToRespondWith: self badRequestProblemDetailsResponse.
+
+  self
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :builder |
+        builder
+          whenReceivingMediaType: 'application/problem+json' asMediaType
+          extractMessageApplying: self problemDetailsErrorMessageBlock
+      ]
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [
+              restfulAPIClient
+                post: ( ZnEntity json: '["hi"]' )
+                at: self location
+                withSuccessfulResponseDo: [ self fail ]
+            ]
+          raise: HTTPClientError badRequest
+          withMessageText: 'Your current balance is 30, but that costs 50.'
       ]
 ]
 
@@ -619,10 +676,10 @@ RESTfulAPIClientTest >> testPutAtNotFoundUsingCustomErrorHandlingBasedOnResponse
   self configureHttpClientToRespondWith: self notFoundJsonResponse.
 
   self
-    buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :client |
         client
           whenReceivingMediaType: ZnMimeType applicationJson
-          extractMessageApplying: self applicationJSONErrorMessageBuilder
+          extractMessageApplying: self applicationJSONErrorMessageBlock
       ]
     thenDo: [ :restfulAPIClient |
         self
@@ -685,10 +742,10 @@ RESTfulAPIClientTest >> testQueryBadRequestUsingCustomErrorHandlingBasedOnRespon
   self configureHttpClientToRespondWith: self badRequestJsonResponse.
 
   self
-    buildRESTfulAPIClientHandlingErrorsAccordingTo: [ :client |
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :client |
         client
           whenReceivingMediaType: ZnMimeType applicationJson
-          extractMessageApplying: self applicationJSONErrorMessageBuilder
+          extractMessageApplying: self applicationJSONErrorMessageBlock
       ]
     thenDo: [ :restfulAPIClient |
         self
