@@ -22,6 +22,79 @@ RESTfulAPIClientTest >> apiClient [
 ]
 
 { #category : 'private' }
+RESTfulAPIClientTest >> applicationJSONErrorMessageBlock [
+
+  ^ [ :response |
+      | message |
+      message := 'Cannot complete the request'.
+      response contents ifNotNil: [ :contents |
+          self
+            withJsonFrom: contents
+            do: [ :json | ( json atPath: #( error messageText ) ) ifNotNil: [ :m | message := m ] ]
+        ].
+      message
+    ]
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> badRequestJsonResponse [
+
+  ^ ZnResponse
+      badRequest: self location
+      entity:
+      ( ZnEntity json: ( self jsonErrorPayloadDescribedBy: self customizedErrorDescription ) )
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> badRequestProblemDetailsResponse [
+
+  | json |
+  json := String streamContents: [ :stream |
+              ( NeoJSONWriter on: stream ) nextPut: ( Dictionary new
+                    at: 'type' put: 'https://example.com/probs/out-of-credit';
+                    at: 'title' put: 'Out of Credit';
+                    at: 'status' put: 400;
+                    at: 'detail' put: 'Your current balance is 30, but that costs 50.';
+                    at: 'instance' put: '/account/12345/msgs/abc';
+                    yourself )
+            ].
+
+  ^ ZnResponse
+      badRequest: self location
+      entity: ( ZnEntity with: json type: 'application/problem+json' asMediaType )
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> buildRESTfulAPIClientHandlingErrorsConfiguredBy: aConfiguringBlock thenDo: aBlock [
+
+  | restfulAPIClient |
+  restfulAPIClient := RESTfulAPIClient
+                        buildingHttpClientWith: [ self httpClient ]
+                        cachingIn: ExpiringCache onLocalMemory
+                        handlingErrorsConfiguredBy: aConfiguringBlock.
+
+  [ aBlock cull: restfulAPIClient ] ensure: [ restfulAPIClient finalize ]
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> customizedErrorDescription [
+
+  ^ 'Customized description'
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> jsonErrorPayloadDescribedBy: aMessageString [
+
+  ^ String streamContents: [ :stream |
+        ( NeoJSONWriter on: stream ) nextPut: ( NeoJSONObject new
+              at: #error put: ( NeoJSONObject new
+                    at: #messageText put: aMessageString;
+                    yourself );
+              yourself )
+      ]
+]
+
+{ #category : 'private' }
 RESTfulAPIClientTest >> jsonOkResponse [
 
 	^ self jsonOkResponseWith: #(1 2 3)
@@ -34,9 +107,32 @@ RESTfulAPIClientTest >> location [
 ]
 
 { #category : 'private' }
+RESTfulAPIClientTest >> notFoundJsonResponse [
+
+  ^ ZnResponse
+      notFound: self location
+      entity:
+      ( ZnEntity json: ( self jsonErrorPayloadDescribedBy: self customizedErrorDescription ) )
+]
+
+{ #category : 'private' }
 RESTfulAPIClientTest >> notFoundResponse [
 
 	^ ZnResponse notFound: self location
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> problemDetailsErrorMessageBlock [
+
+  ^ [ :response |
+      | message |
+      message := 'Cannot complete the request'.
+      response contents ifNotNil: [ :contents |
+          self
+            withJsonFrom: contents
+            do: [ :json | ( json at: #detail ) ifNotNil: [ :m | message := m ] ] ].
+      message
+    ]
 ]
 
 { #category : 'running' }
@@ -57,58 +153,84 @@ RESTfulAPIClientTest >> tearDown [
 { #category : 'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteAcceptingWithSuccessfulResponseDo [
 
-	| wasSuccessfull |
+  | wasSuccessfull |
+  self configureHttpClientToRespondWith: ZnResponse noContent.
 
-	self configureHttpClientToRespondWith: ZnResponse noContent.
-	wasSuccessfull := false.
-	apiClient
-		deleteAt: self location
-		accepting: 'application/json;version=1.0.0' asMediaType
-		withSuccessfulResponseDo: [ :responseContents | wasSuccessfull := true ].
+  wasSuccessfull := false.
 
-	self assert: wasSuccessfull
+  apiClient
+    deleteAt: self location
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents | wasSuccessfull := true ].
+
+  self assert: wasSuccessfull
 ]
 
 { #category : 'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteAtSuccess [
 
-	self configureHttpClientToRespondWith: ZnResponse noContent.
-	self shouldnt: [ apiClient deleteAt: self location ] raise: HTTPClientError
+  self configureHttpClientToRespondWith: ZnResponse noContent.
+  self shouldnt: [ apiClient deleteAt: self location ] raise: HTTPClientError
 ]
 
 { #category : 'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteAtSuccessWhenCached [
 
-	| etagIsSet |
+  | etagIsSet |
+  etagIsSet := false.
 
-	etagIsSet := false.
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        addCachingDirective: 'Max-Age=60';
+        setEntityTag: '"1"' asEntityTag;
+        yourself ).
 
-	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
-			  addCachingDirective: 'Max-Age=60';
-			  setEntityTag: '"1"' asEntityTag;
-			  yourself ).
+  self httpClient whenSend: #setIfMatchTo: evaluate: [ :etag | etagIsSet := etag = '"1"' ].
 
-	self httpClient whenSend: #setIfMatchTo: evaluate: [ :etag | etagIsSet := etag = '"1"' ].
+  apiClient get: self location withSuccessfulResponseDo: [ :contents |  ].
 
-	apiClient get: self location withSuccessfulResponseDo: [ :contents |  ].
-
-	self configureHttpClientToRespondWith: ZnResponse noContent.
-	self shouldnt: [ apiClient deleteAt: self location ] raise: HTTPClientError.
-	self assert: etagIsSet
+  self configureHttpClientToRespondWith: ZnResponse noContent.
+  self shouldnt: [ apiClient deleteAt: self location ] raise: HTTPClientError.
+  self assert: etagIsSet
 ]
 
 { #category : 'tests - DELETE' }
 RESTfulAPIClientTest >> testDeleteNotFound [
 
-	self configureHttpClientToRespondWith: self notFoundResponse.
+  self configureHttpClientToRespondWith: self notFoundResponse.
 
-	self
-		should: [ apiClient
-				deleteAt: self location
-				accepting: 'application/json;version=1.0.0' asMediaType
-				withSuccessfulResponseDo: [ :responseContents | self fail ]
-			]
-		raise: HTTPClientError notFound
+  self
+    should: [
+        apiClient
+          deleteAt: self location
+          accepting: 'application/json;version=1.0.0' asMediaType
+          withSuccessfulResponseDo: [ :responseContents | self fail ]
+      ]
+    raise: HTTPClientError notFound
+    withMessageText: 'Cannot complete delete'
+]
+
+{ #category : 'tests - DELETE' }
+RESTfulAPIClientTest >> testDeleteNotFoundUsingCustomErrorHandlingBasedOnResponseMediaType [
+
+  self configureHttpClientToRespondWith: self notFoundJsonResponse.
+
+  self
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :client |
+        client
+          whenReceivingMediaType: ZnMimeType applicationJson
+          extractMessageApplying: self applicationJSONErrorMessageBlock
+      ]
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [
+              restfulAPIClient
+                deleteAt: self location
+                accepting: 'application/json;version=1.0.0' asMediaType
+                withSuccessfulResponseDo: [ :responseContents | self fail ]
+            ]
+          raise: HTTPClientError notFound
+          withMessageText: self customizedErrorDescription
+      ]
 ]
 
 { #category : 'tests - DELETE' }
@@ -132,38 +254,38 @@ RESTfulAPIClientTest >> testDeleteTimeout [
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetAcceptingWithSuccessfulResponseDo [
 
-	self configureHttpClientToRespondWith: self jsonOkResponse.
+  self configureHttpClientToRespondWith: self jsonOkResponse.
 
-	apiClient
-		get: self location
-		accepting: 'application/json;version=1.0.0' asMediaType
-		withSuccessfulResponseDo: [ :responseContents |
-			self
-				withJsonFrom: responseContents
-				do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-			]
+  apiClient
+    get: self location
+    accepting: 'application/json;version=1.0.0' asMediaType
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ]
 ]
 
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetCached [
 
-	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
-			  addCachingDirective: 'Max-Age=60';
-			  yourself ).
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        addCachingDirective: 'Max-Age=60';
+        yourself ).
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		].
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ].
 
-	self configureHttpClientToRespondWith: self notFoundResponse.
+  self configureHttpClientToRespondWith: self notFoundResponse.
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		]
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ]
 ]
 
 { #category : 'tests - GET' }
@@ -220,27 +342,27 @@ RESTfulAPIClientTest >> testGetDoNotStoreResponseInCache [
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetIgnoreETagsWhenDoNotStoreCachingPolicyIsInPlace [
 
-	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
-			  setEntityTag: '"123"';
-			  addCachingDirective: 'no-store';
-			  yourself ).
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        setEntityTag: '"123"';
+        addCachingDirective: 'no-store';
+        yourself ).
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		].
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ].
 
-	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
-			  setEntityTag: '"123"';
-			  addCachingDirective: 'no-store';
-			  yourself ).
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        setEntityTag: '"123"';
+        addCachingDirective: 'no-store';
+        yourself ).
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		]
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ]
 ]
 
 { #category : 'tests - GET' }
@@ -253,6 +375,28 @@ RESTfulAPIClientTest >> testGetNotFound [
       apiClient get: self location withSuccessfulResponseDo: [ :responseContents | self fail ] ]
     raise: HTTPClientError notFound
     withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - GET' }
+RESTfulAPIClientTest >> testGetNotFoundUsingCustomErrorHandlingBasedOnResponseMediaType [
+
+  self configureHttpClientToRespondWith: self notFoundJsonResponse.
+
+  self
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :client |
+        client
+          whenReceivingMediaType: ZnMimeType applicationJson
+          extractMessageApplying: self applicationJSONErrorMessageBlock
+      ]
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [
+            restfulAPIClient
+              get: self location
+              withSuccessfulResponseDo: [ :responseContents | self fail ] ]
+          raise: HTTPClientError notFound
+          withMessageText: self customizedErrorDescription
+      ]
 ]
 
 { #category : 'tests - GET' }
@@ -272,84 +416,110 @@ RESTfulAPIClientTest >> testGetTimeout [
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetUsingETagInASecondInvocation [
 
-	| ifNoneMatchHeaderWasSet |
+  | ifNoneMatchHeaderWasSet |
+  self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
+        setEntityTag: '"123"';
+        yourself ).
 
-	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
-			  setEntityTag: '"123"';
-			  yourself ).
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ].
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		].
+  self configureHttpClientToRespondWith: ZnResponse notModified.
 
-	self configureHttpClientToRespondWith: ZnResponse notModified.
+  ifNoneMatchHeaderWasSet := false.
+  self httpClient whenSend: #setIfNoneMatchTo: evaluate: [ :etag |
+      self assert: etag equals: '"123"' asEntityTag.
+      ifNoneMatchHeaderWasSet := true
+    ].
 
-	ifNoneMatchHeaderWasSet := false.
-	self httpClient whenSend: #setIfNoneMatchTo: evaluate: [ :etag |
-		self assert: etag equals: '"123"' asEntityTag.
-		ifNoneMatchHeaderWasSet := true
-		].
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ].
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		].
-
-	self assert: ifNoneMatchHeaderWasSet
+  self assert: ifNoneMatchHeaderWasSet
 ]
 
 { #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetWithSuccessfulResponseDo [
 
-	self configureHttpClientToRespondWith: self jsonOkResponse.
+  self configureHttpClientToRespondWith: self jsonOkResponse.
 
-	apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
-		self
-			withJsonFrom: responseContents
-			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-		]
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ]
 ]
 
 { #category : 'tests - PATCH' }
 RESTfulAPIClientTest >> testPatchAtNoContent [
 
-	self configureHttpClientToRespondWith: ZnResponse noContent.
-	apiClient
-		patch: ( ZnEntity json: '[]' )
-		at: self location
-		withSuccessfulResponseDo: [ :responseContents | self assert: responseContents isNil ]
+  self configureHttpClientToRespondWith: ZnResponse noContent.
+
+  apiClient
+    patch: ( ZnEntity json: '[]' )
+    at: self location
+    withSuccessfulResponseDo: [ :responseContents | self assert: responseContents isNil ]
 ]
 
 { #category : 'tests - PATCH' }
 RESTfulAPIClientTest >> testPatchAtNotFound [
 
-	self configureHttpClientToRespondWith: self notFoundResponse.
-	self
-		should: [ apiClient
-				patch: ( ZnEntity json: '[]' )
-				at: self location
-				withSuccessfulResponseDo: [ :response | self fail ]
-			]
-		raise: HTTPClientError notFound
-		withMessageText: 'Cannot complete update'
+  self configureHttpClientToRespondWith: self notFoundResponse.
+
+  self
+    should: [
+        apiClient
+          patch: ( ZnEntity json: '[]' )
+          at: self location
+          withSuccessfulResponseDo: [ :response | self fail ]
+      ]
+    raise: HTTPClientError notFound
+    withMessageText: 'Cannot complete update'
+]
+
+{ #category : 'tests - PATCH' }
+RESTfulAPIClientTest >> testPatchAtNotFoundUsingCustomErrorHandlingBasedOnResponseMediaType [
+
+  self configureHttpClientToRespondWith: self notFoundJsonResponse.
+
+  self
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :client |
+        client
+          whenReceivingMediaType: ZnMimeType applicationJson
+          extractMessageApplying: self applicationJSONErrorMessageBlock
+      ]
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [
+              restfulAPIClient
+                patch: ( ZnEntity json: '[]' )
+                at: self location
+                withSuccessfulResponseDo: [ :response | self fail ]
+            ]
+          raise: HTTPClientError notFound
+          withMessageText: self customizedErrorDescription
+      ]
 ]
 
 { #category : 'tests - PATCH' }
 RESTfulAPIClientTest >> testPatchAtWithSuccessfulResponseDo [
 
-	self configureHttpClientToRespondWith: self jsonOkResponse.
+  self configureHttpClientToRespondWith: self jsonOkResponse.
 
-	apiClient
-		patch: ( ZnEntity json: '[]' )
-		at: self location
-		withSuccessfulResponseDo: [ :responseContents |
-			self
-				withJsonFrom: responseContents
-				do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
-			]
+  apiClient
+    patch: ( ZnEntity json: '[]' )
+    at: self location
+    withSuccessfulResponseDo: [ :responseContents |
+        self
+          withJsonFrom: responseContents
+          do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+      ]
 ]
 
 { #category : 'tests - PATCH' }
@@ -373,16 +543,66 @@ RESTfulAPIClientTest >> testPatchTimeout [
 { #category : 'tests - POST' }
 RESTfulAPIClientTest >> testPostBadRequest [
 
-	self
-		configureHttpClientToRespondWith: ( ZnResponse badRequest: '' entity: ( ZnEntity text: 'COVID-19' ) ).
-	self
-		should: [ apiClient
-				post: ( ZnEntity json: '["hi"]' )
-				at: self location
-				withSuccessfulResponseDo: [ self fail ]
-			]
-		raise: HTTPClientError badRequest
-		withMessageText: 'Cannot complete the request'
+  self configureHttpClientToRespondWith:
+    ( ZnResponse badRequest: '' entity: ( ZnEntity text: 'COVID-19' ) ).
+
+  self
+    should: [
+        apiClient
+          post: ( ZnEntity json: '["hi"]' )
+          at: self location
+          withSuccessfulResponseDo: [ self fail ]
+      ]
+    raise: HTTPClientError badRequest
+    withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - POST' }
+RESTfulAPIClientTest >> testPostBadRequestUsingCustomErrorHandlingBasedOnResponseMediaType [
+
+  self configureHttpClientToRespondWith: self badRequestJsonResponse.
+
+  self
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :client |
+        client
+          whenReceivingMediaType: ZnMimeType applicationJson
+          extractMessageApplying: self applicationJSONErrorMessageBlock
+      ]
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [
+              restfulAPIClient
+                post: ( ZnEntity json: '["hi"]' )
+                at: self location
+                withSuccessfulResponseDo: [ self fail ]
+            ]
+          raise: HTTPClientError badRequest
+          withMessageText: self customizedErrorDescription
+      ]
+]
+
+{ #category : 'tests - POST' }
+RESTfulAPIClientTest >> testPostBadRequestUsingProblemDetails [
+
+  self configureHttpClientToRespondWith: self badRequestProblemDetailsResponse.
+
+  self
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :builder |
+        builder
+          whenReceivingMediaType: 'application/problem+json' asMediaType
+          extractMessageApplying: self problemDetailsErrorMessageBlock
+      ]
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [
+              restfulAPIClient
+                post: ( ZnEntity json: '["hi"]' )
+                at: self location
+                withSuccessfulResponseDo: [ self fail ]
+            ]
+          raise: HTTPClientError badRequest
+          withMessageText: 'Your current balance is 30, but that costs 50.'
+      ]
 ]
 
 { #category : 'tests - POST' }
@@ -406,46 +626,67 @@ RESTfulAPIClientTest >> testPostTimeout [
 { #category : 'tests - POST' }
 RESTfulAPIClientTest >> testPostWithSuccessfulResponseDo [
 
-	self configureHttpClientToRespondWith: ( ZnResponse created: self location ).
-	apiClient
-		post: ( ZnEntity json: '[]' )
-		at: self location
-		withSuccessfulResponseDo: [ :responseContents | self assert: ( responseContents beginsWith: 'Created' ) ]
+  self configureHttpClientToRespondWith: ( ZnResponse created: self location ).
+
+  apiClient
+    post: ( ZnEntity json: '[]' )
+    at: self location
+    withSuccessfulResponseDo: [ :responseContents |
+      self assert: ( responseContents beginsWith: 'Created' ) ]
 ]
 
 { #category : 'tests - PUT' }
 RESTfulAPIClientTest >> testPutAt [
 
-	| response |
+  | response |
+  self configureHttpClientToRespondWith: self jsonOkResponse.
 
-	self configureHttpClientToRespondWith: self jsonOkResponse.
+  response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self location.
 
-	response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self location.
-
-	self
-		withJsonFrom: response contents
-		do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+  self
+    withJsonFrom: response contents
+    do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
 ]
 
 { #category : 'tests - PUT' }
 RESTfulAPIClientTest >> testPutAtNoContent [
 
-	| response |
+  | response |
+  self configureHttpClientToRespondWith: ZnResponse noContent.
 
-	self configureHttpClientToRespondWith: ZnResponse noContent.
-	response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self location.
+  response := apiClient put: ( ZnEntity json: '["hi"]' ) at: self location.
 
-	self assert: response isNoContent
+  self assert: response isNoContent
 ]
 
 { #category : 'tests - PUT' }
 RESTfulAPIClientTest >> testPutAtNotFound [
 
-	self configureHttpClientToRespondWith: self notFoundResponse.
-	self
-		should: [ apiClient put: ( ZnEntity json: '["hi"]' ) at: self location ]
-		raise: HTTPClientError notFound
-		withMessageText: 'Cannot complete update'
+  self configureHttpClientToRespondWith: self notFoundResponse.
+
+  self
+    should: [ apiClient put: ( ZnEntity json: '["hi"]' ) at: self location ]
+    raise: HTTPClientError notFound
+    withMessageText: 'Cannot complete update'
+]
+
+{ #category : 'tests - PUT' }
+RESTfulAPIClientTest >> testPutAtNotFoundUsingCustomErrorHandlingBasedOnResponseMediaType [
+
+  self configureHttpClientToRespondWith: self notFoundJsonResponse.
+
+  self
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :client |
+        client
+          whenReceivingMediaType: ZnMimeType applicationJson
+          extractMessageApplying: self applicationJSONErrorMessageBlock
+      ]
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [ restfulAPIClient put: ( ZnEntity json: '["hi"]' ) at: self location ]
+          raise: HTTPClientError notFound
+          withMessageText: self customizedErrorDescription
+      ]
 ]
 
 { #category : 'tests - PUT' }
@@ -465,6 +706,7 @@ RESTfulAPIClientTest >> testPutTimeout [
 RESTfulAPIClientTest >> testQueryAtAcceptingWithSuccessfulResponseDo [
 
   self configureHttpClientToRespondWith: self jsonOkResponse.
+
   apiClient
     query: ( ZnEntity json: '[]' )
     at: self location
@@ -481,6 +723,7 @@ RESTfulAPIClientTest >> testQueryBadRequest [
 
   self configureHttpClientToRespondWith:
     ( ZnResponse badRequest: '' entity: ( ZnEntity text: 'COVID-19' ) ).
+
   self
     should: [
         apiClient
@@ -491,6 +734,31 @@ RESTfulAPIClientTest >> testQueryBadRequest [
       ]
     raise: HTTPClientError badRequest
     withMessageText: 'Cannot complete the request'
+]
+
+{ #category : 'tests - QUERY' }
+RESTfulAPIClientTest >> testQueryBadRequestUsingCustomErrorHandlingBasedOnResponseMediaType [
+
+  self configureHttpClientToRespondWith: self badRequestJsonResponse.
+
+  self
+    buildRESTfulAPIClientHandlingErrorsConfiguredBy: [ :client |
+        client
+          whenReceivingMediaType: ZnMimeType applicationJson
+          extractMessageApplying: self applicationJSONErrorMessageBlock
+      ]
+    thenDo: [ :restfulAPIClient |
+        self
+          should: [
+              restfulAPIClient
+                query: ( ZnEntity json: '["hi"]' )
+                at: self location
+                accepting: 'application/json;version=1.0.0' asMediaType
+                withSuccessfulResponseDo: [ self fail ]
+            ]
+          raise: HTTPClientError badRequest
+          withMessageText: self customizedErrorDescription
+      ]
 ]
 
 { #category : 'tests - QUERY' }

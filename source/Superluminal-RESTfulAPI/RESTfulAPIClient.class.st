@@ -6,22 +6,44 @@ Class {
 		'httpClientPoolByAuthority',
 		'entityTagByLocationCache',
 		'lastKnownRepresentationByLocation',
-		'expiringCache'
+		'expiringCache',
+		'httpErrorHandlingPolicy'
 	],
-	#category : 'Superluminal-RESTfulAPI',
-	#package : 'Superluminal-RESTfulAPI'
+	#category : 'Superluminal-RESTfulAPI-Core',
+	#package : 'Superluminal-RESTfulAPI',
+	#tag : 'Core'
 }
 
 { #category : 'instance creation' }
 RESTfulAPIClient class >> buildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache [
 
-	^ self new initializeBuildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache
+  ^ self
+      buildingHttpClientWith: anHttpClientProvider
+      cachingIn: anExpiringCache
+      handlingErrorsConfiguredBy: [ :apiClient |
+          apiClient whenReceivingMediaType: ZnMimeType applicationJson extractMessageApplying: [ :response |
+              | message |
+              message := 'Cannot complete the request'.
+              response contents ifNotNil: [ :contents |
+                  ( NeoJSONObject fromString: contents ) message ifNotNil: [ :m | message := m ] ].
+              message
+            ]
+        ]
+]
+
+{ #category : 'instance creation' }
+RESTfulAPIClient class >> buildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache handlingErrorsConfiguredBy: aBlock [
+
+  ^ self new
+      initializeBuildingHttpClientWith: anHttpClientProvider
+      cachingIn: anExpiringCache
+      handlingErrorsAccordingTo: aBlock
 ]
 
 { #category : 'instance creation' }
 RESTfulAPIClient class >> cachingOnLocalMemory [
 
-	^ self buildingHttpClientWith: [ ZnClient new ] cachingIn: ExpiringCache onLocalMemory
+  ^ self buildingHttpClientWith: [ ZnClient new ] cachingIn: ExpiringCache onLocalMemory
 ]
 
 { #category : 'private - caching' }
@@ -31,20 +53,6 @@ RESTfulAPIClient >> addSetIfNoneMatchHeaderTo: command configuredUsing: request 
 		withCachedETagAt: aLocation
 		do: [:entityTag | ^command + (request headers setIfNoneMatchTo: entityTag)].
 	^command
-]
-
-{ #category : 'private - exception handling' }
-RESTfulAPIClient >> clientErrorMessageFrom: response [
-
-	response contentType
-		ifNotNil: [ :contentType | 
-			( contentType matches: ZnMimeType applicationJson )
-				and: [ response contents
-						ifNotNil: [ :contents | ( NeoJSONObject fromString: contents ) message ifNotNil: [ :message | ^ message ] ]
-					]
-			].
-
-	^ 'Cannot complete the request'
 ]
 
 { #category : 'private - inkoving' }
@@ -95,39 +103,41 @@ RESTfulAPIClient >> deleteAt: aLocation accepting: aMediaType withSuccessfulResp
 { #category : 'invoking' }
 RESTfulAPIClient >> deleteAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aBlock [
 
-	^ self
-		handleExceptionsDuring: [ 
-			| httpRequest response |
-
-			httpRequest := HttpRequest delete: aLocation configuredUsing: aRequestBuildingBlock.
-			self
-				withHttpClientFor: aLocation
-				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
-			( response isSuccess or: [ response isNoContent ] )
-				ifTrue: [ expiringCache clearResourceAt: aLocation.
-					aBlock cull: ( self tryToCacheContentsOf: response basedOn: aLocation )
-					]
-				ifFalse: [ self signalCannotCompleteDeleteErrorBasedOn: response ]
-			]
+  ^ self handleExceptionsDuring: [
+        | httpRequest response |
+        httpRequest := HttpRequest delete: aLocation configuredUsing: aRequestBuildingBlock.
+        self
+          withHttpClientFor: aLocation
+          do: [ :httpClient | response := httpRequest applyOn: httpClient ].
+        response isSuccess
+          ifTrue: [
+              expiringCache clearResourceAt: aLocation.
+              aBlock cull: ( self tryToCacheContentsOf: response basedOn: aLocation )
+            ]
+          ifFalse: [ self signalCannotCompleteDeleteErrorBasedOn: response ]
+      ]
 ]
 
 { #category : 'private - inkoving' }
 RESTfulAPIClient >> execute: httpRequest aimedAt: aLocation [
 
-	^ self
-		handleExceptionsDuring: [ 
-			| response contents |
-			self
-				withHttpClientFor: aLocation
-				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
-			contents := response isNotModified
-				ifTrue: [ self lastKnownRepresentationOf: aLocation ]
-				ifFalse: [ response isSuccess
-						ifTrue: [ self tryToCacheContentsOf: response basedOn: aLocation ]
-						ifFalse: [ self raiseErrorBasedOn: response ]
-					].
-			ExpiringResource for: contents controlledBy: response
-			]
+  ^ self handleExceptionsDuring: [
+        | response contents |
+        self
+          withHttpClientFor: aLocation
+          do: [ :httpClient | response := httpRequest applyOn: httpClient ].
+        contents := response isNotModified
+                      ifTrue: [ self lastKnownRepresentationOf: aLocation ]
+                      ifFalse: [
+                          response isSuccess
+                            ifTrue: [ self tryToCacheContentsOf: response basedOn: aLocation ]
+                            ifFalse: [
+                              self
+                                raiseErrorBasedOn: response
+                                defaultingTo: 'Cannot complete the request' ]
+                        ].
+        ExpiringResource for: contents controlledBy: response
+      ]
 ]
 
 { #category : 'finalization' }
@@ -183,14 +193,27 @@ RESTfulAPIClient >> handleExceptionsDuring: anInvokingBlock [
       do: [ :signal | HTTPClientError badRequest signal: signal messageText ]
 ]
 
-{ #category : 'initialization' }
-RESTfulAPIClient >> initializeBuildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache [
+{ #category : 'private - exception handling' }
+RESTfulAPIClient >> httpErrorClassBasedOn: aResponse [
 
-	httpClientProvider := anHttpClientProvider.
-	httpClientPoolByAuthority := Dictionary new.
-	entityTagByLocationCache := Dictionary new.
-	lastKnownRepresentationByLocation := Dictionary new.
-	expiringCache := anExpiringCache
+  ^ aResponse code > 499
+      ifTrue: [ HTTPServerError ]
+      ifFalse: [ HTTPClientError ]
+]
+
+{ #category : 'initialization' }
+RESTfulAPIClient >> initializeBuildingHttpClientWith: anHttpClientProvider cachingIn: anExpiringCache handlingErrorsAccordingTo: aBlock [
+
+  | httpErrorHandlingPolicyBuilder |
+  httpClientProvider := anHttpClientProvider.
+  httpClientPoolByAuthority := Dictionary new.
+  entityTagByLocationCache := Dictionary new.
+  lastKnownRepresentationByLocation := Dictionary new.
+  expiringCache := anExpiringCache.
+
+  httpErrorHandlingPolicyBuilder := HttpErrorHandlingPolicyBuilder new.
+  aBlock cull: httpErrorHandlingPolicyBuilder.
+  httpErrorHandlingPolicy := httpErrorHandlingPolicyBuilder build
 ]
 
 { #category : 'private - caching' }
@@ -251,35 +274,34 @@ RESTfulAPIClient >> post: anEntity at: aLocation withSuccessfulResponseDo: aBloc
 { #category : 'invoking' }
 RESTfulAPIClient >> postAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aBlock [
 
-	^ self
-		handleExceptionsDuring: [ 
-			| httpRequest response |
-			httpRequest := HttpRequest post: aLocation configuredUsing: aRequestBuildingBlock.
-			self
-				withHttpClientFor: aLocation
-				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
-			response isSuccess
-				ifTrue: [ expiringCache clearResourceAt: aLocation.
-					( response isCreated and: [ response hasLocation ] )
-						then: [ self tryToCacheContentsOf: response basedOn: response location ].
-					aBlock value: response contents
-					]
-				ifFalse: [ ( HTTPClientError code: response code ) signal: ( self clientErrorMessageFrom: response ) ]
-			]
+  ^ self handleExceptionsDuring: [
+        | httpRequest response |
+        httpRequest := HttpRequest post: aLocation configuredUsing: aRequestBuildingBlock.
+        self
+          withHttpClientFor: aLocation
+          do: [ :httpClient | response := httpRequest applyOn: httpClient ].
+        response isSuccess
+          ifTrue: [
+              expiringCache clearResourceAt: aLocation.
+              ( response isCreated and: [ response hasLocation ] ) then: [
+                  self tryToCacheContentsOf: response basedOn: response location ].
+              aBlock value: response contents
+            ]
+          ifFalse: [ self raiseErrorBasedOn: response defaultingTo: 'Cannot complete the request' ]
+      ]
 ]
 
 { #category : 'private - inkoving' }
-RESTfulAPIClient >> processPutResponse: response at: aLocation whenSuccessfulDo: aBlock [
+RESTfulAPIClient >> processPutResponse: aResponse at: aLocation whenSuccessfulDo: aBlock [
 
-	response isSuccess then: [
-		expiringCache clearResourceAt: aLocation.
-		[
-		aBlock value:
-			(self tryToCacheContentsOf: response basedOn: aLocation) ] unless:
-			response isNoContent.
-		^ response ].
+  aResponse isSuccess then: [
+      expiringCache clearResourceAt: aLocation.
+      [ aBlock value: ( self tryToCacheContentsOf: aResponse basedOn: aLocation ) ] unless:
+        aResponse isNoContent.
+      ^ aResponse
+    ].
 
-	^ self signalCannotCompleteUpdateErrorBasedOn: response
+  ^ self signalCannotCompleteUpdateErrorBasedOn: aResponse
 ]
 
 { #category : 'invoking - covenience' }
@@ -294,15 +316,14 @@ RESTfulAPIClient >> put: anEntity at: aLocation [
 { #category : 'invoking' }
 RESTfulAPIClient >> putAt: aLocation configuredBy: aRequestBuildingBlock withSuccessfulResponseDo: aBlock [
 
-	^ self
-		handleExceptionsDuring: [ | httpRequest response |
-
-			httpRequest := HttpRequest put: aLocation configuredUsing: aRequestBuildingBlock.
-			self
-				withHttpClientFor: aLocation
-				do: [ :httpClient | response := httpRequest applyOn: httpClient ].
-			self processPutResponse: response at: aLocation whenSuccessfulDo: aBlock
-			]
+  ^ self handleExceptionsDuring: [
+        | httpRequest response |
+        httpRequest := HttpRequest put: aLocation configuredUsing: aRequestBuildingBlock.
+        self
+          withHttpClientFor: aLocation
+          do: [ :httpClient | response := httpRequest applyOn: httpClient ].
+        self processPutResponse: response at: aLocation whenSuccessfulDo: aBlock
+      ]
 ]
 
 { #category : 'invoking - covenience' }
@@ -328,18 +349,14 @@ RESTfulAPIClient >> queryAt: aLocation configuredBy: aRequestBuildingBlock withS
       do: aMonadicBlock
 ]
 
-{ #category : 'private - inkoving' }
-RESTfulAPIClient >> raiseErrorBasedOn: httpResponse [
+{ #category : 'private - exception handling' }
+RESTfulAPIClient >> raiseErrorBasedOn: aResponse defaultingTo: aDefaultMessage [
 
-	| message httpErrorClass |
+  | httpErrorClass message |
+  httpErrorClass := self httpErrorClassBasedOn: aResponse.
+  message := httpErrorHandlingPolicy errorMessageFrom: aResponse ifNone: [ aDefaultMessage ].
 
-	message := [ ( NeoJSONObject fromString: httpResponse contents ) at: #message ]
-		on: Error
-		do: [ :aSignal | aSignal return: 'Cannot complete the request' ].
-	httpErrorClass := httpResponse code > 499
-		ifTrue: [ HTTPServerError ]
-		ifFalse: [ HTTPClientError ].
-	( httpErrorClass code: httpResponse code ) signal: message
+  ( httpErrorClass code: aResponse code ) signal: message
 ]
 
 { #category : 'private - inkoving' }
@@ -356,36 +373,35 @@ RESTfulAPIClient >> requestToGet: aLocation configuredUsing: aRequestBuildingBlo
 ]
 
 { #category : 'private - exception handling' }
-RESTfulAPIClient >> signalCannotCompleteDeleteErrorBasedOn: response [
+RESTfulAPIClient >> signalCannotCompleteDeleteErrorBasedOn: aResponse [
 
-	^ ( HTTPClientError code: response code ) signal: 'Cannot complete delete'
+  ^ self raiseErrorBasedOn: aResponse defaultingTo: 'Cannot complete delete'
 ]
 
 { #category : 'private - exception handling' }
-RESTfulAPIClient >> signalCannotCompleteUpdateErrorBasedOn: response [
+RESTfulAPIClient >> signalCannotCompleteUpdateErrorBasedOn: aResponse [
 
-	^ ( HTTPClientError code: response code ) signal: 'Cannot complete update'
+  ^ self raiseErrorBasedOn: aResponse defaultingTo: 'Cannot complete update'
 ]
 
 { #category : 'private - caching' }
-RESTfulAPIClient >> tryToCacheContentsOf: anHttpResponse basedOn: aLocation [
+RESTfulAPIClient >> tryToCacheContentsOf: aResponse basedOn: aLocation [
 
-	| contents normalizedLocation |
+  | contents normalizedLocation |
+  contents := aResponse contents.
+  normalizedLocation := self normalize: aLocation.
 
-	contents := anHttpResponse contents.
-	normalizedLocation := self normalize: aLocation.
-
-	anHttpResponse
-		withEntityTagDo: [ :entityTag |
-			entityTagByLocationCache at: normalizedLocation put: entityTag.
-			anHttpResponse canBeStoredInCache then: [
-				lastKnownRepresentationByLocation at: normalizedLocation put: contents ]
-			]
-		ifAbsent: [
-			entityTagByLocationCache removeKey: normalizedLocation ifAbsent: [  ].
-			lastKnownRepresentationByLocation removeKey: normalizedLocation ifAbsent: [  ]
-			].
-	^ contents
+  aResponse
+    withEntityTagDo: [ :entityTag |
+        entityTagByLocationCache at: normalizedLocation put: entityTag.
+        aResponse canBeStoredInCache then: [
+            lastKnownRepresentationByLocation at: normalizedLocation put: contents ]
+      ]
+    ifAbsent: [
+        entityTagByLocationCache removeKey: normalizedLocation ifAbsent: [  ].
+        lastKnownRepresentationByLocation removeKey: normalizedLocation ifAbsent: [  ]
+      ].
+  ^ contents
 ]
 
 { #category : 'private - caching' }
