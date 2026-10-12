@@ -65,6 +65,12 @@ The `headers` builder supports:
 - `setAuthorizationTo:` will set the value in the `Authorization` header
 - `setBearerTokenTo:` is syntactic sugar over the previous one to easily set a
   Bearer token directive.
+- `setUsername:andPassword:` is syntactic sugar to set a `Basic` directive
+  ([RFC 7617](https://www.rfc-editor.org/rfc/rfc7617)), encoding the user name
+  and password in Base64: `request headers setUsername: 'aladdin' andPassword:
+  'opensesame'` sets `Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l`.
+
+Other authentication schemes can be set with `setAuthorizationTo:`.
 
 The `queryString:` builder supports:
 

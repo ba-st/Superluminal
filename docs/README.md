@@ -12,6 +12,7 @@ lookup for details in the reference docs:
 
 - [HTTP Requests](reference/HTTP-Request.md)
 - [API Clients](reference/API-Client.md)
+- [Logging HTTP requests](reference/Logging.md)
 - [Service Discovery](reference/Service-Discovery.md)
 
 To correctly run some of the tests from within the Pharo image,
