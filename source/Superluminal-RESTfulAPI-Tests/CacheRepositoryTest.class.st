@@ -20,16 +20,11 @@ CacheRepositoryTest class >> isAbstract [
 { #category : 'private' }
 CacheRepositoryTest >> resourceFor: answer expiringIn: aDuration [
 
-	| headers response |
-
-	headers := Dictionary new
-		at: 'Date' put: ( ZnUtils httpDate: currentDateTime );
-		at: 'Cache-Control' put: ( Array with: ( 'Max-Age=<1p>' expandMacrosWith: aDuration asSeconds ) );
-		yourself.
-	response := ZnResponse noContent
-		headers: headers;
-		yourself.
-	^ ExpiringResource for: answer controlledBy: response
+  | response |
+  response := ZnResponse noContent.
+  response headers at: 'Date' put: ( ZnUtils httpDate: currentDateTime ).
+  response addCachingDirective: ( 'Max-Age=<1p>' expandMacrosWith: aDuration asSeconds ).
+  ^ ExpiringResource for: answer controlledBy: response
 ]
 
 { #category : 'running' }
