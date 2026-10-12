@@ -410,18 +410,15 @@ RESTfulAPIClient >> withETagAt: aLocation do: aBlock [
 RESTfulAPIClient >> withEntityTagOf: anHttpResponse answeredFor: aLocation do: foundBlock ifNone: noneBlock [
   "An entity tag I cannot read is treated as absent: the request succeeded, so its contents are still answered"
 
-  | entityTag |
-  entityTag := [ anHttpResponse withEntityTagDo: [ :tag | tag ] ifAbsent: [ ^ noneBlock value ] ]
-                 on: InstanceCreationFailed
-                 do: [ :error |
-                     LogRecord emitWarning:
-                       ( 'Ignoring the entity tag <1s> answered for <2s>: <3s>'
-                           expandMacrosWith: ( anHttpResponse headers at: 'ETag' )
-                           with: aLocation asString
-                           with: error messageText ).
-                     ^ noneBlock value
-                   ].
-  ^ foundBlock value: entityTag
+  ^ [ anHttpResponse withEntityTagDo: [ :tag | foundBlock value: tag ] ifAbsent: noneBlock ]
+      on: InstanceCreationFailed
+      do: [ :error |
+          LogRecord emitWarning: ( 'Ignoring the entity tag <1s> answered for <2s>: <3s>'
+                expandMacrosWith: ( anHttpResponse headers at: 'ETag' )
+                with: aLocation asString
+                with: error messageText ).
+          error return: noneBlock value
+        ]
 ]
 
 { #category : 'private - inkoving' }
