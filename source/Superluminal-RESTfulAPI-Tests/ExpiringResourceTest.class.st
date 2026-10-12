@@ -135,6 +135,18 @@ ExpiringResourceTest >> testCanBeStored [
 ]
 
 { #category : 'tests' }
+ExpiringResourceTest >> testCannotBeStoredWhenNoStoreComesInOneOfSeveralFieldLines [
+
+  | response |
+  response := self responseWithDateHeader: currentDateTime.
+  response headers
+    at: 'Cache-Control' add: 'max-age=60';
+    at: 'Cache-Control' add: 'no-cache, no-store'.
+
+  self deny: ( self expiringResourceControlledBy: response ) canBeStored
+]
+
+{ #category : 'tests' }
 ExpiringResourceTest >> testExpiredWhenExpiresSetToInvalidDate [
 	"A cache recipient MUST interpret invalid date formats, especially the
    value 0, as representing a time in the past (i.e., 'already
@@ -201,6 +213,23 @@ ExpiringResourceTest >> testIsExpiredAtUsingMaxAge [
 		deny: ( resource isExpiredAt: currentDateTime + 1 second );
 		assert: ( resource isExpiredAt: currentDateTime + 55 seconds );
 		assert: ( resource isExpiredAt: currentDateTime + 56 seconds )
+]
+
+{ #category : 'tests' }
+ExpiringResourceTest >> testIsExpiredAtUsingMaxAgeInOneOfSeveralFieldLines [
+
+  | response resource |
+  response := self responseWithDateHeader: currentDateTime.
+  response headers
+    at: 'Cache-Control' add: 'public, max-age=55';
+    at: 'Cache-Control' add: 'no-transform'.
+  resource := self expiringResourceControlledBy: response.
+
+  self
+    assertHasTheExpectedContents: resource;
+    deny: ( resource isExpiredAt: currentDateTime );
+    deny: ( resource isExpiredAt: currentDateTime + 1 second );
+    assert: ( resource isExpiredAt: currentDateTime + 55 seconds )
 ]
 
 { #category : 'tests' }
