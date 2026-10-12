@@ -28,6 +28,15 @@ RESTfulAPIClientTest >> jsonOkResponse [
 ]
 
 { #category : 'private' }
+RESTfulAPIClientTest >> jsonOkResponseWithUnreadableEntityTag [
+
+  | response |
+  response := self jsonOkResponse.
+  response headers at: 'ETag' put: '"1 2 3"'.
+  ^ response
+]
+
+{ #category : 'private' }
 RESTfulAPIClientTest >> location [
 
 	^ 'http://localhost' asAbsoluteUrl + resourceIdentifier
@@ -218,6 +227,25 @@ RESTfulAPIClientTest >> testGetDoNotStoreResponseInCache [
 ]
 
 { #category : 'tests - GET' }
+RESTfulAPIClientTest >> testGetForgetsTheCachedEntityTagWhenAnsweredAnUnreadableOne [
+
+  | entityTagsSent responseWithEntityTag |
+  entityTagsSent := OrderedCollection new.
+  self httpClient
+    whenSend: #setIfNoneMatchTo:
+    evaluate: [ :entityTag | entityTagsSent add: entityTag ].
+  responseWithEntityTag := self jsonOkResponse.
+  responseWithEntityTag setEntityTag: '"123"'.
+  self configureHttpClientToRespondWithAll:
+    { responseWithEntityTag . self jsonOkResponseWithUnreadableEntityTag .
+      self jsonOkResponse }.
+
+  3 timesRepeat: [ apiClient get: self location withSuccessfulResponseDo: [ :responseContents |  ] ].
+
+  self assert: entityTagsSent asArray equals: { '"123"' asEntityTag }
+]
+
+{ #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetIgnoreETagsWhenDoNotStoreCachingPolicyIsInPlace [
 
 	self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
@@ -241,6 +269,26 @@ RESTfulAPIClientTest >> testGetIgnoreETagsWhenDoNotStoreCachingPolicyIsInPlace [
 			withJsonFrom: responseContents
 			do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
 		]
+]
+
+{ #category : 'tests - GET' }
+RESTfulAPIClientTest >> testGetIgnoringAnUnreadableEntityTag [
+
+  | loggingAsserter |
+  loggingAsserter := LoggingAsserter on: self.
+  self configureHttpClientToRespondWith: self jsonOkResponseWithUnreadableEntityTag.
+
+  [
+    loggingAsserter runMemoryLoggerDuring: [
+        apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+            self
+              withJsonFrom: responseContents
+              do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+          ]
+      ].
+    loggingAsserter assertLogRecordsMatch:
+      { 'Ignoring the entity tag "1 2 3" answered for ' , self location asString }
+  ] ensure: [ loggingAsserter stopLoggers ]
 ]
 
 { #category : 'tests - GET' }

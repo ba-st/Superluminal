@@ -119,6 +119,12 @@ scenarios:
   saved body is used as the response body; unless a `no-store` caching directive
   is in place.
 
+An `ETag` value that is not a valid entity tag, such as `"1 2 3"` or one not
+enclosed in double quotes, is treated as if the header were absent: the response
+body is still answered, nothing is cached for that location, and any entity tag
+previously saved for it is discarded. A warning `LogRecord` names the location,
+the value and why it was refused.
+
 ## Caching
 
 `RESTfulAPIClient` also provides a resource cache. It can be configured to use an

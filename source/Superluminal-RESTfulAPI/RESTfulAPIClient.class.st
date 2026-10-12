@@ -370,22 +370,23 @@ RESTfulAPIClient >> signalCannotCompleteUpdateErrorBasedOn: response [
 { #category : 'private - caching' }
 RESTfulAPIClient >> tryToCacheContentsOf: anHttpResponse basedOn: aLocation [
 
-	| contents normalizedLocation |
+  | contents normalizedLocation |
+  contents := anHttpResponse contents.
+  normalizedLocation := self normalize: aLocation.
 
-	contents := anHttpResponse contents.
-	normalizedLocation := self normalize: aLocation.
-
-	anHttpResponse
-		withEntityTagDo: [ :entityTag |
-			entityTagByLocationCache at: normalizedLocation put: entityTag.
-			anHttpResponse canBeStoredInCache then: [
-				lastKnownRepresentationByLocation at: normalizedLocation put: contents ]
-			]
-		ifAbsent: [
-			entityTagByLocationCache removeKey: normalizedLocation ifAbsent: [  ].
-			lastKnownRepresentationByLocation removeKey: normalizedLocation ifAbsent: [  ]
-			].
-	^ contents
+  self
+    withEntityTagOf: anHttpResponse
+    answeredFor: aLocation
+    do: [ :entityTag |
+        entityTagByLocationCache at: normalizedLocation put: entityTag.
+        anHttpResponse canBeStoredInCache then: [
+            lastKnownRepresentationByLocation at: normalizedLocation put: contents ]
+      ]
+    ifNone: [
+        entityTagByLocationCache removeKey: normalizedLocation ifAbsent: [  ].
+        lastKnownRepresentationByLocation removeKey: normalizedLocation ifAbsent: [  ]
+      ].
+  ^ contents
 ]
 
 { #category : 'private - caching' }
@@ -403,6 +404,21 @@ RESTfulAPIClient >> withCachedETagAt: aLocation do: aBlock [
 RESTfulAPIClient >> withETagAt: aLocation do: aBlock [
 
 	^entityTagByLocationCache at: (self normalize: aLocation) ifPresent: aBlock
+]
+
+{ #category : 'private - caching' }
+RESTfulAPIClient >> withEntityTagOf: anHttpResponse answeredFor: aLocation do: foundBlock ifNone: noneBlock [
+  "An entity tag I cannot read is treated as absent: the request succeeded, so its contents are still answered"
+
+  ^ [ anHttpResponse withEntityTagDo: [ :tag | foundBlock value: tag ] ifAbsent: noneBlock ]
+      on: InstanceCreationFailed
+      do: [ :error |
+          LogRecord emitWarning: ( 'Ignoring the entity tag <1s> answered for <2s>: <3s>'
+                expandMacrosWith: ( anHttpResponse headers at: 'ETag' )
+                with: aLocation asString
+                with: error messageText ).
+          error return: noneBlock value
+        ]
 ]
 
 { #category : 'private - inkoving' }
