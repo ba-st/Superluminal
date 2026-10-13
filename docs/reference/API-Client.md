@@ -80,6 +80,42 @@ It also supports some convenience methods built on the previous ones:
   third argument. If the response is successful the last argument is evaluated
   with the response's body.  
 
+## Error handling
+
+When a response is not successful, the API client signals an `HTTPError` with
+the response's status code: an `HTTPServerError` for `5xx` codes and an
+`HTTPClientError` otherwise, whatever the HTTP method. Network errors are
+signaled as an `HTTPServerError` too: `504` for a timeout, `500` for anything
+else.
+
+The error's message is a default one (`Cannot complete the request`,
+`Cannot complete update` or `Cannot complete delete`) unless the response
+describes it. By default, an `application/json` response with a `message`
+member, as Stargate answers its errors, provides the message.
+
+To read other error formats, register a block for their media type with
+`onErrorsTyped:do:`. The block receives the error about to be signaled and the
+response, and can change the error's message or attach additional data to it:
+
+```smalltalk
+apiClient
+  onErrorsTyped: 'application/vnd.acme.error+json'
+  do: [ :error :response |
+    | json |
+    json := NeoJSONObject fromString: response contents.
+    error
+      messageText: ( json at: #summary );
+      additionalDataAt: #reasons put: ( json at: #reasons ) ]
+```
+
+- The media type can be a pattern, like `application/*`. Blocks are tried in the
+  order they were registered, and before the default one for `application/json`,
+  so registering `application/json` replaces it.
+- Registering the same media type again replaces its block.
+- If the block fails, the error is signaled with its default message and no
+  additional data, and a warning `LogRecord` names the status code, the location
+  and the reason.
+
 ## Pooling
 
 Every time an API call is made, if a new authority and port is used

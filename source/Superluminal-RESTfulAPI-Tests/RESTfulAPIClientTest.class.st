@@ -22,6 +22,43 @@ RESTfulAPIClientTest >> apiClient [
 ]
 
 { #category : 'private' }
+RESTfulAPIClientTest >> everyMethodWithItsDefaultErrorDescriptionDo: aBlock [
+
+  aBlock
+    value: [ apiClient get: self location withSuccessfulResponseDo: [ :contents | self fail ] ]
+    value: 'Cannot complete the request'.
+  aBlock
+    value: [
+        apiClient
+          query: ( ZnEntity json: '["hi"]' )
+          at: self location
+          accepting: ZnMimeType applicationJson
+          withSuccessfulResponseDo: [ :contents | self fail ]
+      ]
+    value: 'Cannot complete the request'.
+  aBlock
+    value: [
+        apiClient
+          post: ( ZnEntity json: '["hi"]' )
+          at: self location
+          withSuccessfulResponseDo: [ :contents | self fail ]
+      ]
+    value: 'Cannot complete the request'.
+  aBlock
+    value: [ apiClient put: ( ZnEntity json: '["hi"]' ) at: self location ]
+    value: 'Cannot complete update'.
+  aBlock
+    value: [
+        apiClient
+          patch: ( ZnEntity json: '["hi"]' )
+          at: self location
+          withSuccessfulResponseDo: [ :contents | self fail ]
+      ]
+    value: 'Cannot complete update'.
+  aBlock value: [ apiClient deleteAt: self location ] value: 'Cannot complete delete'
+]
+
+{ #category : 'private' }
 RESTfulAPIClientTest >> jsonOkResponse [
 
 	^ self jsonOkResponseWith: #(1 2 3)
@@ -46,6 +83,14 @@ RESTfulAPIClientTest >> location [
 RESTfulAPIClientTest >> notFoundResponse [
 
 	^ ZnResponse notFound: self location
+]
+
+{ #category : 'private' }
+RESTfulAPIClientTest >> responseCoded: aCode containing: aString typed: aMediaType [
+
+  ^ ( ZnResponse statusCode: aCode )
+      entity: ( ZnEntity with: aString type: aMediaType asMediaType );
+      yourself
 ]
 
 { #category : 'running' }
@@ -136,6 +181,113 @@ RESTfulAPIClientTest >> testDeleteTimeout [
       ]
     raise: HTTPServerError gatewayTimeout
     withMessageText: 'Data receive timed out.'
+]
+
+{ #category : 'tests - errors' }
+RESTfulAPIClientTest >> testErrorsDescribedByACustomMediaType [
+
+  apiClient onErrorsTyped: 'application/vnd.superluminal.error+json' do: [ :error :response |
+      | json |
+      json := NeoJSONObject fromString: response contents.
+      error
+        messageText: ( json at: #summary );
+        additionalDataAt: #reasons put: ( json at: #reasons ) asArray
+    ].
+  self configureHttpClientToRespondWith: ( self
+        responseCoded: 422
+        containing: '{"summary":"Invalid pet","reasons":["The name is required"]}'
+        typed: 'application/vnd.superluminal.error+json' ).
+
+  self everyMethodWithItsDefaultErrorDescriptionDo: [ :invocation :defaultDescription |
+      self
+        should: invocation
+        raise: HTTPClientError unprocessableEntity
+        withExceptionDo: [ :error |
+            self
+              assert: error messageText equals: 'Invalid pet';
+              assert: ( error additionalDataAt: #reasons ) equals: #( 'The name is required' )
+          ]
+    ]
+]
+
+{ #category : 'tests - errors' }
+RESTfulAPIClientTest >> testErrorsDescribedByAMediaTypePattern [
+
+  apiClient onErrorsTyped: 'text/*' do: [ :error :response | error messageText: response contents ].
+  self configureHttpClientToRespondWith:
+    ( self responseCoded: 503 containing: 'Down for maintenance' typed: ZnMimeType textPlain ).
+
+  self everyMethodWithItsDefaultErrorDescriptionDo: [ :invocation :defaultDescription |
+      self
+        should: invocation
+        raise: HTTPServerError serviceUnavailable
+        withMessageText: 'Down for maintenance'
+    ]
+]
+
+{ #category : 'tests - errors' }
+RESTfulAPIClientTest >> testErrorsDescribedByTheJSONMessage [
+
+  self configureHttpClientToRespondWith: ( self
+        responseCoded: 404
+        containing: '{"code":404,"message":"Pet not found"}'
+        typed: ZnMimeType applicationJson ).
+
+  self everyMethodWithItsDefaultErrorDescriptionDo: [ :invocation :defaultDescription |
+      self should: invocation raise: HTTPClientError notFound withMessageText: 'Pet not found' ]
+]
+
+{ #category : 'tests - errors' }
+RESTfulAPIClientTest >> testErrorsTypedAsJSONWithoutMessage [
+
+  self configureHttpClientToRespondWith:
+    ( self responseCoded: 404 containing: '{"code":404}' typed: ZnMimeType applicationJson ).
+
+  self everyMethodWithItsDefaultErrorDescriptionDo: [ :invocation :defaultDescription |
+      self should: invocation raise: HTTPClientError notFound withMessageText: defaultDescription ]
+]
+
+{ #category : 'tests - errors' }
+RESTfulAPIClientTest >> testErrorsWithAnUnreadableJSONBody [
+
+  self configureHttpClientToRespondWith:
+    ( self responseCoded: 503 containing: 'Service Unavailable' typed: ZnMimeType applicationJson ).
+
+  self everyMethodWithItsDefaultErrorDescriptionDo: [ :invocation :defaultDescription |
+      self
+        should: invocation
+        raise: HTTPServerError serviceUnavailable
+        withMessageText: defaultDescription
+    ]
+]
+
+{ #category : 'tests - errors' }
+RESTfulAPIClientTest >> testFailingErrorDescriptionIsIgnored [
+
+  | loggingAsserter |
+  apiClient onErrorsTyped: ZnMimeType textPlain do: [ :error :response |
+      error additionalDataAt: #partial put: true.
+      AssertionFailed signal: 'Unexpected payload'
+    ].
+  self configureHttpClientToRespondWith: self notFoundResponse.
+  loggingAsserter := LoggingAsserter on: self.
+
+  [
+    loggingAsserter runMemoryLoggerDuring: [
+        self
+          should: [
+            apiClient get: self location withSuccessfulResponseDo: [ :contents | self fail ] ]
+          raise: HTTPClientError notFound
+          withExceptionDo: [ :error |
+              self
+                assert: error messageText equals: 'Cannot complete the request';
+                deny: error hasAdditionalData
+            ]
+      ].
+    loggingAsserter assertLogRecordsMatch:
+      { 'Ignoring the description of the 404 error answered for ' , self location asString
+        , ': Unexpected payload' }
+  ] ensure: [ loggingAsserter stopLoggers ]
 ]
 
 { #category : 'tests - GET' }
@@ -757,6 +909,46 @@ RESTfulAPIClientTest >> testQueryTimeout [
       ]
     raise: HTTPServerError gatewayTimeout
     withMessageText: 'Data receive timed out.'
+]
+
+{ #category : 'tests - errors' }
+RESTfulAPIClientTest >> testRegisteringAMediaTypeAgainReplacesItsErrorDescription [
+
+  apiClient
+    onErrorsTyped: ZnMimeType textPlain do: [ :error :response | error messageText: 'First' ];
+    onErrorsTyped: ZnMimeType textPlain do: [ :error :response | error messageText: 'Second' ].
+  self configureHttpClientToRespondWith: self notFoundResponse.
+
+  self
+    should: [ apiClient get: self location withSuccessfulResponseDo: [ :contents | self fail ] ]
+    raise: HTTPClientError notFound
+    withMessageText: 'Second'
+]
+
+{ #category : 'tests - errors' }
+RESTfulAPIClientTest >> testReplacingTheJSONErrorDescription [
+
+  apiClient onErrorsTyped: ZnMimeType applicationJson do: [ :error :response |
+      error messageText: ( ( NeoJSONObject fromString: response contents ) at: #error ) ].
+  self configureHttpClientToRespondWith:
+    ( self responseCoded: 404 containing: '{"error":"Gone"}' typed: ZnMimeType applicationJson ).
+
+  self everyMethodWithItsDefaultErrorDescriptionDo: [ :invocation :defaultDescription |
+      self should: invocation raise: HTTPClientError notFound withMessageText: 'Gone' ]
+]
+
+{ #category : 'tests - errors' }
+RESTfulAPIClientTest >> testServerErrorsAreSignaledAsServerErrors [
+
+  self configureHttpClientToRespondWith:
+    ( self responseCoded: 503 containing: 'Service Unavailable' typed: ZnMimeType textHtml ).
+
+  self everyMethodWithItsDefaultErrorDescriptionDo: [ :invocation :defaultDescription |
+      self
+        should: invocation
+        raise: HTTPServerError serviceUnavailable
+        withMessageText: defaultDescription
+    ]
 ]
 
 { #category : 'private' }
