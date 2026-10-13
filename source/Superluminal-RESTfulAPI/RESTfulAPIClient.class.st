@@ -111,6 +111,22 @@ RESTfulAPIClient >> deleteAt: aLocation configuredBy: aRequestBuildingBlock with
 ]
 
 { #category : 'private - exception handling' }
+RESTfulAPIClient >> describe: error withProblemDetailsIn: response [
+
+  | problemDetails |
+  problemDetails := NeoJSONObject fromString: response contents.
+  problemDetails keysAndValuesDo: [ :member :value |
+      ( #( #detail #status ) includes: member asSymbol ) ifFalse: [
+          error additionalDataAt: member put: value ]
+    ].
+  #( #detail #title )
+    detect: [ :member |
+      ( problemDetails includesKey: member ) and: [ ( problemDetails at: member ) isString ] ]
+    ifFound: [ :member | error messageText: ( problemDetails at: member ) ]
+    ifNone: [  ]
+]
+
+{ #category : 'private - exception handling' }
 RESTfulAPIClient >> errorBasedOn: aResponse answeredFor: aLocation describedByDefaultAs: aDefaultMessage [
   "A block that fails to describe the error doesn't change the outcome: the error is still signaled, with its default message"
 
@@ -190,6 +206,17 @@ RESTfulAPIClient >> getAt: aLocation configuredBy: aRequestBuildingBlock withSuc
       withResourceAt: key
       obtainedUsing: [ self execute: request aimedAt: aLocation ]
       do: aMonadicBlock
+]
+
+{ #category : 'configuring' }
+RESTfulAPIClient >> handleErrorsTypedAsProblemDetails [
+  "Describes the error responses typed as application/problem+json (RFC 9457):
+  the detail member, or else the title, becomes the error message,
+  and every member but detail and status is kept as additional data"
+
+  self
+    onErrorsTyped: 'application/problem+json'
+    do: [ :error :response | self describe: error withProblemDetailsIn: response ]
 ]
 
 { #category : 'private - exception handling' }
