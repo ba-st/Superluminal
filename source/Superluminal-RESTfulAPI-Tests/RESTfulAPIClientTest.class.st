@@ -226,6 +226,36 @@ RESTfulAPIClientTest >> testErrorsDescribedByAMediaTypePattern [
 ]
 
 { #category : 'tests - errors' }
+RESTfulAPIClientTest >> testErrorsDescribedByProblemDetails [
+
+  apiClient handleErrorsTypedAsProblemDetails.
+  self configureHttpClientToRespondWith: ( self
+        responseCoded: 422
+        containing:
+        '{"type":"https://example.com/probs/out-of-credit","title":"You do not have enough credit.","status":422,"detail":"Your current balance is 30, but that costs 50.","instance":"/account/12345/msgs/abc","balance":30,"accounts":["/account/12345","/account/67890"]}'
+        typed: 'application/problem+json' ).
+
+  self everyMethodWithItsDefaultErrorDescriptionDo: [ :invocation :defaultDescription |
+      self
+        should: invocation
+        raise: HTTPClientError unprocessableEntity
+        withExceptionDo: [ :error |
+            self
+              assert: error messageText equals: 'Your current balance is 30, but that costs 50.';
+              assert: ( error additionalDataAt: #type )
+              equals: 'https://example.com/probs/out-of-credit';
+              assert: ( error additionalDataAt: #title ) equals: 'You do not have enough credit.';
+              assert: ( error additionalDataAt: #instance ) equals: '/account/12345/msgs/abc';
+              assert: ( error additionalDataAt: #balance ) equals: 30;
+              assert: ( error additionalDataAt: #accounts ) asArray
+              equals: #( '/account/12345' '/account/67890' );
+              should: [ error additionalDataAt: #detail ] raise: KeyNotFound;
+              should: [ error additionalDataAt: #status ] raise: KeyNotFound
+          ]
+    ]
+]
+
+{ #category : 'tests - errors' }
 RESTfulAPIClientTest >> testErrorsDescribedByTheJSONMessage [
 
   self configureHttpClientToRespondWith: ( self
@@ -626,6 +656,61 @@ RESTfulAPIClientTest >> testPostWithSuccessfulResponseDo [
 		post: ( ZnEntity json: '[]' )
 		at: self location
 		withSuccessfulResponseDo: [ :responseContents | self assert: ( responseContents beginsWith: 'Created' ) ]
+]
+
+{ #category : 'tests - errors' }
+RESTfulAPIClientTest >> testProblemDetailsAreOnlyDescribedWhenRequested [
+
+  self configureHttpClientToRespondWith: ( self
+        responseCoded: 422
+        containing: '{"type":"about:blank","title":"Invalid pet","status":422}'
+        typed: 'application/problem+json' ).
+
+  self everyMethodWithItsDefaultErrorDescriptionDo: [ :invocation :defaultDescription |
+      self
+        should: invocation
+        raise: HTTPClientError unprocessableEntity
+        withExceptionDo: [ :error |
+            self
+              assert: error messageText equals: defaultDescription;
+              deny: error hasAdditionalData
+          ]
+    ]
+]
+
+{ #category : 'tests - errors' }
+RESTfulAPIClientTest >> testProblemDetailsWithoutDetailAreDescribedByTheirTitle [
+
+  apiClient handleErrorsTypedAsProblemDetails.
+  self configureHttpClientToRespondWith: ( self
+        responseCoded: 503
+        containing: '{"type":"about:blank","title":"Down for maintenance","status":503}'
+        typed: 'application/problem+json' ).
+
+  self everyMethodWithItsDefaultErrorDescriptionDo: [ :invocation :defaultDescription |
+      self
+        should: invocation
+        raise: HTTPServerError serviceUnavailable
+        withMessageText: 'Down for maintenance'
+    ]
+]
+
+{ #category : 'tests - errors' }
+RESTfulAPIClientTest >> testProblemDetailsWithoutTextualDescription [
+
+  apiClient handleErrorsTypedAsProblemDetails.
+  self configureHttpClientToRespondWith: ( self
+        responseCoded: 404
+        containing: '{"type":"https://example.com/probs/gone","title":404,"status":404}'
+        typed: 'application/problem+json' ).
+
+  self everyMethodWithItsDefaultErrorDescriptionDo: [ :invocation :defaultDescription |
+      self should: invocation raise: HTTPClientError notFound withExceptionDo: [ :error |
+          self
+            assert: error messageText equals: defaultDescription;
+            assert: ( error additionalDataAt: #type ) equals: 'https://example.com/probs/gone'
+        ]
+    ]
 ]
 
 { #category : 'tests - PUT' }

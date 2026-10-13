@@ -116,6 +116,25 @@ apiClient
   additional data, and a warning `LogRecord` names the status code, the location
   and the reason.
 
+For APIs answering [problem details](https://www.rfc-editor.org/rfc/rfc9457)
+(`application/problem+json`), send `handleErrorsTypedAsProblemDetails` to the
+client. The `detail` member, or the `title` when there is no `detail`, becomes
+the error's message, and every other member except `status` (`type`, `title`,
+`instance` and any extension member) is kept as the error's additional data:
+
+```smalltalk
+apiClient handleErrorsTypedAsProblemDetails.
+[
+  apiClient
+    get: 'https://api.example.com/account/12345'
+    withSuccessfulResponseDo: [ :contents | ... ] ]
+  on: HTTPClientError
+  do: [ :error |
+    error messageText. "Your current balance is 30, but that costs 50."
+    error additionalDataAt: #type. "https://example.com/probs/out-of-credit"
+    error additionalDataAt: #balance "30" ]
+```
+
 ## Pooling
 
 Every time an API call is made, if a new authority and port is used
