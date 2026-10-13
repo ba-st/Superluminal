@@ -61,12 +61,8 @@ ExpiringResource >> expires [
 { #category : 'private' }
 ExpiringResource >> if: directive isMaxAgeDirectiveApplyTo: expirationDates [
 
-	( directive beginsWith: 'max-age' ) then: [
-		| maxAge |
-
-		maxAge := ( directive copyAfter: $= ) asNumber seconds.
-		expirationDates add: self date + maxAge
-		]
+  ( directive copyUpTo: $= ) = 'max-age' then: [
+      expirationDates add: self date + ( self maxAgeIn: directive ) ]
 ]
 
 { #category : 'private' }
@@ -96,6 +92,20 @@ ExpiringResource >> initializeFor: aResource controlledBy: aResponse [
 ExpiringResource >> isExpiredAt: aPointInTime [
 
 	^ self withExpirationDo: [ :expiration | expiration <= aPointInTime ] ifNone: [ true ]
+]
+
+{ #category : 'private' }
+ExpiringResource >> maxAgeIn: directive [
+  "The quoted form of the value is accepted (RFC 9111 §5.2). A value that is not a non-negative integer
+  makes the resource stale (§4.2.1): it expires at its date"
+
+  | value |
+  value := directive copyAfter: $=.
+  ( value size >= 2 and: [ value first = $" and: [ value last = $" ] ] ) then: [
+      value := value copyFrom: 2 to: value size - 1 ].
+  ^ ( value notEmpty and: [ value allSatisfy: [ :character | character isDigit ] ] )
+      ifTrue: [ value asNumber seconds ]
+      ifFalse: [ 0 seconds ]
 ]
 
 { #category : 'private' }

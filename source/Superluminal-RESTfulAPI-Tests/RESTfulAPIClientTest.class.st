@@ -373,6 +373,22 @@ RESTfulAPIClientTest >> testGetCached [
 ]
 
 { #category : 'tests - GET' }
+RESTfulAPIClientTest >> testGetCachedWithQuotedMaxAge [
+
+  self configureHttpClientToRespondWithAll: { self jsonOkResponse
+        addCachingDirective: 'max-age="60"';
+        yourself . self notFoundResponse }.
+
+  2 timesRepeat: [
+      apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+          self
+            withJsonFrom: responseContents
+            do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+        ]
+    ]
+]
+
+{ #category : 'tests - GET' }
 RESTfulAPIClientTest >> testGetDifferentAuthorizationsDoNotShareCachedResponse [
 
   self configureHttpClientToRespondWith: ( ( self jsonOkResponseWith: #( 1 2 3 ) )
@@ -544,6 +560,25 @@ RESTfulAPIClientTest >> testGetUsingETagInASecondInvocation [
 		].
 
 	self assert: ifNoneMatchHeaderWasSet
+]
+
+{ #category : 'tests - GET' }
+RESTfulAPIClientTest >> testGetWithMalformedMaxAge [
+
+  self configureHttpClientToRespondWithAll: { self jsonOkResponse
+        addCachingDirective: 'max-age=abc';
+        yourself . self notFoundResponse }.
+
+  apiClient get: self location withSuccessfulResponseDo: [ :responseContents |
+      self
+        withJsonFrom: responseContents
+        do: [ :json | self assert: json hasTheSameElementsInTheSameOrderThat: #( 1 2 3 ) ]
+    ].
+
+  self
+    should: [
+      apiClient get: self location withSuccessfulResponseDo: [ :responseContents | self fail ] ]
+    raise: HTTPClientError notFound
 ]
 
 { #category : 'tests - GET' }

@@ -194,6 +194,24 @@ ExpiringResourceTest >> testIsExpiredAtUsingExpires [
 ]
 
 { #category : 'tests' }
+ExpiringResourceTest >> testIsExpiredAtUsingMalformedMaxAge [
+
+  #( 'max-age=abc' 'max-age' 'max-age=' 'max-age=-5' 'max-age=1.5' 'max-age="55' 'max-age=""' ) do: [
+    :directive |
+      | response resource |
+      response := self responseWithDateHeader: currentDateTime.
+      response addCachingDirective: directive.
+      resource := self expiringResourceControlledBy: response.
+
+      self
+        assertHasTheExpectedContents: resource;
+        assert: resource canBeStored;
+        assert: ( resource isExpiredAt: currentDateTime );
+        deny: ( resource isExpiredAt: currentDateTime - 1 second )
+    ]
+]
+
+{ #category : 'tests' }
 ExpiringResourceTest >> testIsExpiredAtUsingMaxAge [
 
 	| resource |
@@ -263,6 +281,21 @@ ExpiringResourceTest >> testIsExpiredAtUsingNoCacheAndMaxAge [
 ]
 
 { #category : 'tests' }
+ExpiringResourceTest >> testIsExpiredAtUsingQuotedMaxAge [
+
+  | response resource |
+  response := self responseWithDateHeader: currentDateTime.
+  response addCachingDirective: 'max-age="55"'.
+  resource := self expiringResourceControlledBy: response.
+
+  self
+    assertHasTheExpectedContents: resource;
+    deny: ( resource isExpiredAt: currentDateTime );
+    deny: ( resource isExpiredAt: currentDateTime + 54 seconds );
+    assert: ( resource isExpiredAt: currentDateTime + 55 seconds )
+]
+
+{ #category : 'tests' }
 ExpiringResourceTest >> testIsExpiredAtWithoutCacheDirectives [
 
 	| resource response |
@@ -275,6 +308,17 @@ ExpiringResourceTest >> testIsExpiredAtWithoutCacheDirectives [
 		assert: ( resource isExpiredAt: currentDateTime + 1 second );
 		assert: ( resource isExpiredAt: currentDateTime + 1 minute );
 		assert: ( resource isExpiredAt: currentDateTime + 1 hour )
+]
+
+{ #category : 'tests' }
+ExpiringResourceTest >> testOnlyTheMaxAgeDirectiveSetsTheExpiration [
+
+  | response resource |
+  response := self responseWithDateHeader: currentDateTime.
+  response addCachingDirective: 'max-age-extension=55'.
+  resource := self expiringResourceControlledBy: response.
+
+  self assert: ( resource isExpiredAt: currentDateTime )
 ]
 
 { #category : 'tests' }
