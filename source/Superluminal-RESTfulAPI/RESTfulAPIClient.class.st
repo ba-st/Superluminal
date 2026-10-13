@@ -50,12 +50,11 @@ RESTfulAPIClient >> clientPoolFor: aLocation [
 ]
 
 { #category : 'private - exception handling' }
-RESTfulAPIClient >> defaultErrorHandlers [
+RESTfulAPIClient >> configureMessageOn: error fromContentsOf: response [
 
-  ^ Array with: ZnMimeType applicationJson -> [ :error :response |
-        ( ( NeoJSONObject fromString: response contents ) at: #message ) ifNotNil: [ :message |
-            error messageText: message ]
-      ]
+  ^ ( NeoJSONObject fromString: response contents )
+      at: #message
+      ifPresent: [ :message | error messageText: message ]
 ]
 
 { #category : 'invoking - covenience' }
@@ -448,7 +447,7 @@ RESTfulAPIClient >> withCachedETagAt: aLocation do: aBlock [
 		self withETagAt: aLocation do: aBlock ]
 ]
 
-{ #category : 'caching' }
+{ #category : 'private - caching' }
 RESTfulAPIClient >> withETagAt: aLocation do: aBlock [
 
 	^entityTagByLocationCache at: (self normalize: aLocation) ifPresent: aBlock
@@ -473,10 +472,14 @@ RESTfulAPIClient >> withEntityTagOf: anHttpResponse answeredFor: aLocation do: f
 RESTfulAPIClient >> withErrorHandlerFor: aResponse do: aBlock [
 
   aResponse contentType ifNotNil: [ :contentType |
-      errorHandlers , self defaultErrorHandlers
+      errorHandlers
         detect: [ :handler | contentType matches: handler key ]
         ifFound: [ :handler | aBlock value: handler value ]
-        ifNone: [  ]
+        ifNone: [
+            ( contentType matches: ZnMimeType applicationJson ) then: [
+                aBlock value: [ :error :response |
+                    self configureMessageOn: error fromContentsOf: response ] ]
+          ]
     ]
 ]
 
