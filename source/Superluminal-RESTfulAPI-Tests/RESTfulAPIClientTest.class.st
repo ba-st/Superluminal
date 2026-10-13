@@ -248,6 +248,21 @@ RESTfulAPIClientTest >> testErrorsTypedAsJSONWithoutMessage [
 ]
 
 { #category : 'tests - errors' }
+RESTfulAPIClientTest >> testErrorsTypedAsJSONWithoutAStringMessage [
+
+  #( '{"code":404,"message":null}' '{"code":404,"message":42}' ) do: [ :json |
+      self configureHttpClientToRespondWith:
+        ( self responseCoded: 404 containing: json typed: ZnMimeType applicationJson ).
+
+      self everyMethodWithItsDefaultErrorDescriptionDo: [ :invocation :defaultDescription |
+          self
+            should: invocation
+            raise: HTTPClientError notFound
+            withMessageText: defaultDescription ]
+    ]
+]
+
+{ #category : 'tests - errors' }
 RESTfulAPIClientTest >> testErrorsWithAnUnreadableJSONBody [
 
   self configureHttpClientToRespondWith:

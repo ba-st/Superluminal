@@ -54,7 +54,7 @@ RESTfulAPIClient >> configureMessageOn: error fromContentsOf: response [
 
   ^ ( NeoJSONObject fromString: response contents )
       at: #message
-      ifPresent: [ :message | error messageText: message ]
+      ifPresent: [ :message | message isString then: [ error messageText: message ] ]
 ]
 
 { #category : 'invoking - covenience' }
@@ -447,7 +447,7 @@ RESTfulAPIClient >> withCachedETagAt: aLocation do: aBlock [
 		self withETagAt: aLocation do: aBlock ]
 ]
 
-{ #category : 'private - caching' }
+{ #category : 'caching' }
 RESTfulAPIClient >> withETagAt: aLocation do: aBlock [
 
 	^entityTagByLocationCache at: (self normalize: aLocation) ifPresent: aBlock
